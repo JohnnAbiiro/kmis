@@ -1,3 +1,26 @@
+import { onCall } from "firebase-functions/v2/https";
+// Callable function to send push notifications via FCM
+export const sendPushNotification = onCall(async (request) => {
+  const { token, title, body, data } = request.data;
+  if (!token || !title || !body) {
+    throw new Error("token, title, and body are required");
+  }
+  const message = {
+    token,
+    notification: {
+      title,
+      body,
+    },
+    data: data || {},
+  };
+  try {
+    const response = await admin.messaging().send(message);
+    return { success: true, response };
+  } catch (error) {
+    console.error("Error sending push notification:", error);
+    throw new Error(error.message || "Failed to send notification");
+  }
+});
 import { onDocumentUpdated } from "firebase-functions/v2/firestore";
 // Ledger posting for singlebilled (top-up or unbilled students)
 import { onDocumentCreated } from "firebase-functions/v2/firestore";
@@ -542,3 +565,23 @@ export const updateReportsOnLedger = onDocumentCreated(
     }
   }
 );
+import { onRequest } from "firebase-functions/v2/https";
+
+export const sendPushNotificationHttp = onRequest(async (req, res) => {
+  const { token, title, body, data } = req.body;
+  if (!token || !title || !body) {
+    return res.status(400).json({ error: "token, title, and body are required" });
+  }
+  const message = {
+    token,
+    notification: { title, body },
+    data: data || {},
+  };
+  try {
+    const response = await admin.messaging().send(message);
+    return res.json({ success: true, response });
+  } catch (error) {
+    console.error("Error sending push notification:", error);
+    return res.status(500).json({ error: error.message || "Failed to send notification" });
+  }
+});

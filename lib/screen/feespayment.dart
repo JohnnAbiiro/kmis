@@ -278,11 +278,10 @@ class _FeepaymentState extends State<Feepayment> {
                                         String amount = accountController.text.trim();
                                         String note = noteController.text.trim();
 
-                                        for (var student
-                                        in value.selectedStudents) {
+                                        for (var student in value.selectedStudents)
+                                        {
                                           String id =receiptNumberController.text.trim().toString();
                                           final dataexist = await value.db.collection("feepayment").doc(id).get();
-
                                           if (dataexist.exists) {
                                             final existingData = dataexist.data() as Map<String, dynamic>;
                                             final existingFees = Map<String, dynamic>.from(existingData["fees"] ?? {});
@@ -309,9 +308,6 @@ class _FeepaymentState extends State<Feepayment> {
                                             progress.dismiss();
                                             return;
                                           }
-
-
-
                                           final data = FeePaymentModel(
                                             level: student.level,
                                             yeargroup: student.yeargroup,
@@ -330,9 +326,7 @@ class _FeepaymentState extends State<Feepayment> {
                                               selectedfee.toString(): double.tryParse(amount) ?? 0,
                                             }, // ✅ add first fee
                                           ).toJson();
-
                                           //await docRef.set(data);
-
                                           await value.db.collection("feepayment").doc(id).set(data);
                                         }
 
@@ -364,7 +358,7 @@ class _FeepaymentState extends State<Feepayment> {
                                   },
                                   icon: const Icon(Icons.save,
                                       color: Colors.white),
-                                  label: const Text("Bill Students",
+                                  label: const Text("Save Payment",
                                       style: TextStyle(color: Colors.white)),
                                 ),
 
@@ -374,43 +368,6 @@ class _FeepaymentState extends State<Feepayment> {
                                   context.go(Routes.receipt);
                                 }, child: Text("Print Receipt"))
 
-                               , ElevatedButton(
-                                  onPressed: () async {
-                                    final printer = SchoolReceiptPrinter(
-                                      schoolName: "JOHNNY INT",
-                                      schoolAddress: "BOLGA, UPPER EAST",
-                                      schoolEmail: "info@kologsoft.com",
-                                      schoolWebsite: "www.kologsoft.com",
-                                      schoolPhone: "+233 553 354 349",
-                                      logoAssetPath: "assets/logo.png", // must exist in pubspec.yaml
-
-                                      date: "25/09/2025",
-                                      receiptNo: "RCPT2025001",
-                                      receivedFrom: "John Doe",
-                                      paymentType: "MOMO",
-                                      paymentFor: "First Term School Fees",
-                                      paymentDate: "25/09/2025",
-                                      records: {
-                                        "School Fee (First Term 2025)": 2500.00,
-                                        "Library Fee": 150.00,
-                                        "Sports Fee": 50.00,
-                                      },
-                                      total: 2700.00,
-                                    );
-
-                                    // Generate PDF
-                                    final pdfBytes = await printer.generatePdf(
-                                      PdfPageFormat.a4,
-                                      "School Receipt",
-                                    );
-
-                                    // Open print/share preview
-                                    await Printing.layoutPdf(
-                                      onLayout: (PdfPageFormat format) async => pdfBytes,
-                                    );
-                                  },
-                                  child: const Text("Print Receipt"),
-                                ),
                               ],
                                                        ),
                                                         ),

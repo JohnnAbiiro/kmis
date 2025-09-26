@@ -1,7 +1,9 @@
 import 'package:go_router/go_router.dart';
 import 'package:ksoftsms/controller/dbmodels/classmodel.dart';
+import 'package:ksoftsms/screen/expenseForm.dart';
 
 import 'package:ksoftsms/screen/signup.dart';
+import 'package:ksoftsms/screen/supplierForm.dart';
 import '../components/academicyrmodel.dart';
 import '../components/dashboard.dart';
 
@@ -13,6 +15,7 @@ import '../screen/billing.dart';
 import '../screen/class.dart';
 import '../screen/department.dart';
 
+import '../screen/employee_screen.dart';
 import '../screen/entermarks.dart';
 import '../screen/feesSetup.dart';
 import '../screen/feespayment.dart';
@@ -23,6 +26,7 @@ import '../screen/judgeui.dart';
 import '../screen/levelreg.dart';
 import '../screen/multipleschools.dart';
 import '../screen/paymentMethodsForm.dart';
+import '../screen/payroll_screen.dart';
 import '../screen/receipt.dart';
 import '../screen/regionreg.dart';
 import '../screen/registerschool.dart';
@@ -56,6 +60,8 @@ import 'dbmodels/termmodel.dart';
 import 'myprovider.dart';
 
 class Routes {
+  static const employee = "/employee";
+  static const payroll = "/payroll";
 
   static const registerstudent = "/registerstudent";
   static const idformat = "/idformat";
@@ -77,6 +83,8 @@ class Routes {
   static const coa = "/coa";
   static const accountActivity = "/accountActivity";
   static const billing = "/billing";
+  static const expense = "/expense";
+  static const supplier = "/supplier";
 
   static const regstaff = "/regstaff";
   static const accesscomponent = "/accesscomponent";
@@ -88,6 +96,7 @@ class Routes {
   static const episodereg = "/episodereg";
   static const marks = "/marks";
   static const receipt = "/receipt";
+  static const employeee = "/employeee";
 
   static const weekreg = "/weekreg";
   static const scoresheet = "/scoresheet";
@@ -148,67 +157,46 @@ class Routes {
       Routes.viewmarks,
     ],
   };
-
 }
 
 ///  All routes migrated into GoRouter (no RoleGuard)
 final GoRouter router = GoRouter(
   initialLocation: Routes.login,
 
-
   routes: [
+    GoRoute(path: Routes.supplier, builder: (c, s) => SupplierForm()),
+    GoRoute(path: Routes.expense, builder: (c, s) => ExpenseForm()),
     GoRoute(path: Routes.login, builder: (c, s) => SpacerSignUpPage()),
-    GoRoute(
-      path: Routes.regstaff,
-      builder: (context, state) {
+    GoRoute(path: Routes.regstaff, builder: (context, state) {
         final item = state.extra as Staff?;
         return Regstaff();
-      },
-    ),
-
-    GoRoute(
-    path: Routes.levelreg,
-    builder: (context, state) {
-    final level = state.extra as LevelModel?;
-    return LevelListScreen(levelData: level);
-    },),
-
+      }),
+    GoRoute(path: Routes.employee, builder: (context, state) => EmployeeScreen()),
+    GoRoute(path: Routes.payroll, builder: (context, state) => PayrollScreen()),
+    GoRoute(path: Routes.employee, builder: (context, state) => EmployeeScreen(),),
+    GoRoute(path: Routes.levelreg, builder: (context, state) {final level = state.extra as LevelModel?;return LevelListScreen(levelData: level);}),
     GoRoute(path: Routes.dashboard, builder: (c, s) => DashboardLayout()),
     GoRoute(path: Routes.receipt, builder: (c, s) => SchoolReceipt()),
-
     GoRoute(path: Routes.jscore, builder: (c, s) => JudgeGroundScreen()),
-    GoRoute(
-      path: Routes.term,
-      builder: (context, state) {
-        final term = state.extra as TermModel?;
-        return Term(term: term);
-      },
-    ),
-    GoRoute(
-      path: Routes.depart,
-      builder: (context, state) {
-        final depart = state.extra as DepartmentModel?;
-        return Department(depart: depart);
-      },
-    ),
-    GoRoute(
-      path: Routes.classes,
-      builder: (context, state) {
-        final classes = state.extra as ClassModel?;
+    GoRoute(path: Routes.term, builder: (context, state) {final term = state.extra as TermModel?;return Term(term: term);},),
+    GoRoute(path: Routes.depart, builder: (context, state) {final depart = state.extra as DepartmentModel?;return Department(depart: depart);}),
+    GoRoute(path: Routes.classes, builder: (context, state) {final classes = state.extra as ClassModel?;
         return ClassScreen(classes: classes);
       },
     ),
-    GoRoute(
-      path: Routes.subjects,
-      builder: (context, state) {
-        final subject = state.extra is SubjectModel ? state.extra as SubjectModel : null;
+    GoRoute(path: Routes.subjects, builder: (context, state) {
+        final subject = state.extra is SubjectModel
+            ? state.extra as SubjectModel
+            : null;
         return SubjectRegistration(subject: subject);
       },
     ),
     GoRoute(
       path: Routes.school,
       builder: (context, state) {
-        final school = state.extra is SchoolModel ? state.extra as SchoolModel : null;
+        final school = state.extra is SchoolModel
+            ? state.extra as SchoolModel
+            : null;
         return RegisterSchool(school: school);
       },
     ),
@@ -234,7 +222,10 @@ final GoRouter router = GoRouter(
       },
     ),
     /*GoRoute(path: Routes.setupteacher, builder: (c, s) => TeacherSetupPage()),*/
-    GoRoute(path: Routes.gradingsystem, builder: (c, s) => GradingSystemFormPage()),
+    GoRoute(
+      path: Routes.gradingsystem,
+      builder: (c, s) => GradingSystemFormPage(),
+    ),
     GoRoute(path: Routes.viewterm, builder: (c, s) => Viewterms()),
     GoRoute(path: Routes.viewdepart, builder: (c, s) => Viewdepartment()),
     GoRoute(path: Routes.viewclass, builder: (c, s) => Viewclass()),
@@ -253,12 +244,18 @@ final GoRouter router = GoRouter(
     GoRoute(path: Routes.registerstudent, builder: (c, s) => RegisterStudent()),
     GoRoute(path: Routes.regionreg, builder: (c, s) => Regionregistration()),
     GoRoute(path: Routes.idformat, builder: (c, s) => IdformatScreen()),
-    GoRoute(path: Routes.viewteachersetup, builder: (c, s) => TeacherListPage()),
+    GoRoute(
+      path: Routes.viewteachersetup,
+      builder: (c, s) => TeacherListPage(),
+    ),
     GoRoute(path: Routes.billing, builder: (c, s) => Billing()),
     GoRoute(path: Routes.accountActivity, builder: (c, s) => SystemActivity()),
     GoRoute(path: Routes.coa, builder: (c, s) => AccountsChart()),
     GoRoute(path: Routes.staffhome, builder: (c, s) => StaffHomePage()),
-    GoRoute(path: Routes.paymentmethods, builder: (c, s) => PaymentMethodForm()),
+    GoRoute(
+      path: Routes.paymentmethods,
+      builder: (c, s) => PaymentMethodForm(),
+    ),
     GoRoute(path: Routes.feepayment, builder: (c, s) => Feepayment()),
     GoRoute(path: Routes.feesetup, builder: (c, s) => FeesSetup()),
     GoRoute(path: Routes.singlebilling, builder: (c, s) => SingleBilling()),

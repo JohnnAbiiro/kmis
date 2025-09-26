@@ -17,8 +17,8 @@ class SchoolReceiptPrinter {
   final String paymentType;
   final String paymentFor;
   final String paymentDate;
-  final Map<String, double> records;
-  final double total;
+  final Map<String, dynamic> records;
+  final String total;
 
   SchoolReceiptPrinter({
     required this.schoolName,
@@ -238,7 +238,7 @@ class SchoolReceiptPrinter {
                   ),
                   pw.Padding(
                     padding: const pw.EdgeInsets.all(8),
-                    child: pw.Text(total.toStringAsFixed(2),
+                    child: pw.Text(total.toString(),
                         textAlign: pw.TextAlign.right,
                         style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
                   ),

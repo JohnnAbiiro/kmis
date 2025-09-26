@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:core';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:ksoftsms/controller/dbmodels/expenseModel.dart';
 import 'package:ksoftsms/controller/dbmodels/termmodel.dart';
 import 'package:ksoftsms/controller/routes.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

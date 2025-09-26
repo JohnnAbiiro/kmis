@@ -60,11 +60,11 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyA-uMB9sW-tXGsKJ822x62H1z6wVAqAUD4',
-    appId: '1:171182914435:ios:2f4df27967bef3cecd54b6',
+    appId: '1:171182914435:ios:ef68da2f9ff8ddc8cd54b6',
     messagingSenderId: '171182914435',
     projectId: 'kmis-16b02',
     storageBucket: 'kmis-16b02.firebasestorage.app',
-    iosBundleId: 'com.ksoft.ksoftsms',
+    iosBundleId: 'com.kologsoft.mis',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(

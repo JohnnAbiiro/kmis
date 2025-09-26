@@ -1,75 +1,70 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class FeePaymentModel {
-  final String level;
-  final String yeargroup;
+class ExpenseModel {
+  final String supplier;
+  final String name;
   final String activityType;
   final String term;
   final String schoolId;
   final DateTime dateCreated;
-  final String studentId;
-  final String studentName;
   final String ledgerid;
   final String paymentmethod;
   final String receivedaccount;
   final String note;
   final String staff;
-  final Map<String, double> fees;
+  final String amount;
+  final String expenseType;
 
-  FeePaymentModel({
-    required this.level,
-    required this.yeargroup,
+
+  ExpenseModel({
+    required this.supplier,
+    required this.expenseType,
+    required this.name,
     required this.activityType,
     required this.term,
     required this.schoolId,
     required this.dateCreated,
-    required this.studentId,
-    required this.studentName,
     required this.ledgerid,
     required this.paymentmethod,
     required this.receivedaccount,
     required this.note,
     required this.staff,
-    required this.fees, // ✅ required now
+    required this.amount, // ✅ required now
   });
 
   Map<String, dynamic> toJson() {
     return {
-      "level": level,
-      "yeargroup": yeargroup,
+      "supplier": supplier,
+      "expenseType": expenseType,
+      "name": name,
       "activityType": activityType,
       "term": term,
       "schoolId": schoolId,
       "dateCreated": dateCreated,
-      "studentId": studentId,
-      "studentName": studentName,
       "ledgerid": ledgerid,
       "paymentmethod": paymentmethod,
       "receivedaccount": receivedaccount,
       "note": note,
       "staff": staff,
-      "fees": fees, // ✅ stored as map in Firestore
+      "fees": amount,
     };
   }
 
-  factory FeePaymentModel.fromJson(Map<String, dynamic> json) {
-    return FeePaymentModel(
-      level: json["level"] ?? "",
-      yeargroup: json["yeargroup"] ?? "",
+  factory ExpenseModel.fromJson(Map<String, dynamic> json) {
+    return ExpenseModel(
+      supplier: json["supplier"] ?? "",
+      expenseType: json["expenseType"] ?? "",
+      name: json["name"] ?? "",
       activityType: json["activityType"] ?? "",
       term: json["term"] ?? "",
       schoolId: json["schoolId"] ?? "",
       dateCreated: (json["dateCreated"] as Timestamp).toDate(),
-      studentId: json["studentId"] ?? "",
-      studentName: json["studentName"] ?? "",
       ledgerid: json["ledgerid"] ?? "",
       paymentmethod: json["paymentmethod"] ?? "",
       receivedaccount: json["receivedaccount"] ?? "",
       note: json["note"] ?? "",
       staff: json["staff"] ?? "",
-      fees: Map<String, double>.from(
-        json["fees"] ?? {},
-      ), // ✅ convert back to map
+      amount: json["amount"] ?? "",
     );
   }
 }
