@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ksoftsms/controller/dbmodels/SupplierModel.dart';
 
 import 'package:ksoftsms/controller/dbmodels/feeSetUpModel.dart';
 import 'package:provider/provider.dart';
@@ -10,16 +11,17 @@ import '../controller/dbmodels/componentmodel.dart';
 import '../controller/myprovider.dart';
 import '../controller/routes.dart';
 
-class FeesSetup extends StatefulWidget {
+class SupplierForm extends StatefulWidget {
   final ComponentModel? component;
-  const FeesSetup({super.key, this.component});
+  const SupplierForm({super.key, this.component});
 
   @override
-  State<FeesSetup> createState() => _FeesSetupState();
+  State<SupplierForm> createState() => _SupplierFormState();
 }
 
-class _FeesSetupState extends State<FeesSetup> {
+class _SupplierFormState extends State<SupplierForm> {
   final feeNameController = TextEditingController();
+  final phoneController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   String schoolid = "";
@@ -80,12 +82,11 @@ class _FeesSetupState extends State<FeesSetup> {
                           child: Column(
                             children: [
                               TextFormField(
-
                                 keyboardType: TextInputType.numberWithOptions(decimal: true),
                                 controller: feeNameController,
                                 decoration: InputDecoration(
-                                  labelText: "Billed Amount ",
-                                  hintText: "Billed  Amount ",
+                                  labelText: "Supplier Name ",
+                                  hintText: "Supplier Name ",
                                   border: OutlineInputBorder(
                                     borderSide: BorderSide(color: Colors.grey[700]!),
                                   ),
@@ -94,19 +95,36 @@ class _FeesSetupState extends State<FeesSetup> {
                                 value == null || value.trim().isEmpty ? "Amount is required" : null,
                               ),
                               const SizedBox(height: 20),
-
+                              TextFormField(
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly, // ✅ only integers
+                                ],
+                                keyboardType: TextInputType.phone,
+                                controller: phoneController,
+                                decoration: InputDecoration(
+                                  labelText: "Supplier Phone Number ",
+                                  hintText: "Supplier Phone Number ",
+                                  border: OutlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.grey[700]!),
+                                  ),
+                                ),
+                                validator: (value) =>
+                                value == null || value.trim().isEmpty||value.length>14 ? "Valid Phone Number is required" : null,
+                              ),
+                              const SizedBox(height: 10),
                               // Save Button
                               ElevatedButton.icon(style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00496d), padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12)),
                                 onPressed: () async {
                                   if (_formKey.currentState!.validate()) {
                                     final progress = ProgressHUD.of(context);
                                     progress!.show();
-                                    String feename=feeNameController.text.trim();
-                                    String id = feename.replaceAll(RegExp(r'\s+'), '').toLowerCase();
+                                    String name=feeNameController.text.trim();
+                                    String phonetxt=feeNameController.text.trim();
+                                    String id = name.replaceAll(RegExp(r'\s+'), '').toLowerCase();
 
                                     try {
-                                      final data=FeeSetUpModel(name: feename, staff: value.name, schoolId: value.schoolid, dateCreated: DateTime.now()).toJson();
-                                      await value.db.collection("feeSetup").doc(id).set(data);
+                                      final data=SupplierModel(phone:phonetxt,name: name, staff: value.name,  dateCreated: DateTime.now(),  schoolId: value.schoolid).toJson();
+                                      await value.db.collection("supplier").doc('${value.schoolid}_$id').set(data);
                                       progress.dismiss();
                                       feeNameController.clear();
 
@@ -130,7 +148,7 @@ class _FeesSetupState extends State<FeesSetup> {
                                   }
                                 },
                                 icon: const Icon(Icons.save, color: Colors.white),
-                                label: const Text("Save Activity",
+                                label: const Text("Save Supplier",
                                     style: TextStyle(color: Colors.white)),
                               ),
                             ],

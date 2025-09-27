@@ -9,7 +9,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.ksoft.ksoftsms</string>
+	<string>com.kologsoft.mis</string>
 	<key>PROJECT_ID</key>
 	<string>kmis-16b02</string>
 	<key>STORAGE_BUCKET</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:171182914435:ios:2f4df27967bef3cecd54b6</string>
+	<string>1:171182914435:ios:ef68da2f9ff8ddc8cd54b6</string>
 </dict>
 </plist>

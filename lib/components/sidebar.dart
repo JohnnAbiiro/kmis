@@ -415,6 +415,24 @@ class CustomDrawer extends StatelessWidget {
                                   }
                                 },
                               ),
+                              _drawerTile(icon: Icons.account_balance_wallet, title: 'Expense',
+                                onTap: () async {
+                                  try {
+                                    context.go(Routes.expense);
+                                  } catch (e) {
+                                    print(e);
+                                  }
+                                },
+                              ),
+                              _drawerTile(icon: Icons.account_balance_wallet, title: 'Supplier',
+                                onTap: () async {
+                                  try {
+                                    context.go(Routes.supplier);
+                                  } catch (e) {
+                                    print(e);
+                                  }
+                                },
+                              ),
                             ],
                           ),
                         ),
@@ -507,7 +525,7 @@ class CustomDrawer extends StatelessWidget {
                             icon: Icons.logout,
                             title: 'Logout',
                             onTap: () async {
-                            // await value.logout(context);
+                            /// await value.logout(context);
                             },
                           ),
                         ),

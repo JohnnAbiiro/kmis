@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ksoftsms/controller/loginprovider.dart';
+import 'package:pdf/pdf.dart';
+import 'package:printing/printing.dart';
 import 'package:provider/provider.dart';
 
+import '../components/receiptpdf.dart';
 import '../controller/myprovider.dart';
 import '../controller/routes.dart';
 
@@ -259,7 +262,6 @@ class _SchoolReceiptState extends State<SchoolReceipt> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-
                                 const SizedBox(height: 4),
                                  Text.rich(
                                   TextSpan(
@@ -287,6 +289,39 @@ class _SchoolReceiptState extends State<SchoolReceipt> {
                               style: TextStyle(fontSize: 13),
                             ),
                           ],
+                        ),
+                        ElevatedButton(
+                          onPressed: () async {
+                            final printer = SchoolReceiptPrinter(
+                              schoolName: val.currentschool,
+                              schoolAddress: "BOLGA, UPPER EAST",
+                              schoolEmail: "info@kologsoft.com",
+                              schoolWebsite: "www.kologsoft.com",
+                              schoolPhone: "+233 553 354 349",
+                              logoAssetPath: "assets/logo.png", // must exist in pubspec.yaml
+
+                              date: val.today,
+                              receiptNo:val.receiptno,
+                              receivedFrom: val.receiptName,
+                              paymentType: val.receiptpaymentmethod,
+                              paymentFor: val.receiptnote,
+                              paymentDate: val.receiptdate,
+                              records: val.receiptrecords,
+                              total: val.numberFormat.format(val.receiptTotal),
+                            );
+
+                            // Generate PDF
+                            final pdfBytes = await printer.generatePdf(
+                              PdfPageFormat.a4,
+                              "School Receipt",
+                            );
+
+                            // Open print/share preview
+                            await Printing.layoutPdf(
+                              onLayout: (PdfPageFormat format) async => pdfBytes,
+                            );
+                          },
+                          child: const Text("Print Receipt"),
                         )
                       ],
                     ),

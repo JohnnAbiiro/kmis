@@ -4,12 +4,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:ksoftsms/controller/dbmodels/SupplierModel.dart';
 import 'package:ksoftsms/controller/dbmodels/contestantsmodel.dart';
 import 'package:ksoftsms/controller/dbmodels/feeSetUpModel.dart';
 import 'package:ksoftsms/controller/dbmodels/paymentMethodsModel.dart';
 import 'package:ksoftsms/controller/routes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'dbmodels/expenseModel.dart';
 import 'dbmodels/feePaymentModel.dart';
 import 'dbmodels/schoolmodel.dart';
 import 'dbmodels/staffmodel.dart';
@@ -22,6 +24,9 @@ class LoginProvider extends ChangeNotifier {
   List<Staff> staffschools = [];
   List<String> staffaccesslevel = ["admin", "teacher", "super admin"];
   List<StudentModel> selectedStudents = [];
+  List<ExpenseModel> expenselist = [];
+
+  List<SupplierModel> supplierList = [];
   List<StudentModel> searchResults = [];
   List<Map<String, String>> linkedAccounts = []; // holds account id + name
   Map<String,dynamic> receiptrecords = {};
@@ -295,7 +300,6 @@ class LoginProvider extends ChangeNotifier {
     selectedStudents.removeWhere((s) => s.studentid == studentId);
     notifyListeners();
   }
-
    Future<void> fetchLinkedAccounts(String paymentMethodName) async {
     linkedAccounts.clear();
     final snapshot = await FirebaseFirestore.instance
@@ -366,13 +370,37 @@ class LoginProvider extends ChangeNotifier {
 
 
    }
+  Future<void> fetchexpense() async {
+    try {
+      //loadterms = true;
+      final snapshot = await db.collection("mainaccounts").where('accountType',isEqualTo:"Expense" ).get();
 
+      expenselist = snapshot.docs.map((doc) {
+        return ExpenseModel.fromJson(doc.data());
+      }).toList();
 
-
-
-
-
-
+      // loadterms = false;
+      notifyListeners();
+    } catch (e) {
+      //loadterms = false;
+      notifyListeners();
+      print("Failed to fetch terms: $e");
+    }
+  }
+  Future<void> fetchsuppliers() async {
+    try {
+      //loadterms = true;
+      final snapshot = await db.collection("supplier").where('schoolId',isEqualTo:schoolid ).get();
+      supplierList = snapshot.docs.map((doc) {
+        return SupplierModel.fromMap(doc.data());
+      }).toList();
+      notifyListeners();
+    } catch (e) {
+      //loadterms = false;
+      notifyListeners();
+      print("Failed to fetch terms: $e");
+    }
+  }
 
 
 
