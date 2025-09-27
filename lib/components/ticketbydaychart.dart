@@ -79,6 +79,7 @@ class TicketsByDayChart extends StatelessWidget {
                       isCurved: true,
                       color: Color(0xFFfb7d5b),
                       dotData: FlDotData(show: true),
+                      barWidth: 3,
                       spots: [
                         FlSpot(0, 1),
                         FlSpot(1, 3),
@@ -92,6 +93,7 @@ class TicketsByDayChart extends StatelessWidget {
                       isCurved: true,
                       color: Color(0xFF7A6FF0),
                       dotData: FlDotData(show: true),
+                      barWidth: 3,
                       spots: [
                         FlSpot(0, 1),
                         FlSpot(1, 4),

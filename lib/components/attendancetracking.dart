@@ -11,11 +11,12 @@ class AttendanceTracking extends StatelessWidget {
         builder: (context, constraints){
           final isWide = constraints.maxWidth > 400;
           final chartHeight = isWide ? 80.0 : 60.0;
-          final fontSize = isWide ? 16.0 : 14.0;
+          final fontSize = isWide ? 18.0 : 16.0;
           final innerPadding = isWide ? 16.0 : 12.0;
 
           return Container(
-            width: 300,
+            height: 250,
+            width: cwidth,
             padding: EdgeInsets.all(innerPadding),
             decoration: BoxDecoration(
               color: Colors.lightBlueAccent.withOpacity(0.2),
@@ -27,9 +28,8 @@ class AttendanceTracking extends StatelessWidget {
                 Text(
                   "Attendance Tracking",
                   style: TextStyle(
-                      fontSize: fontSize,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87),
+                      fontSize: fontSize, color: Color(0xFF00496d)
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Container(
@@ -86,7 +86,7 @@ class AttendanceTracking extends StatelessWidget {
                                     LineChartBarData(
                                       isCurved: true,
                                       color: Colors.teal,
-                                      barWidth: isWide ? 3 : 2,
+                                      barWidth: isWide ? 5 : 4,
                                       dotData: FlDotData(show: false),
                                       spots: const [
                                         FlSpot(0, 2),
@@ -127,7 +127,7 @@ class AttendanceTracking extends StatelessWidget {
                                       BarChartRodData(
                                         toY: 2,
                                         color: Colors.teal,
-                                        width: isWide ? 8 : 6,
+                                        width: isWide ? 18 : 16,
                                         borderRadius: BorderRadius.circular(2),
                                       )
                                     ]),
@@ -135,7 +135,7 @@ class AttendanceTracking extends StatelessWidget {
                                       BarChartRodData(
                                         toY: 3,
                                         color: Colors.teal,
-                                        width: isWide ? 8 : 6,
+                                        width: isWide ? 18 : 16,
                                         borderRadius: BorderRadius.circular(2),
                                       )
                                     ]),
@@ -143,7 +143,7 @@ class AttendanceTracking extends StatelessWidget {
                                       BarChartRodData(
                                         toY: 4,
                                         color: Colors.teal,
-                                        width: isWide ? 8 : 6,
+                                        width: isWide ? 18 : 16,
                                         borderRadius: BorderRadius.circular(2),
                                       )
                                     ]),

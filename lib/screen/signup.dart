@@ -38,7 +38,8 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
     required List<String> features,
     VoidCallback? onSelect,
     Color? headerColor,
-  }) {
+  })
+  {
     return Container(
       width: 220,
       margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
@@ -965,21 +966,25 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
           TextButton(
             onPressed: () {},
             child: Row(
-              children: [
-                Icon(Icons.how_to_vote_rounded),
+              children: const [
+                Icon(Icons.how_to_vote_rounded, color: Colors.black),
+                SizedBox(width: 5),
                 Text('Vote', style: TextStyle(color: Colors.black)),
               ],
             ),
           ),
         ],
       ),
-      backgroundColor: Color(0xFFffffff),
+      backgroundColor: const Color(0xFFffffff),
       body: isMobile
-          ? Column(
-        children: [
-          mobileLeftPanel(context),
-          Expanded(child: rightPanel(context)),
-        ],
+          ? SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            mobileLeftPanel(context),
+            rightPanel(context),
+          ],
+        ),
       )
           : Row(
         children: [

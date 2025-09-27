@@ -1,3 +1,4 @@
+import 'package:ksoftsms/components/academicperformance.dart';
 import 'package:ksoftsms/components/attendancetracking.dart';
 import 'package:ksoftsms/components/scoresheet.dart';
 import 'package:ksoftsms/controller/loginprovider.dart';
@@ -163,14 +164,23 @@ class _DashboardLayoutState extends State<DashboardLayout> {
                               ? screenWidth * 0.955
                               : screenWidth * 0.487,
                         ),
-                        PriorityDonutChart(
+                        // PriorityDonutChart(
+                        //   cwidth: isMobile
+                        //       ? screenWidth * 0.95
+                        //       : isTablet
+                        //       ? screenWidth * 0.63
+                        //       : isBigTablet
+                        //       ? screenWidth * 0.473
+                        //       : (screenWidth - 20) * 0.233,
+                        // ),
+                        AcademicPerformanceCard(
                           cwidth: isMobile
                               ? screenWidth * 0.95
                               : isTablet
                               ? screenWidth * 0.63
                               : isBigTablet
                               ? screenWidth * 0.473
-                              : (screenWidth - 20) * 0.233,
+                              : screenWidth * 0.23,
                         ),
                         SummaryDonutChart(
                           cwidth: isMobile
