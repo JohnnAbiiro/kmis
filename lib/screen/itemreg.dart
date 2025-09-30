@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ksoftsms/controller/dbmodels/accountsModel.dart';
+import 'package:ksoftsms/controller/dbmodels/iteRegModel.dart';
 import 'package:provider/provider.dart';
 
 import '../controller/dbmodels/componentmodel.dart';
 import '../controller/myprovider.dart';
 import '../controller/routes.dart';
+import '../widgets/dropdown.dart';
 
 class ItemReg extends StatefulWidget {
   final ComponentModel? component;
@@ -17,32 +19,17 @@ class ItemReg extends StatefulWidget {
 }
 
 class _RevenueGridPageState extends State<ItemReg> {
+  final barcodeController = TextEditingController();
   final itemController = TextEditingController();
   final costPriceController = TextEditingController();
   final sellingPriceController = TextEditingController();
   final openingStockController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  String? _selectedAccountClass;
-  String? _selectedSubType;
+  String? _selectedCategory;
 
-  final List<String> _accounts = ["Assets", "Liability", "Equity", "Revenue", "Expense"];
 
-  // Map of account classes and sub-types
-  final Map<String, List<String>> accountMap = {
-    "Assets": ["Current Assets", "Fixed Assets"],
-    "Liability": ["Current Liabilities", "Long-term Liabilities"],
-    "Equity": ["Owner's Equity", "Share Capital", "Retained Earnings", "Reserves"],
-    "Revenue": ["Operating Revenue", "Non-operating Revenue"],
-    "Expense": [
-      "Operating Expenses",
-      "Administrative Expenses",
-      "Selling & Distribution Expenses",
-      "Financial Expenses",
-      "Depreciation & Amortization",
-      "Other Expenses"
-    ],
-  };
+
 
   @override
   void dispose() {
@@ -58,6 +45,7 @@ class _RevenueGridPageState extends State<ItemReg> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<Myprovider>().getdata();
+      context.read<Myprovider>().fetchtemCategory();
     });
   }
 
@@ -77,7 +65,7 @@ class _RevenueGridPageState extends State<ItemReg> {
                     onPressed: () => context.go(Routes.dashboard),
                   ),
                   title: Text(
-                    '${value.currentschool} Register Item',
+                    'Register Item',
                     style: const TextStyle(color: Colors.white, fontSize: 18),
                   ),
                 ),
@@ -94,7 +82,19 @@ class _RevenueGridPageState extends State<ItemReg> {
                           key: _formKey,
                           child: Column(
                             children: [
-                              // Account Name Input
+                              TextFormField(
+                                controller: barcodeController,
+                                decoration: InputDecoration(
+                                  labelText: "Input Barcode/Code",
+                                  hintText: "Enter Product Code",
+                                  border: OutlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.grey[700]!),
+                                  ),
+                                ),
+                                validator: (value) =>
+                                value == null || value.trim().isEmpty ? "Enter Item Barcode/Code" : null,
+                              ),
+                              const SizedBox(height: 10),
                               TextFormField(
                                 controller: itemController,
                                 decoration: InputDecoration(
@@ -134,6 +134,8 @@ class _RevenueGridPageState extends State<ItemReg> {
                                 value == null || value.trim().isEmpty ? "Selling Price is required" : null,
                               ),
                               const SizedBox(height: 10),
+                              buildDropdown(value: _selectedCategory, items: value.itemCategorList.map((e)=>e.name).toList(), label: "Item Category", fillColor: inputFill, onChanged: (v) => setState(() => _selectedCategory = v), validatorMsg: "Select Item Category"),
+                              const SizedBox(height: 10),
                               TextFormField(
                                 keyboardType: TextInputType.number,
                                 controller: openingStockController,
@@ -145,55 +147,9 @@ class _RevenueGridPageState extends State<ItemReg> {
                                   ),
                                 ),
                                 validator: (value) =>
-                                value == null || value.trim().isEmpty ? "Seling" : null,
+                                value == null || value.trim().isEmpty ? "Selling" : null,
                               ),
                               const SizedBox(height: 10),
-                              // Account Class Dropdown
-                              DropdownButtonFormField<String>(
-                                value: _selectedAccountClass,
-                                items: _accounts.map((cat) {
-                                  return DropdownMenuItem(
-                                    value: cat,
-                                    child: Text(cat),
-                                  );
-                                }).toList(),
-                                onChanged: (value) {
-                                  setState(() {
-                                    _selectedAccountClass = value;
-                                    _selectedSubType = null; // reset subtype
-                                  });
-                                },
-                                decoration: InputDecoration(
-                                  labelText: "Select Account Class ",
-                                  border: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.grey[700]!),
-                                  ),
-                                ),
-                                validator: (value) => value == null ? 'Please select account class' : null,
-                              ),
-                              const SizedBox(height: 10),
-                              // Sub-Type Dropdown (depends on Account Class)
-                              if (_selectedAccountClass != null)
-                                DropdownButtonFormField<String>(
-                                  value: _selectedSubType,
-                                  items: accountMap[_selectedAccountClass]!
-                                      .map((subType) => DropdownMenuItem(
-                                    value: subType,
-                                    child: Text(subType),
-                                  ))
-                                      .toList(),
-                                  onChanged: (value) => setState(() => _selectedSubType = value),
-                                  decoration: InputDecoration(
-                                    labelText: "Select Account Sub-Type ",
-                                    border: OutlineInputBorder(
-                                      borderSide: BorderSide(color: Colors.grey[700]!),
-                                    ),
-                                  ),
-                                  validator: (value) => value == null ? 'Please select account sub-type' : null,
-                                ),
-                              const SizedBox(height: 30),
-
-                              // Save Button
                               ElevatedButton.icon(
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF00496d),
@@ -205,20 +161,15 @@ class _RevenueGridPageState extends State<ItemReg> {
                                     progress!.show();
 
                                     try {
+                                      String barcodeTxt = barcodeController.text.trim();
                                       String nameTxt = itemController.text.trim();
                                       String costPrice = costPriceController.text.trim();
                                       String sellingPrice = sellingPriceController.text.trim();
                                       String openingStock = openingStockController.text.trim();
-                                      String id = "${value.schoolid.toString().toLowerCase()}_${nameTxt.replaceAll(RegExp(r'\\s+'), '').toLowerCase()}";
-
-                                      final data = CoaModel(
-                                        name: nameTxt,
-                                        schoolId: value.schoolid,
-                                        accountType: _selectedAccountClass!,
-                                        subType: _selectedSubType!, // added subtype
-                                      );
-
-                                      await value.db.collection("mainaccounts").doc(id).set(data.toJson());
+                                      String ids = "${value.schoolid.toString().toLowerCase()}";
+                                      String id = "$ids${nameTxt.replaceAll(' ', '').toLowerCase()}";
+                                      final data = ItemRegModel(name: nameTxt, costPrice: costPrice, sellingPrice: sellingPrice, openningStock: openingStock, category: _selectedCategory.toString(), staff: value.name, schioolid:value.schoolid, barcode: barcodeTxt);
+                                      await value.db.collection("itemReg").doc(id).set(data.toJson());
                                       progress.dismiss();
                                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Data Saved Successfully"), backgroundColor: Colors.green,));
                                       itemController.clear();
@@ -226,10 +177,6 @@ class _RevenueGridPageState extends State<ItemReg> {
                                       sellingPriceController.clear();
                                       openingStockController.clear();
 
-                                      setState(() {
-                                        _selectedAccountClass = null;
-                                        _selectedSubType = null;
-                                      });
                                     } catch (e) {
                                       progress.dismiss();
                                       ScaffoldMessenger.of(context).showSnackBar(

@@ -1,26 +1,3 @@
-import { onCall } from "firebase-functions/v2/https";
-// Callable function to send push notifications via FCM
-export const sendPushNotification = onCall(async (request) => {
-  const { token, title, body, data } = request.data;
-  if (!token || !title || !body) {
-    throw new Error("token, title, and body are required");
-  }
-  const message = {
-    token,
-    notification: {
-      title,
-      body,
-    },
-    data: data || {},
-  };
-  try {
-    const response = await admin.messaging().send(message);
-    return { success: true, response };
-  } catch (error) {
-    console.error("Error sending push notification:", error);
-    throw new Error(error.message || "Failed to send notification");
-  }
-});
 import { onDocumentUpdated } from "firebase-functions/v2/firestore";
 // Ledger posting for singlebilled (top-up or unbilled students)
 import { onDocumentCreated } from "firebase-functions/v2/firestore";
@@ -32,6 +9,102 @@ if (!admin.apps.length) {
 }
 
 const db = admin.firestore();
+
+// Ledger posting for expense collection
+export const createLedgerOnExpense = onDocumentCreated(
+  "expense/{expenseId}",
+  async (event) => {
+    const snapshot = event.data;
+    if (!snapshot) return;
+    const expenseData = snapshot.data();
+    if (!expenseData) return;
+    const expenseRef = snapshot.ref;
+  const { schoolId, term, expenseType, expenseName, fees, paidAccount} = expenseData;
+    try {
+      let creditAccount = null;
+      let creditAccountClass = null;
+      let creditAccountSubClass = null;
+      let debitAccountClass = null;
+      let debitAccountSubClass = null;
+
+      // Get debit account class/subtype from mainaccounts
+      const debitAccDoc = await db.collection("mainaccounts").where("name", "==", expenseName).limit(1).get();
+      if (!debitAccDoc.empty) {
+        const debitAccData = debitAccDoc.docs[0].data();
+        debitAccountClass = debitAccData.accountType ?? null;
+        debitAccountSubClass = debitAccData.subType ?? null;
+      }
+
+      if (expenseType === "Unpaid") {
+         const activitySnap = await db.collection("systemActivity").where("name", "==", "Unpaid Expense").limit(1).get();
+        if (activitySnap.empty) throw new Error("SystemActivity 'Unpaid Expense' not found.");
+        const activityData = activitySnap.docs[0].data();
+        creditAccount = activityData.crAccount ?? null;
+        // Get systemActivity for Unpaid Expense
+       
+        // Get credit account class/subtype from mainaccounts
+        const creditAccDoc = await db.collection("mainaccounts").where("name", "==", creditAccount).limit(1).get();
+        if (!creditAccDoc.empty) {
+          const creditAccData = creditAccDoc.docs[0].data();
+          creditAccountClass = creditAccData.accountType ?? null;
+          creditAccountSubClass = creditAccData.subType ?? null;
+        } else {
+          creditAccountClass = activityData.crAccountClass ?? null;
+          creditAccountSubClass = activityData.crAccountSubClass ?? null;
+        }
+      } else if (expenseType === "Paid") {
+        creditAccount = paidAccount ?? null;
+        // Get credit account class/subtype from mainaccounts
+        const creditAccDoc = await db.collection("mainaccounts").where("name", "==", creditAccount).limit(1).get();
+        if (!creditAccDoc.empty) {
+          const creditAccData = creditAccDoc.docs[0].data();
+          creditAccountClass = creditAccData.accountType ?? null;
+          creditAccountSubClass = creditAccData.subType ?? null;
+        } else {
+          creditAccountClass = null;
+          creditAccountSubClass = null;
+        }
+      }
+
+      // Post to ledger
+      const ledgerId = `${event.params.expenseId}_${expenseName}`;
+      const ledgerRef = db.collection("ledger").doc(ledgerId);
+      await ledgerRef.set({
+        transactionId: uuidv4(),
+        schoolId,
+        term,
+        activityType: "expense",
+        expenseName,
+        amount: String(fees),
+        expenseId: event.params.expenseId,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        accounts: {
+          debit:{
+            account: expenseName,
+            accountClass: debitAccountClass,
+            value: String(fees),
+            subClass: debitAccountSubClass,
+          },
+          credit:{
+            account: creditAccount,
+            accountClass: creditAccountClass,
+            value: String(fees),
+            subClass: creditAccountSubClass,
+          },
+        },
+      });
+      await expenseRef.update({
+        ledgerStatus: "success",
+        ledgerMessage: `Ledger posted for expense ${expenseName} (${expenseType})`,
+      });
+    } catch (error) {
+      await expenseRef.update({
+        ledgerStatus: "failed",
+        ledgerMessage: `Error: ${error.message}`,
+      });
+    }
+});
+
 // Trigger: create ledger for newly added fee names in feepayment (on update)
 export const createLedgerOnFeePaymentUpdate = onDocumentUpdated(
   "feepayment/{paymentId}",
@@ -84,20 +157,20 @@ export const createLedgerOnFeePaymentUpdate = onDocumentUpdated(
           term,
           level,
           yeargroup,
-          amount: String(amount),
+          amount: String(fees),
           paymentId: event.params.paymentId,
           createdAt: admin.firestore.FieldValue.serverTimestamp(),
           accounts: {
             debit: {
               account: receivedaccount ?? null,
               accountClass: debitAccountClass,
-              value: String(amount),
+              value: String(fees),
               subClass: debitSubClass,
             },
             credit: {
               account: crAccount ?? null,
               accountClass: crAccountClass ?? null,
-              value: String(amount),
+              value: String(fees),
               subClass: crAccountSubClass ?? null,
             },
           },

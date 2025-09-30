@@ -1,8 +1,11 @@
 import 'package:go_router/go_router.dart';
 import 'package:ksoftsms/controller/dbmodels/classmodel.dart';
 import 'package:ksoftsms/screen/expenseForm.dart';
+import 'package:ksoftsms/screen/itemCategory.dart';
+import 'package:ksoftsms/screen/itemreg.dart';
 
 import 'package:ksoftsms/screen/signup.dart';
+import 'package:ksoftsms/screen/stock_form.dart';
 import 'package:ksoftsms/screen/supplierForm.dart';
 import '../components/academicyrmodel.dart';
 import '../components/dashboard.dart';
@@ -85,6 +88,8 @@ class Routes {
   static const billing = "/billing";
   static const expense = "/expense";
   static const supplier = "/supplier";
+  static const itemreg = "/itemreg";
+  static const stock = "/stock";
 
   static const regstaff = "/regstaff";
   static const accesscomponent = "/accesscomponent";
@@ -148,6 +153,7 @@ class Routes {
   static const feepayment = "/feepayment";
   static const feesetup = "/feesetup";
   static const singlebilling = "/singlebilling";
+  static const itemcategory = "/itemcategory";
   // Role → Allowed routes mapping
   static const roleAllowedRoutes = {
     "Judge": [
@@ -164,13 +170,13 @@ final GoRouter router = GoRouter(
   initialLocation: Routes.login,
 
   routes: [
+    GoRoute(path: Routes.stock, builder: (c, s) => StockForm()),
+    GoRoute(path: Routes.itemcategory, builder: (c, s) => ItemCategory()),
+    GoRoute(path: Routes.itemreg, builder: (c, s) => ItemReg()),
     GoRoute(path: Routes.supplier, builder: (c, s) => SupplierForm()),
     GoRoute(path: Routes.expense, builder: (c, s) => ExpenseForm()),
     GoRoute(path: Routes.login, builder: (c, s) => SpacerSignUpPage()),
-    GoRoute(path: Routes.regstaff, builder: (context, state) {
-        final item = state.extra as Staff?;
-        return Regstaff();
-      }),
+    GoRoute(path: Routes.regstaff, builder: (context, state) {return Regstaff();}),
     GoRoute(path: Routes.employee, builder: (context, state) => EmployeeScreen()),
     GoRoute(path: Routes.payroll, builder: (context, state) => PayrollScreen()),
     GoRoute(path: Routes.employee, builder: (context, state) => EmployeeScreen(),),

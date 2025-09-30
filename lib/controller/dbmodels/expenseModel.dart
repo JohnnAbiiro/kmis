@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ExpenseModel {
   final String supplier;
+  final String expenseName;
   final String name;
   final String activityType;
   final String term;
@@ -9,7 +10,7 @@ class ExpenseModel {
   final DateTime dateCreated;
   final String ledgerid;
   final String paymentmethod;
-  final String receivedaccount;
+  final String paidAccount;
   final String note;
   final String staff;
   final String amount;
@@ -17,6 +18,7 @@ class ExpenseModel {
 
 
   ExpenseModel({
+    required this.expenseName,
     required this.supplier,
     required this.expenseType,
     required this.name,
@@ -26,14 +28,15 @@ class ExpenseModel {
     required this.dateCreated,
     required this.ledgerid,
     required this.paymentmethod,
-    required this.receivedaccount,
+    required this.paidAccount,
     required this.note,
     required this.staff,
-    required this.amount, // ✅ required now
+    required this.amount,
   });
 
   Map<String, dynamic> toJson() {
     return {
+      "expenseName": expenseName,
       "supplier": supplier,
       "expenseType": expenseType,
       "name": name,
@@ -43,7 +46,7 @@ class ExpenseModel {
       "dateCreated": dateCreated,
       "ledgerid": ledgerid,
       "paymentmethod": paymentmethod,
-      "receivedaccount": receivedaccount,
+      "paidAccount": paidAccount,
       "note": note,
       "staff": staff,
       "fees": amount,
@@ -61,9 +64,10 @@ class ExpenseModel {
       dateCreated: (json["dateCreated"] as Timestamp).toDate(),
       ledgerid: json["ledgerid"] ?? "",
       paymentmethod: json["paymentmethod"] ?? "",
-      receivedaccount: json["receivedaccount"] ?? "",
+      paidAccount: json["paidAccount"] ?? "",
       note: json["note"] ?? "",
       staff: json["staff"] ?? "",
+      expenseName: json["expenseName"] ?? "",
       amount: json["amount"] ?? "",
     );
   }

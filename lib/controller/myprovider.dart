@@ -4,6 +4,7 @@ import 'dart:core';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:ksoftsms/controller/dbmodels/expenseModel.dart';
+import 'package:ksoftsms/controller/dbmodels/itemCategoryModel.dart';
 import 'package:ksoftsms/controller/dbmodels/termmodel.dart';
 import 'package:ksoftsms/controller/routes.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -30,6 +31,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'loginprovider.dart';
 class Myprovider extends LoginProvider {
   List<TermModel> terms = [];
+  List<itemCategoryModel> itemCategorList = [];
   List<AcademicModel> academicyears = [];
   List<DepartmentModel> departments = [];
   List<ClassModel> classdata = [];
@@ -62,6 +64,25 @@ class Myprovider extends LoginProvider {
   DocumentSnapshot? lastTeacherDocument;
   List<ScoremodelConfig> scoreConfigList = [];
 
+  Future<void> fetchtemCategory() async {
+    try {
+      notifyListeners();
+
+      final snapshot = await db.collection("itemcategory").get();
+
+      itemCategorList = snapshot.docs.map((doc) {
+        return itemCategoryModel.fromMap(doc.data());
+      }).toList();
+
+      loadterms = false;
+      print(terms);
+      notifyListeners();
+    } catch (e) {
+      loadterms = false;
+      notifyListeners();
+      print("Failed to fetch terms: $e");
+    }
+  }
   Future<void> fetchterms() async {
     try {
       loadterms = true;
