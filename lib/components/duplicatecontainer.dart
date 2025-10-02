@@ -49,18 +49,6 @@ class _DuplicateContainerState extends State<DuplicateContainer> {
       decoration: BoxDecoration(
         color: Colors.white,
           borderRadius: BorderRadius.all(Radius.circular(10))
-          // gradient: LinearGradient(
-          //   colors: [
-          //      // very light cyan
-          //     Colors.white,
-          //     Color(0xFFe8fbf0),
-          //   ],
-          //   begin: Alignment.topLeft,
-          //   end: Alignment.bottomRight,
-          // )
-        // boxShadow: [
-        //   BoxShadow(offset: Offset(0.5, 0.5), spreadRadius: 1, blurRadius: 0.5),
-        // ],
       ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -88,7 +76,7 @@ class _DuplicateContainerState extends State<DuplicateContainer> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.school_sharp, size: 40,),
+                          Icon(Icons.school_sharp, size: 40, color: Color(0xFF7A6FF0),),
                           Text("Total Staff", style: TextStyle(fontSize: 13)),
                           Text("1,200", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30))
                         ],
@@ -130,18 +118,6 @@ class _DuplicateContainerState extends State<DuplicateContainer> {
                               sectionsSpace: 0,
                               centerSpaceRadius: 0,
                               pieTouchData: PieTouchData(
-                                // touchCallback: (event, pieTouchResponse) {
-                                //   setState(() {
-                                //     if (!event.isInterestedForInteractions ||
-                                //         pieTouchResponse == null ||
-                                //         pieTouchResponse.touchedSection == null) {
-                                //       touchedIndex = -1;
-                                //       return;
-                                //     }
-                                //     touchedIndex =
-                                //         pieTouchResponse.touchedSection!.touchedSectionIndex;
-                                //   });
-                                // },
                               ),
                               sections: showingSections(),
                             ),
@@ -155,14 +131,6 @@ class _DuplicateContainerState extends State<DuplicateContainer> {
                 ),
               ],
             )
-            // Text(topcollector.toUpperCase(), style: TextStyle(fontSize: 15,
-            //     color: Colors.green,
-            //     fontWeight: FontWeight.bold),),
-            // SizedBox(height: 50),
-            // Center(
-            //   child: Text('${0}/${0}', style: TextStyle(
-            //       fontSize: 24, fontWeight: FontWeight.w700, color: Color(0xFFfb7d5b))),
-            // ),
           ],
         ),
       ),

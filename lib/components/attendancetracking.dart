@@ -19,7 +19,7 @@ class AttendanceTracking extends StatelessWidget {
             width: cwidth,
             padding: EdgeInsets.all(innerPadding),
             decoration: BoxDecoration(
-              color: Colors.lightBlueAccent.withOpacity(0.2),
+              color: Colors.white,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
@@ -35,15 +35,11 @@ class AttendanceTracking extends StatelessWidget {
                 Container(
                   padding: EdgeInsets.all(innerPadding),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.1),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
+                      color: Colors.white,
+                      border: Border.all(
+                          color: Colors.black12
                       ),
-                    ],
+                      borderRadius: BorderRadius.all(Radius.circular(6))
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

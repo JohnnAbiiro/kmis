@@ -24,76 +24,80 @@ class GaugeContainer extends StatelessWidget {
             Text('School Finance Information', style: TextStyle(fontSize: 18, color: Color(0xFF00496d))),
             SizedBox(height: 30),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Container(
-                  decoration: BoxDecoration(
-                      color: Color(0xFF047cff).withOpacity(0.1),
-                      borderRadius: BorderRadius.all(Radius.circular(8))
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            SizedBox(
-                              height: 30,
-                              width: 30,
-                              child: CircularProgressIndicator(
-                                value: 30,
-                                backgroundColor: Color(0xFF047cff).withOpacity(0.2),
-                                color: Color(0xFF047cff),
-                                strokeWidth: 6,
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                        color: Color(0xFF047cff).withOpacity(0.1),
+                        borderRadius: BorderRadius.all(Radius.circular(8))
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              SizedBox(
+                                height: 30,
+                                width: 30,
+                                child: CircularProgressIndicator(
+                                  value: 30,
+                                  backgroundColor: Color(0xFF047cff).withOpacity(0.2),
+                                  color: Color(0xFF047cff),
+                                  strokeWidth: 6,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                        Column(
-                          children: [
-                            Text("20,000", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                            Text("Total Expected Fees", style: TextStyle(fontSize: 12))
-                          ],
-                        )
-                      ],
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text("20,000", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                              Text("Total Expected Fees", style: TextStyle(fontSize: 12))
+                            ],
+                          )
+                        ],
+                      ),
                     ),
                   ),
                 ),
-                SizedBox(height: 10),
-                Container(
-                  decoration: BoxDecoration(
-                      color: Color(0xFF00b478).withOpacity(0.1),
-                      borderRadius: BorderRadius.all(Radius.circular(8))
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            SizedBox(
-                              height: 30,
-                              width: 30,
-                              child: CircularProgressIndicator(
-                                value: 13000/20000,
-                                backgroundColor: Color(0xFF00b478).withOpacity(0.2),
-                                color: Color(0xFF00b478),
-                                strokeWidth: 6,
+                SizedBox(width: 10),
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                        color: Color(0xFF00b478).withOpacity(0.1),
+                        borderRadius: BorderRadius.all(Radius.circular(8))
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              SizedBox(
+                                height: 30,
+                                width: 30,
+                                child: CircularProgressIndicator(
+                                  value: 13000/20000,
+                                  backgroundColor: Color(0xFF00b478).withOpacity(0.2),
+                                  color: Color(0xFF00b478),
+                                  strokeWidth: 6,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                        Column(
-                          children: [
-                            Text("13,000", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
-                            Text("Total Fees Received", style: TextStyle(fontSize: 12),)
-                          ],
-                        )
-                      ],
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text("13,000", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
+                              Text("Total Fees Received", style: TextStyle(fontSize: 12),)
+                            ],
+                          )
+                        ],
+                      ),
                     ),
                   ),
                 ),

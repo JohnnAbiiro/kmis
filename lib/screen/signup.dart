@@ -1781,6 +1781,7 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                                                     // await value.signInWithGoogle(context);
                                                   },
                                                   child: Container(
+                                                    height: 44,
                                                     width: MediaQuery.sizeOf(context).width * 0.8,
                                                     padding: const EdgeInsets.all(12),
                                                     decoration: BoxDecoration(
