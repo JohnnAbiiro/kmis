@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_search/dropdown_search.dart'; // <-- add in pubspec.yaml
+import '../controller/dbmodels/iteRegModel.dart';
 
 class StockForm extends StatefulWidget {
   @override
@@ -8,8 +9,9 @@ class StockForm extends StatefulWidget {
 }
 
 class _StockFormState extends State<StockForm> {
-  List<Map<String, dynamic>> allItems = [];
-  List<Map<String, dynamic>> filteredItems = [];
+  String purchaseMode = 'Cash';
+  List<ItemRegModel> allItems = [];
+  List<ItemRegModel> filteredItems = [];
   List<Map<String, dynamic>> selectedItems = [];
   List<String> suppliers = [];
 
@@ -28,9 +30,11 @@ class _StockFormState extends State<StockForm> {
         .collection("itemReg")
         .get();
     setState(() {
-      allItems = snapshot.docs
-          .map((doc) => {...doc.data(), 'id': doc.id})
-          .toList();
+      allItems = snapshot.docs.map((doc) {
+        final data = doc.data();
+        data['barcode'] = data['barcode'] ?? '';
+        return ItemRegModel.fromMap(data);
+      }).toList();
       filteredItems = List.from(allItems);
     });
   }
@@ -52,37 +56,33 @@ class _StockFormState extends State<StockForm> {
         filteredItems = allItems
             .where(
               (item) =>
-                  item['name'].toString().toLowerCase().contains(
-                    query.toLowerCase(),
-                  ) ||
-                  item['barcode'].toString().toLowerCase().contains(
-                    query.toLowerCase(),
-                  ),
+                  item.name.toLowerCase().contains(query.toLowerCase()) ||
+                  item.barcode.toLowerCase().contains(query.toLowerCase()),
             )
             .toList();
       }
     });
   }
 
-  void addItemToStock(Map<String, dynamic> item) {
+  void addItemToStock(ItemRegModel item) {
     setState(() {
       final existingIndex = selectedItems.indexWhere(
-        (sel) => sel['id'] == item['id'],
+        (sel) => sel['barcode'] == item.barcode,
       );
       if (existingIndex != -1) {
         selectedItems[existingIndex]['qty']++;
       } else {
         selectedItems.add({
-          'id': item['id'],
-          'barcode': item['barcode'],
-          'name': item['name'],
+          'barcode': item.barcode,
+          'name': item.name,
           'qty': 1,
+          'costPrice': item.costPrice,
         });
       }
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("${item['name']} added to stocking list")),
+      SnackBar(content: Text("${item.name} added to stocking list")),
     );
   }
 
@@ -102,10 +102,19 @@ class _StockFormState extends State<StockForm> {
 
     final docRef = FirebaseFirestore.instance.collection("stockingLists").doc();
 
+    double cumulativeCost = 0;
+    for (var item in selectedItems) {
+      double cost = double.tryParse(item['costPrice']?.toString() ?? '0') ?? 0;
+      int qty = item['qty'] ?? 1;
+      cumulativeCost += cost * qty;
+      item['totalCost'] = cost * qty;
+    }
     await docRef.set({
       'supplier': selectedSupplier,
       'timestamp': FieldValue.serverTimestamp(),
       'items': selectedItems,
+      'purchaseMode': purchaseMode,
+      'cumulativeCost': cumulativeCost,
     });
 
     setState(() {
@@ -121,6 +130,12 @@ class _StockFormState extends State<StockForm> {
 
   @override
   Widget build(BuildContext context) {
+    double cumulativeCost = 0;
+    for (var item in selectedItems) {
+      double cost = double.tryParse(item['costPrice']?.toString() ?? '0') ?? 0;
+      int qty = item['qty'] ?? 1;
+      cumulativeCost += cost * qty;
+    }
     return Scaffold(
       appBar: AppBar(
         title: Text("Stocking Form"),
@@ -136,19 +151,38 @@ class _StockFormState extends State<StockForm> {
                 searchController.text.trim().isNotEmpty)
               Padding(
                 padding: const EdgeInsets.all(12.0),
-                child: DropdownButtonFormField<String>(
-                  value: selectedSupplier,
-                  decoration: InputDecoration(
-                    labelText: "Select Supplier",
-                    border: OutlineInputBorder(),
-                  ),
-                  items: suppliers.map((supplier) {
-                    return DropdownMenuItem<String>(
-                      value: supplier,
-                      child: Text(supplier),
-                    );
-                  }).toList(),
-                  onChanged: (val) => setState(() => selectedSupplier = val),
+                child: Column(
+                  children: [
+                    DropdownButtonFormField<String>(
+                      value: selectedSupplier,
+                      decoration: InputDecoration(
+                        labelText: "Select Supplier",
+                        border: OutlineInputBorder(),
+                      ),
+                      items: suppliers.map((supplier) {
+                        return DropdownMenuItem<String>(
+                          value: supplier,
+                          child: Text(supplier),
+                        );
+                      }).toList(),
+                      onChanged: (val) => setState(() => selectedSupplier = val),
+                    ),
+                    SizedBox(height: 12),
+                    DropdownButtonFormField<String>(
+                      value: purchaseMode,
+                      decoration: InputDecoration(
+                        labelText: "Purchase Mode",
+                        border: OutlineInputBorder(),
+                      ),
+                      items: [
+                        DropdownMenuItem(value: 'Cash', child: Text('Cash')),
+                        DropdownMenuItem(value: 'Credit', child: Text('Credit')),
+                      ],
+                      onChanged: (val) {
+                        if (val != null) setState(() => purchaseMode = val);
+                      },
+                    ),
+                  ],
                 ),
               ),
 
@@ -193,8 +227,8 @@ class _StockFormState extends State<StockForm> {
                         itemBuilder: (context, index) {
                           final item = filteredItems[index];
                           return ListTile(
-                            title: Text(item['name']),
-                            subtitle: Text("Barcode: ${item['barcode']}"),
+                            title: Text(item.name),
+                            subtitle: Text("Barcode: ${item.barcode}"),
                             trailing: IconButton(
                               icon: Icon(Icons.add_circle, color: Colors.green),
                               onPressed: () => addItemToStock(item),
@@ -232,9 +266,12 @@ class _StockFormState extends State<StockForm> {
                         itemCount: selectedItems.length,
                         itemBuilder: (context, index) {
                           final sel = selectedItems[index];
+                          double cost = double.tryParse(sel['costPrice']?.toString() ?? '0') ?? 0;
+                          int qty = sel['qty'] ?? 1;
+                          double totalCost = cost * qty;
                           return ListTile(
                             title: Text(sel['name']),
-                            subtitle: Text("Barcode: ${sel['barcode']}"),
+                            subtitle: Text("Barcode: ${sel['barcode']}\nUnit Cost: $cost\nQty: $qty\nTotal Cost: $totalCost"),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -270,6 +307,17 @@ class _StockFormState extends State<StockForm> {
                             ),
                           );
                         },
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        "Cumulative Cost: ₦${cumulativeCost.toStringAsFixed(2)}",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.deepPurple,
+                          fontSize: 16,
+                        ),
                       ),
                     ),
                   ],
