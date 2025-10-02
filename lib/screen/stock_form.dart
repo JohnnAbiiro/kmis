@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_search/dropdown_search.dart'; // <-- add in pubspec.yaml
+import 'package:go_router/go_router.dart';
 import '../controller/dbmodels/iteRegModel.dart';
+import '../controller/routes.dart';
 
 class StockForm extends StatefulWidget {
   @override
@@ -65,10 +67,10 @@ class _StockFormState extends State<StockForm> {
   }
 
   void addItemToStock(ItemRegModel item) {
+    final existingIndex = selectedItems.indexWhere(
+      (sel) => sel['barcode'] == item.barcode && sel['name'] == item.name,
+    );
     setState(() {
-      final existingIndex = selectedItems.indexWhere(
-        (sel) => sel['barcode'] == item.barcode,
-      );
       if (existingIndex != -1) {
         selectedItems[existingIndex]['qty']++;
       } else {
@@ -82,7 +84,13 @@ class _StockFormState extends State<StockForm> {
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("${item.name} added to stocking list")),
+      SnackBar(
+        content: Text(
+          existingIndex != -1
+              ? "${item.name} quantity incremented"
+              : "${item.name} added to stocking list",
+        ),
+      ),
     );
   }
 
@@ -138,12 +146,17 @@ class _StockFormState extends State<StockForm> {
     }
     return Scaffold(
       appBar: AppBar(
-        title: Text("Stocking Form"),
-        backgroundColor: Colors.deepPurple,
-        actions: [
-          IconButton(icon: Icon(Icons.save), onPressed: saveStockingList),
-        ],
+        backgroundColor: const Color(0xFF00273a),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => context.go(Routes.dashboard),
+        ),
+        title: Text(
+          'Stock Entries ',
+          style: const TextStyle(color: Colors.white, fontSize: 18),
+        ),
       ),
+
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -165,7 +178,8 @@ class _StockFormState extends State<StockForm> {
                           child: Text(supplier),
                         );
                       }).toList(),
-                      onChanged: (val) => setState(() => selectedSupplier = val),
+                      onChanged: (val) =>
+                          setState(() => selectedSupplier = val),
                     ),
                     SizedBox(height: 12),
                     DropdownButtonFormField<String>(
@@ -176,7 +190,10 @@ class _StockFormState extends State<StockForm> {
                       ),
                       items: [
                         DropdownMenuItem(value: 'Cash', child: Text('Cash')),
-                        DropdownMenuItem(value: 'Credit', child: Text('Credit')),
+                        DropdownMenuItem(
+                          value: 'Credit',
+                          child: Text('Credit'),
+                        ),
                       ],
                       onChanged: (val) {
                         if (val != null) setState(() => purchaseMode = val);
@@ -266,12 +283,18 @@ class _StockFormState extends State<StockForm> {
                         itemCount: selectedItems.length,
                         itemBuilder: (context, index) {
                           final sel = selectedItems[index];
-                          double cost = double.tryParse(sel['costPrice']?.toString() ?? '0') ?? 0;
+                          double cost =
+                              double.tryParse(
+                                sel['costPrice']?.toString() ?? '0',
+                              ) ??
+                              0;
                           int qty = sel['qty'] ?? 1;
                           double totalCost = cost * qty;
                           return ListTile(
                             title: Text(sel['name']),
-                            subtitle: Text("Barcode: ${sel['barcode']}\nUnit Cost: $cost\nQty: $qty\nTotal Cost: $totalCost"),
+                            subtitle: Text(
+                              "Barcode: ${sel['barcode']}\nUnit Cost: $cost\nQty: $qty\nTotal Cost: $totalCost",
+                            ),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [

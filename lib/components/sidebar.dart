@@ -439,7 +439,7 @@ class CustomDrawer extends StatelessWidget {
                         Padding(
                           padding: EdgeInsets.only(left: 8.0, top: 20, bottom: 4),
                           child: Text(
-                            "Manage Contestants Results",
+                            "Item Management",
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 14,
@@ -455,7 +455,7 @@ class CustomDrawer extends StatelessWidget {
                             iconColor: Colors.white,
                             leading: Icon(Icons.description_outlined, color: Colors.white60, size: 17,),
                             title: Text(
-                              'Contestants Results',
+                              'Items Management',
                               style: TextStyle(color: Colors.white54, fontSize: 14),
                             ),
                             children: [
@@ -463,10 +463,49 @@ class CustomDrawer extends StatelessWidget {
                               SizedBox(
                                 child: _drawerTile(
                                   icon: Icons.grid_view_sharp,
-                                  title: 'View Results',
+                                  title: 'Add Suppliers',
                                   onTap: () async {
                                     try {
-                                      context.go(Routes.staffhome);
+                                      context.go(Routes.supplier);
+                                    } catch (e) {
+                                      print(e);
+                                    }
+                                  },
+                                ),
+                              ),
+                              SizedBox(
+                                child: _drawerTile(
+                                  icon: Icons.grid_view_sharp,
+                                  title: 'Add Categories',
+                                  onTap: () async {
+                                    try {
+                                      context.go(Routes.itemcategory);
+                                    } catch (e) {
+                                      print(e);
+                                    }
+                                  },
+                                ),
+                              ),
+                              SizedBox(
+                                child: _drawerTile(
+                                  icon: Icons.grid_view_sharp,
+                                  title: 'Item Registration',
+                                  onTap: () async {
+                                    try {
+                                      context.go(Routes.itemreg);
+                                    } catch (e) {
+                                      print(e);
+                                    }
+                                  },
+                                ),
+                              ),
+                              SizedBox(
+                                child: _drawerTile(
+                                  icon: Icons.grid_view_sharp,
+                                  title: 'Stock',
+                                  onTap: () async {
+                                    try {
+                                      context.go(Routes.stock);
                                     } catch (e) {
                                       print(e);
                                     }
