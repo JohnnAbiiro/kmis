@@ -30,13 +30,9 @@ class CSAT extends StatelessWidget {
                 height: 400,
                 decoration: BoxDecoration(
                   color: const Color(0xFFffffff),
-                  // boxShadow: const [
-                  //   BoxShadow(
-                  //     offset: Offset(0.5, 0.5),
-                  //     spreadRadius: 1,
-                  //     blurRadius: 1,
-                  //   ),
-                  // ],
+                  boxShadow: [
+                    BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
+                  ],
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),

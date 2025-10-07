@@ -180,221 +180,130 @@ class _StockFormState extends State<StockForm> {
         ),
       ),
 
-      body: SingleChildScrollView(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: 700),
-            child: Column(
-              children: [
-                if (selectedItems.isNotEmpty ||
-                    searchController.text.trim().isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Column(
-                      children: [
-                        DropdownButtonFormField<String>(
-                          value: selectedSupplier,
-                          decoration: InputDecoration(
-                            labelText: "Select Supplier",
-                            border: OutlineInputBorder(),
-                          ),
-                          items: suppliers.map((supplier) {
-                            return DropdownMenuItem<String>(
-                              value: supplier,
-                              child: Text(supplier),
-                            );
-                          }).toList(),
-                          onChanged: (val) =>
-                              setState(() => selectedSupplier = val),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+
+          double itemWidth =
+          constraints.maxWidth > 800 ? constraints.maxWidth / 2.2 : constraints.maxWidth;
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Center(
+              child: Wrap(
+                spacing: 16,
+                runSpacing: 16,
+                children: [
+                  // Book Sales Form
+                  Container(
+                    width: itemWidth,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.grey.shade300),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.shade200,
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
                         ),
-                        SizedBox(height: 12),
-                        DropdownButtonFormField<String>(
-                          value: purchaseMode,
-                          decoration: InputDecoration(
-                            labelText: "Purchase Mode",
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text("BOOK SALES",
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                        const Divider(),
+                        const SizedBox(height: 10),
+                        TextField(
+                          decoration: const InputDecoration(
+                            labelText: "Student ID *",
                             border: OutlineInputBorder(),
                           ),
-                          items: [
-                            DropdownMenuItem(value: 'Cash', child: Text('Cash')),
-                            DropdownMenuItem(
-                              value: 'Credit',
-                              child: Text('Credit'),
+                        ),
+                        const SizedBox(height: 16),
+                        TextField(
+                          decoration: const InputDecoration(
+                            labelText: "Full Name *",
+                            border: OutlineInputBorder(),
+                            filled: true,
+                            fillColor: Color(0xFFF5F5F5),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Sales Preview
+                  Container(
+                    width: itemWidth,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.grey.shade300),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.shade200,
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text("SALES PREVIEW",
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                        const Divider(),
+                        const SizedBox(height: 10),
+                        Table(
+                          border: TableBorder.all(color: Colors.grey.shade300),
+                          columnWidths: const {
+                            0: FixedColumnWidth(30),
+                            1: FlexColumnWidth(),
+                            2: FixedColumnWidth(50),
+                            3: FixedColumnWidth(70),
+                            4: FixedColumnWidth(70),
+                            5: FixedColumnWidth(70),
+                            6: FixedColumnWidth(70),
+                          },
+                          children: const [
+                            TableRow(
+                              decoration: BoxDecoration(color: Color(0xFFF5F5F5)),
+                              children: [
+                                Padding(padding: EdgeInsets.all(8), child: Text("#", style: TextStyle(fontWeight: FontWeight.bold))),
+                                Padding(padding: EdgeInsets.all(8), child: Text("Item", style: TextStyle(fontWeight: FontWeight.bold))),
+                                Padding(padding: EdgeInsets.all(8), child: Text("Qty", style: TextStyle(fontWeight: FontWeight.bold))),
+                                Padding(padding: EdgeInsets.all(8), child: Text("Price", style: TextStyle(fontWeight: FontWeight.bold))),
+                                Padding(padding: EdgeInsets.all(8), child: Text("Net", style: TextStyle(fontWeight: FontWeight.bold))),
+                                Padding(padding: EdgeInsets.all(8), child: Text("Mode", style: TextStyle(fontWeight: FontWeight.bold))),
+                                Padding(padding: EdgeInsets.all(8), child: Text("Action", style: TextStyle(fontWeight: FontWeight.bold))),
+                              ],
+                            ),
+                            TableRow(
+                              children: [
+                                Padding(padding: EdgeInsets.all(8), child: Text("")),
+                                Padding(padding: EdgeInsets.all(8), child: Text("Grand Total")),
+                                Padding(padding: EdgeInsets.all(8), child: Text("")),
+                                Padding(padding: EdgeInsets.all(8), child: Text("")),
+                                Padding(padding: EdgeInsets.all(8), child: Text("0.00")),
+                                Padding(padding: EdgeInsets.all(8), child: Text("")),
+                                Padding(padding: EdgeInsets.all(8), child: Text("")),
+                              ],
                             ),
                           ],
-                          onChanged: (val) {
-                            if (val != null) setState(() => purchaseMode = val);
-                          },
-                        ),
+                        )
                       ],
                     ),
                   ),
-
-                Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: TextField(
-                    controller: searchController,
-                    decoration: InputDecoration(
-                      labelText: "Search item",
-                      prefixIcon: Icon(Icons.search),
-                      border: OutlineInputBorder(),
-                    ),
-                    onChanged: filterItems,
-                  ),
-                ),
-
-                if (searchController.text.trim().isNotEmpty &&
-                    filteredItems.isNotEmpty)
-                  Card(
-                    color: Colors.white,
-                    margin: EdgeInsets.all(8),
-                    child: Column(
-                      children: [
-                        Container(
-                          padding: EdgeInsets.all(8),
-                          color: Colors.deepPurple.shade100,
-                          child: Center(
-                            child: Text(
-                              "Available Items",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.deepPurple,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          height:
-                              MediaQuery.of(context).size.height *
-                              0.3, // mobile-friendly
-                          child: ListView.builder(
-                            itemCount: filteredItems.length,
-                            itemBuilder: (context, index) {
-                              final item = filteredItems[index];
-                              return Column(
-                                children: [
-                                  ListTile(
-                                    title: Text(item.name),
-                                    subtitle: Text("Barcode: ${item.barcode}"),
-                                    trailing: IconButton(
-                                      icon: Icon(Icons.add_circle, color: Colors.green),
-                                      onPressed: () => addItemToStock(item),
-                                    ),
-                                  ),
-                                  Divider(color: Colors.deepPurple.shade100, endIndent: 30, indent: 30)
-                                ],
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                // ✅ Stocking list (stacked below)
-                if (selectedItems.isNotEmpty)
-                  Card(
-                    color: Colors.white,
-                    margin: EdgeInsets.all(8),
-                    child: Column(
-                      children: [
-                        Container(
-                          padding: EdgeInsets.all(8),
-                          color: Colors.deepPurple.shade100,
-                          child: Center(
-                            child: Text(
-                              "Stocking List",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.deepPurple,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          height: MediaQuery.of(context).size.height * 0.3,
-                          child: ListView.builder(
-                            itemCount: selectedItems.length,
-                            itemBuilder: (context, index) {
-                              final sel = selectedItems[index];
-                              double cost =
-                                  double.tryParse(
-                                    sel['costPrice']?.toString() ?? '0',
-                                  ) ??
-                                  0;
-                              int qty = sel['qty'] ?? 1;
-                              double totalCost = cost * qty;
-                              return Column(
-                                children: [
-                                  ListTile(
-                                    title: Text(sel['name']),
-                                    subtitle: Text(
-                                      "Barcode: ${sel['barcode']}\nUnit Cost: $cost\nQty: $qty\nTotal Cost: $totalCost",
-                                    ),
-                                    trailing: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        IconButton(
-                                          icon: Icon(
-                                            Icons.remove_circle,
-                                            color: Colors.red,
-                                          ),
-                                          onPressed: () {
-                                            setState(() {
-                                              if (sel['qty'] > 1) {
-                                                sel['qty']--;
-                                              }
-                                            });
-                                          },
-                                        ),
-                                        Text(
-                                          sel['qty'].toString(),
-                                          style: TextStyle(fontWeight: FontWeight.bold),
-                                        ),
-                                        IconButton(
-                                          icon: Icon(
-                                            Icons.add_circle,
-                                            color: Colors.green,
-                                          ),
-                                          onPressed: () {
-                                            setState(() {
-                                              sel['qty']++;
-                                            });
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Divider(color: Colors.deepPurple.shade100, endIndent: 30, indent: 30)
-                                ],
-                              );
-                            },
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.all(Radius.circular(10)),
-                              color: Colors.deepPurple,
-                            ),
-                            child: ElevatedButton(
-                              style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(Colors.transparent),
-                                elevation: MaterialStateProperty.all(0),
-                              ),
-                                onPressed: saveStockingList,
-                                child: Text("Save", style: TextStyle(color: Colors.white),),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ),
-      ),
+          );
+        },
+      )
     );
   }
 }

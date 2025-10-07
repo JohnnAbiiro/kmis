@@ -22,20 +22,10 @@ class HourMinutes extends StatelessWidget {
           height: 250,
           decoration: BoxDecoration(
             color: Colors.white,
-              borderRadius: BorderRadius.all(Radius.circular(10))
-              // gradient: LinearGradient(
-              //   colors: [
-              //     // very light cyan
-              //     Colors.white,
-              //     Color(0xFFe1ecfb),
-              //   ],
-              //   begin: Alignment.topLeft,
-              //   end: Alignment.bottomRight,
-              // )
-            // boxShadow: [
-            //   BoxShadow(
-            //       offset: Offset(0.5, 0.5), spreadRadius: 1, blurRadius: 1),
-            // ],
+              borderRadius: BorderRadius.all(Radius.circular(12)),
+            boxShadow: [
+              BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
+            ],
           ),
           child: Padding(
             padding: const EdgeInsets.all(16.0),

@@ -23,10 +23,10 @@ class SummaryDonutChart extends StatelessWidget {
             ],
             begin: Alignment.topRight,
             end: Alignment.bottomLeft,
-          )
-        // boxShadow: [
-        //   BoxShadow(offset: Offset(0.5, 0.5), spreadRadius: 1, blurRadius: 1),
-        // ],
+          ),
+        boxShadow: [
+          BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
+        ],
       ),
       child: Center(
         child: Padding(
@@ -34,7 +34,7 @@ class SummaryDonutChart extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Judging Progress', style: TextStyle(fontSize: 15)),
+              Text('Admissions', style: TextStyle(fontSize: 15)),
               Center(
                 child: CircularPercentIndicator(
                   radius: 70.0,

@@ -14,7 +14,10 @@ class GaugeContainer extends StatelessWidget {
       height: 250,
       decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.all(Radius.circular(10))
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+        boxShadow: [
+          BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
+        ],
       ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
