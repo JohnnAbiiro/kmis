@@ -11,6 +11,7 @@ import 'package:ksoftsms/components/sidebar.dart';
 import 'package:ksoftsms/components/summarychart.dart';
 import 'package:ksoftsms/components/ticketbydaychart.dart';
 import 'package:ksoftsms/controller/myprovider.dart';
+import 'package:ksoftsms/widgets/animatedadmission.dart';
 import 'package:provider/provider.dart';
 import '../controller/routes.dart';
 import 'columnchart.dart';
@@ -182,15 +183,15 @@ class _DashboardLayoutState extends State<DashboardLayout> {
                               ? screenWidth * 0.473
                               : screenWidth * 0.23,
                         ),
-                        SummaryDonutChart(
+                        AnimatedAdmissionsReportCard(
                           cwidth: isMobile
                               ? screenWidth * 0.95
                               : isTablet
                               ? screenWidth * 0.63
                               : isBigTablet
                               ? screenWidth * 0.473
-                              : (screenWidth - 20) * 0.233,
-                        ),
+                              : screenWidth * 0.23,
+                        )
                       ],
                     ),
                     SizedBox(height: 15),

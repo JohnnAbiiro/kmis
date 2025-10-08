@@ -4,17 +4,24 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 
-class OneTicket extends StatelessWidget {
+class OneTicket extends StatefulWidget {
   final double cwidth;
   final String totalvotes;
   const OneTicket({super.key, required this.cwidth, required this.totalvotes});
 
   @override
+  State<OneTicket> createState() => _OneTicketState();
+}
+
+class _OneTicketState extends State<OneTicket> {
+  String selectedYear = '2025';
+  final List<String> years = ['2025', '2024', '2023', '2022', '2021'];
+  @override
   Widget build(BuildContext context) {
     return Consumer<StatsProvider>(
       builder: (BuildContext context,  value, Widget? child) {
         return  Container(
-          width: cwidth,
+          width: widget.cwidth,
           height: 400,
           decoration: BoxDecoration(
             color: Color(0xFFffffff),
@@ -28,19 +35,31 @@ class OneTicket extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Dropdown for year
                 Container(
+                  height: 40,
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: Colors.deepPurple.shade50,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      Text('2023', style: TextStyle(color: Colors.black54)),
-                      Icon(Icons.keyboard_arrow_down, color: Colors.black54),
-                    ],
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: selectedYear,
+                      icon: const Icon(Icons.keyboard_arrow_down, color: Colors.black54),
+                      dropdownColor: Colors.white,
+                      style: const TextStyle(color: Colors.black87),
+                      items: years.map((String year) {
+                        return DropdownMenuItem<String>(
+                          value: year,
+                          child: Text(year),
+                        );
+                      }).toList(),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          selectedYear = newValue!;
+                        });
+                      },
+                    ),
                   ),
                 ),
                 const SizedBox(height: 20),
