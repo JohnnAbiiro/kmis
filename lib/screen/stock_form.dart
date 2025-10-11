@@ -166,7 +166,7 @@ class _StockFormState extends State<StockForm> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    "Cumulative Cost: GHC ${cumulativeCost.toStringAsFixed(2)}",
+                    "Total Cost: GHC ${cumulativeCost.toStringAsFixed(2)}",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -182,214 +182,383 @@ class _StockFormState extends State<StockForm> {
 
       body: SingleChildScrollView(
         child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1000),
-            child: Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              //alignment: WrapAlignment.center,
-              children: [
-                // === Supplier and Mode ===
-                if (selectedItems.isNotEmpty || searchController.text.trim().isNotEmpty)
+          child: Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            //alignment: WrapAlignment.center,
+            children: [
+              Column(
+                children: [
                   SizedBox(
-                    width: 450,
+                    width: 700,
                     child: Padding(
                       padding: const EdgeInsets.all(12.0),
-                      child: Column(
-                        children: [
-                          DropdownButtonFormField<String>(
-                            value: selectedSupplier,
-                            decoration: const InputDecoration(
-                              labelText: "Select Supplier",
-                              border: OutlineInputBorder(),
-                            ),
-                            items: suppliers.map((supplier) {
-                              return DropdownMenuItem<String>(
-                                value: supplier,
-                                child: Text(supplier),
-                              );
-                            }).toList(),
-                            onChanged: (val) => setState(() => selectedSupplier = val),
-                          ),
-                          const SizedBox(height: 12),
-                          DropdownButtonFormField<String>(
-                            value: purchaseMode,
-                            decoration: const InputDecoration(
-                              labelText: "Purchase Mode",
-                              border: OutlineInputBorder(),
-                            ),
-                            items: const [
-                              DropdownMenuItem(value: 'Cash', child: Text('Cash')),
-                              DropdownMenuItem(value: 'Credit', child: Text('Credit')),
-                            ],
-                            onChanged: (val) {
-                              if (val != null) setState(() => purchaseMode = val);
-                            },
-                          ),
-                        ],
+                      child: TextField(
+                        controller: searchController,
+                        decoration: const InputDecoration(
+                          labelText: "Search item",
+                          prefixIcon: Icon(Icons.search),
+                          border: OutlineInputBorder(),
+                        ),
+                        onChanged: filterItems,
                       ),
                     ),
                   ),
-
-                // === Search Box ===
-                SizedBox(
-                  width: 450,
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: TextField(
-                      controller: searchController,
-                      decoration: const InputDecoration(
-                        labelText: "Search item",
-                        prefixIcon: Icon(Icons.search),
-                        border: OutlineInputBorder(),
-                      ),
-                      onChanged: filterItems,
-                    ),
-                  ),
-                ),
-
-                // === Available Items ===
-                if (searchController.text.trim().isNotEmpty && filteredItems.isNotEmpty)
-                  SizedBox(
-                    width: 450,
-                    child: Card(
-                      color: Colors.white,
-                      margin: const EdgeInsets.all(8),
-                      child: Column(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            color: Colors.deepPurple.shade100,
-                            child: const Center(
-                              child: Text(
-                                "Available Items",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.deepPurple,
+                  if (searchController.text.trim().isNotEmpty && filteredItems.isNotEmpty)
+                    SizedBox(
+                      width: 700,
+                      child: Card(
+                        color: Colors.white,
+                        margin: const EdgeInsets.all(8),
+                        child: Column(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              color: Colors.deepPurple.shade100,
+                              child: const Center(
+                                child: Text(
+                                  "Available Items",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.deepPurple,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.3,
-                            child: ListView.builder(
-                              itemCount: filteredItems.length,
-                              itemBuilder: (context, index) {
-                                final item = filteredItems[index];
-                                return Column(
-                                  children: [
-                                    ListTile(
-                                      title: Text(item.name),
-                                      subtitle: Text("Barcode: ${item.barcode}"),
-                                      trailing: IconButton(
-                                        icon: const Icon(Icons.add_circle, color: Colors.green),
-                                        onPressed: () => addItemToStock(item),
+                            SizedBox(
+                              //height: MediaQuery.of(context).size.height * 0.3,
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemCount: filteredItems.length,
+                                itemBuilder: (context, index) {
+                                  final item = filteredItems[index];
+                                  return Column(
+                                    children: [
+                                      ListTile(
+                                        title: Text(item.name),
+                                        subtitle: Text("Barcode: ${item.barcode}"),
+                                        trailing: IconButton(
+                                          icon: const Icon(Icons.add_circle, color: Colors.green),
+                                          onPressed: () => addItemToStock(item),
+                                        ),
                                       ),
-                                    ),
-                                    Divider(
-                                      color: Colors.deepPurple.shade100,
-                                      endIndent: 30,
-                                      indent: 30,
-                                    ),
-                                  ],
+                                      Divider(
+                                        color: Colors.deepPurple.shade100,
+                                        endIndent: 30,
+                                        indent: 30,
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              Column(
+                children: [
+                  if (selectedItems.isNotEmpty || searchController.text.trim().isNotEmpty)
+                    SizedBox(
+                      width: 700,
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Column(
+                          children: [
+                            DropdownButtonFormField<String>(
+                              value: selectedSupplier,
+                              decoration: const InputDecoration(
+                                labelText: "Select Supplier",
+                                border: OutlineInputBorder(),
+                              ),
+                              items: suppliers.map((supplier) {
+                                return DropdownMenuItem<String>(
+                                  value: supplier,
+                                  child: Text(supplier),
                                 );
+                              }).toList(),
+                              onChanged: (val) => setState(() => selectedSupplier = val),
+                            ),
+                            const SizedBox(height: 12),
+                            DropdownButtonFormField<String>(
+                              value: purchaseMode,
+                              decoration: const InputDecoration(
+                                labelText: "Purchase Mode",
+                                border: OutlineInputBorder(),
+                              ),
+                              items: const [
+                                DropdownMenuItem(value: 'Cash', child: Text('Cash')),
+                                DropdownMenuItem(value: 'Credit', child: Text('Credit')),
+                              ],
+                              onChanged: (val) {
+                                if (val != null) setState(() => purchaseMode = val);
                               },
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                  ),
+                  if (selectedItems.isNotEmpty)
+                    // SizedBox(
+                    //   width: 600,
+                    //   child: Card(
+                    //     color: Colors.white,
+                    //     margin: const EdgeInsets.all(8),
+                    //     child: Column(
+                    //       children: [
+                    //         Container(
+                    //           padding: const EdgeInsets.all(8),
+                    //           color: Colors.deepPurple.shade100,
+                    //           child: const Center(
+                    //             child: Text(
+                    //               "Stocking List",
+                    //               style: TextStyle(
+                    //                 fontWeight: FontWeight.bold,
+                    //                 color: Colors.deepPurple,
+                    //               ),
+                    //             ),
+                    //           ),
+                    //         ),
+                    //         SizedBox(
+                    //           //height: MediaQuery.of(context).size.height * 0.3,
+                    //           child: ListView.builder(
+                    //             shrinkWrap: true,
+                    //             physics: NeverScrollableScrollPhysics(),
+                    //             itemCount: selectedItems.length,
+                    //             itemBuilder: (context, index) {
+                    //               final sel = selectedItems[index];
+                    //               final double cost = double.tryParse(sel['costPrice']?.toString() ?? '0') ?? 0;
+                    //               final int qty = sel['qty'] ?? 1;
+                    //               final double totalCost = cost * qty;
+                    //               return Column(
+                    //                 children: [
+                    //                   ListTile(
+                    //                     title: Text(sel['name']),
+                    //                     subtitle: Text(
+                    //                       "Barcode: ${sel['barcode']}\nUnit Cost: $cost\nQty: $qty\nTotal Cost: $totalCost",
+                    //                     ),
+                    //                     trailing: Row(
+                    //                       mainAxisSize: MainAxisSize.min,
+                    //                       children: [
+                    //                         IconButton(
+                    //                           icon: const Icon(Icons.remove_circle, color: Colors.red),
+                    //                           onPressed: () {
+                    //                             setState(() {
+                    //                               if (sel['qty'] > 1) sel['qty']--;
+                    //                             });
+                    //                           },
+                    //                         ),
+                    //                         Text(sel['qty'].toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                    //                         IconButton(
+                    //                           icon: const Icon(Icons.add_circle, color: Colors.green),
+                    //                           onPressed: () {
+                    //                             setState(() => sel['qty']++);
+                    //                           },
+                    //                         ),
+                    //                       ],
+                    //                     ),
+                    //                   ),
+                    //                   Divider(
+                    //                     color: Colors.deepPurple.shade100,
+                    //                     endIndent: 30,
+                    //                     indent: 30,
+                    //                   ),
+                    //                 ],
+                    //               );
+                    //             },
+                    //           ),
+                    //         ),
+                    //         Padding(
+                    //           padding: const EdgeInsets.all(8.0),
+                    //           child: ElevatedButton(
+                    //             style: ElevatedButton.styleFrom(
+                    //               backgroundColor: Colors.deepPurple,
+                    //               shape: RoundedRectangleBorder(
+                    //                 borderRadius: BorderRadius.circular(10),
+                    //               ),
+                    //               padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 14),
+                    //             ),
+                    //             onPressed: saveStockingList,
+                    //             child: const Text("Save", style: TextStyle(color: Colors.white)),
+                    //           ),
+                    //         ),
+                    //       ],
+                    //     ),
+                    //   ),
+                    // ),
+                    SizedBox(
+                      width: 700,
+                      child: Card(
+                        color: Colors.white,
+                        margin: EdgeInsets.all(8),
+                        child: LayoutBuilder(
+                            builder: (context, constraints){
+                              bool isWideScreen = constraints.maxWidth > 500;
 
-                // === Stocking List ===
-                if (selectedItems.isNotEmpty)
-                  SizedBox(
-                    width: 450,
-                    child: Card(
-                      color: Colors.white,
-                      margin: const EdgeInsets.all(8),
-                      child: Column(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            color: Colors.deepPurple.shade100,
-                            child: const Center(
-                              child: Text(
-                                "Stocking List",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.deepPurple,
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.3,
-                            child: ListView.builder(
-                              itemCount: selectedItems.length,
-                              itemBuilder: (context, index) {
-                                final sel = selectedItems[index];
-                                final double cost = double.tryParse(sel['costPrice']?.toString() ?? '0') ?? 0;
-                                final int qty = sel['qty'] ?? 1;
-                                final double totalCost = cost * qty;
-                                return Column(
-                                  children: [
-                                    ListTile(
-                                      title: Text(sel['name']),
-                                      subtitle: Text(
-                                        "Barcode: ${sel['barcode']}\nUnit Cost: $cost\nQty: $qty\nTotal Cost: $totalCost",
-                                      ),
-                                      trailing: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          IconButton(
-                                            icon: const Icon(Icons.remove_circle, color: Colors.red),
-                                            onPressed: () {
-                                              setState(() {
-                                                if (sel['qty'] > 1) sel['qty']--;
-                                              });
-                                            },
-                                          ),
-                                          Text(sel['qty'].toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
-                                          IconButton(
-                                            icon: const Icon(Icons.add_circle, color: Colors.green),
-                                            onPressed: () {
-                                              setState(() => sel['qty']++);
-                                            },
-                                          ),
+                              if (isWideScreen){
+                                return SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: Column(
+                                    children: [
+                                      DataTable(
+                                        headingRowColor: MaterialStateProperty.all(Colors.deepPurple.shade100),
+                                        columns: const [
+                                          DataColumn(label: Text('Name', style: TextStyle(fontSize: 12),)),
+                                          DataColumn(label: Text('Barcode',style: TextStyle(fontSize: 12))),
+                                          DataColumn(label: Text('Unit Cost',style: TextStyle(fontSize: 12))),
+                                          DataColumn(label: Text('Qty', style: TextStyle(fontSize: 12))),
+                                          DataColumn(label: Text('Total Cost', style: TextStyle(fontSize: 12))),
+                                          DataColumn(label: Text('Actions', style: TextStyle(fontSize: 12))),
                                         ],
+                                        rows: selectedItems.map((sel) {
+                                          final double cost = double.tryParse(sel['costPrice']?.toString() ?? '0') ?? 0;
+                                          final int qty = sel['qty'] ?? 1;
+                                          final double totalCost = cost * qty;
+                                          return DataRow(
+                                            cells: [
+                                              DataCell(Text(sel['name'], style: TextStyle(fontSize: 12))),
+                                              DataCell(Text(sel['barcode'] ?? '', style: TextStyle(fontSize: 12))),
+                                              DataCell(Text(cost.toStringAsFixed(2), style: TextStyle(fontSize: 12))),
+                                              DataCell(Text(qty.toString(), style: TextStyle(fontSize: 12))),
+                                              DataCell(Text(totalCost.toStringAsFixed(2), style: TextStyle(fontSize: 12))),
+                                              DataCell(
+                                                Row(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    IconButton(
+                                                      icon: const Icon(Icons.remove_circle, color: Colors.red, size: 20,),
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          if (sel['qty'] > 1) sel['qty']--;
+                                                        });
+                                                      },
+                                                    ),
+                                                    IconButton(
+                                                      icon: const Icon(Icons.add_circle, color: Colors.green, size: 20,),
+                                                      onPressed: () {
+                                                        setState(() => sel['qty']++);
+                                                      },
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        }).toList(),
                                       ),
-                                    ),
-                                    Divider(
-                                      color: Colors.deepPurple.shade100,
-                                      endIndent: 30,
-                                      indent: 30,
-                                    ),
-                                  ],
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.deepPurple,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(10),
+                                            ),
+                                            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 14),
+                                          ),
+                                          onPressed: saveStockingList,
+                                          child: const Text("Save", style: TextStyle(color: Colors.white)),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 );
-                              },
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.deepPurple,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 14),
-                              ),
-                              onPressed: saveStockingList,
-                              child: const Text("Save", style: TextStyle(color: Colors.white)),
-                            ),
-                          ),
-                        ],
+                              }else{
+                                return Card(
+                                  color: Colors.white,
+                                  margin: const EdgeInsets.all(8),
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(8),
+                                        color: Colors.deepPurple.shade100,
+                                        child: const Center(
+                                          child: Text(
+                                            "Stocking List",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.deepPurple,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        //height: MediaQuery.of(context).size.height * 0.3,
+                                        child: ListView.builder(
+                                          shrinkWrap: true,
+                                          physics: NeverScrollableScrollPhysics(),
+                                          itemCount: selectedItems.length,
+                                          itemBuilder: (context, index) {
+                                            final sel = selectedItems[index];
+                                            final double cost = double.tryParse(sel['costPrice']?.toString() ?? '0') ?? 0;
+                                            final int qty = sel['qty'] ?? 1;
+                                            final double totalCost = cost * qty;
+                                            return Column(
+                                              children: [
+                                                ListTile(
+                                                  title: Text(sel['name']),
+                                                  subtitle: Text(
+                                                    "Barcode: ${sel['barcode']}\nUnit Cost: $cost\nQty: $qty\nTotal Cost: $totalCost",
+                                                  ),
+                                                  trailing: Row(
+                                                    mainAxisSize: MainAxisSize.min,
+                                                    children: [
+                                                      IconButton(
+                                                        icon: const Icon(Icons.remove_circle, color: Colors.red),
+                                                        onPressed: () {
+                                                          setState(() {
+                                                            if (sel['qty'] > 1) sel['qty']--;
+                                                          });
+                                                        },
+                                                      ),
+                                                      Text(sel['qty'].toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                                                      IconButton(
+                                                        icon: const Icon(Icons.add_circle, color: Colors.green),
+                                                        onPressed: () {
+                                                          setState(() => sel['qty']++);
+                                                        },
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                Divider(
+                                                  color: Colors.deepPurple.shade100,
+                                                  endIndent: 30,
+                                                  indent: 30,
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.deepPurple,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(10),
+                                            ),
+                                            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 14),
+                                          ),
+                                          onPressed: saveStockingList,
+                                          child: const Text("Save", style: TextStyle(color: Colors.white)),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }
+                            }
+                        ),
                       ),
-                    ),
-                  ),
-              ],
-            ),
+                    )
+                ],
+              ),
+            ],
           ),
         ),
       ),
