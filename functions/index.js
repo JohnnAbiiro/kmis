@@ -3,7 +3,8 @@ import { onDocumentUpdated } from "firebase-functions/v2/firestore";
 import { onDocumentCreated } from "firebase-functions/v2/firestore";
 import admin from "firebase-admin";
 import { v4 as uuidv4 } from "uuid"; // install with: npm install uuid
-
+import { onRequest } from "firebase-functions/v2/https";
+import { onDocumentDeleted } from "firebase-functions/v2/firestore";
 if (!admin.apps.length) {
   admin.initializeApp();
 }
@@ -638,7 +639,7 @@ export const updateReportsOnLedger = onDocumentCreated(
     }
   }
 );
-import { onRequest } from "firebase-functions/v2/https";
+
 
 export const sendPushNotificationHttp = onRequest(async (req, res) => {
   const { token, title, body, data } = req.body;
@@ -658,3 +659,614 @@ export const sendPushNotificationHttp = onRequest(async (req, res) => {
     return res.status(500).json({ error: error.message || "Failed to send notification" });
   }
 });
+
+// Stock Statement Triggers
+
+// Create/Update stock statement when new sales document is created
+export const updateStockStatementOnSales = onDocumentCreated(
+  "sales/{salesId}",
+  async (event) => {
+    const snapshot = event.data;
+    if (!snapshot) return;
+    
+    const salesData = snapshot.data();
+    if (!salesData) return;
+
+    const { items, schoolId } = salesData;
+    
+    try {
+      const batch = db.batch();
+      
+      // Process each item in the sales
+      for (const item of items || []) {
+        const { barcode, name, costPrice, qty, totalCost } = item;
+        
+        if (!barcode || !qty || qty <= 0) continue;
+        
+        // Use barcode_schoolId as document ID for stock statement
+        const stockStatementRef = db.collection("stockStatement").doc(`${barcode}_${schoolId}`);
+        
+        // Get existing stock statement or create new one
+        const existingDoc = await stockStatementRef.get();
+        
+        if (existingDoc.exists) {
+          // Update existing document
+          const currentData = existingDoc.data();
+          const newTotalSoldQty = (currentData.totalSoldQty || 0) + Math.abs(qty);
+          const newBalance = (currentData.totalStockQty || 0) - newTotalSoldQty;
+          
+          batch.update(stockStatementRef, {
+            totalSoldQty: newTotalSoldQty,
+            balance: newBalance,
+            lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
+            lastSaleData: {
+              salesId: event.params.salesId,
+              qty: Math.abs(qty),
+              costPrice: costPrice || 0,
+              timestamp: admin.firestore.FieldValue.serverTimestamp()
+            }
+          });
+        } else {
+          // Create new document
+          batch.set(stockStatementRef, {
+            barcode,
+            itemName: name || "Unknown Item",
+            totalSoldQty: Math.abs(qty),
+            totalStockQty: 0,
+            balance: -Math.abs(qty), // Negative because we only have sales data
+            schoolId: schoolId || null,
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
+            lastSaleData: {
+              salesId: event.params.salesId,
+              qty: Math.abs(qty),
+              costPrice: costPrice || 0,
+              timestamp: admin.firestore.FieldValue.serverTimestamp()
+            }
+          });
+        }
+      }
+      
+      await batch.commit();
+      console.log(`Stock statement updated for sales ${event.params.salesId}`);
+      
+    } catch (error) {
+      console.error("Error updating stock statement for sales:", error);
+      await db.collection("errors").add({
+        type: "stock_statement",
+        operation: "sales_create",
+        salesId: event.params.salesId,
+        message: error.message,
+        timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    }
+  }
+);
+
+// Create/Update stock statement when new stock document is created
+export const updateStockStatementOnStocking = onDocumentCreated(
+  "stock/{stockingId}",
+  async (event) => {
+    const snapshot = event.data;
+    if (!snapshot) return;
+    
+    const stockingData = snapshot.data();
+    if (!stockingData) return;
+
+    const { items, schoolId } = stockingData;
+    
+    try {
+      const batch = db.batch();
+      
+      // Process each item in the stocking
+      for (const item of items || []) {
+        const { barcode, name, costPrice, qty, totalCost } = item;
+        
+        if (!barcode || !qty || qty <= 0) continue;
+        
+        // Use barcode_schoolId as document ID for stock statement
+        const stockStatementRef = db.collection("stockStatement").doc(`${barcode}_${schoolId}`);
+        
+        // Get existing stock statement or create new one
+        const existingDoc = await stockStatementRef.get();
+        
+        if (existingDoc.exists) {
+          // Update existing document
+          const currentData = existingDoc.data();
+          const newTotalStockQty = (currentData.totalStockQty || 0) + Math.abs(qty);
+          const newBalance = newTotalStockQty - (currentData.totalSoldQty || 0);
+          
+          batch.update(stockStatementRef, {
+            totalStockQty: newTotalStockQty,
+            balance: newBalance,
+            lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
+            lastStockingData: {
+              stockingId: event.params.stockingId,
+              qty: Math.abs(qty),
+              costPrice: costPrice || 0,
+              timestamp: admin.firestore.FieldValue.serverTimestamp()
+            }
+          });
+        } else {
+          // Create new document
+          batch.set(stockStatementRef, {
+            barcode,
+            itemName: name || "Unknown Item",
+            totalSoldQty: 0,
+            totalStockQty: Math.abs(qty),
+            balance: Math.abs(qty), // Positive because we only have stock data
+            schoolId: schoolId || null,
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
+            lastStockingData: {
+              stockingId: event.params.stockingId,
+              qty: Math.abs(qty),
+              costPrice: costPrice || 0,
+              timestamp: admin.firestore.FieldValue.serverTimestamp()
+            }
+          });
+        }
+      }
+      
+      await batch.commit();
+      console.log(`Stock statement updated for stock ${event.params.stockingId}`);
+      
+    } catch (error) {
+      console.error("Error updating stock statement for stock:", error);
+      await db.collection("errors").add({
+        type: "stock_statement",
+        operation: "stock_create",
+        stockingId: event.params.stockingId,
+        message: error.message,
+        timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    }
+  }
+);
+
+// Update stock statement when sales document is updated
+export const updateStockStatementOnSalesUpdate = onDocumentUpdated(
+  "sales/{salesId}",
+  async (event) => {
+    const beforeData = event.data.before.data();
+    const afterData = event.data.after.data();
+    
+    if (!beforeData || !afterData) return;
+
+    const beforeItems = beforeData.items || [];
+    const afterItems = afterData.items || [];
+    const { schoolId } = afterData;
+    
+    // Check if items have changed
+    if (JSON.stringify(beforeItems) === JSON.stringify(afterItems)) {
+      return; // No changes in items
+    }
+
+    try {
+      const batch = db.batch();
+      
+      // Create a map to track quantity differences per barcode
+      const quantityDiffs = new Map();
+      
+      // Calculate differences
+      beforeItems.forEach(item => {
+        if (item.barcode && item.qty) {
+          quantityDiffs.set(item.barcode, -(Math.abs(item.qty) || 0));
+        }
+      });
+      
+      afterItems.forEach(item => {
+        if (item.barcode && item.qty) {
+          const currentDiff = quantityDiffs.get(item.barcode) || 0;
+          quantityDiffs.set(item.barcode, currentDiff + (Math.abs(item.qty) || 0));
+        }
+      });
+      
+      // Apply changes to stock statements
+      for (const [barcode, qtyDiff] of quantityDiffs) {
+        if (qtyDiff === 0) continue;
+        
+        const stockStatementRef = db.collection("stockStatement").doc(`${barcode}_${schoolId}`);
+        const existingDoc = await stockStatementRef.get();
+        
+        if (existingDoc.exists) {
+          const currentData = existingDoc.data();
+          const newTotalSoldQty = Math.max(0, (currentData.totalSoldQty || 0) + qtyDiff);
+          const newBalance = (currentData.totalStockQty || 0) - newTotalSoldQty;
+          
+          batch.update(stockStatementRef, {
+            totalSoldQty: newTotalSoldQty,
+            balance: newBalance,
+            lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
+            lastUpdateData: {
+              salesId: event.params.salesId,
+              qtyDiff: qtyDiff,
+              reason: "sales_update",
+              timestamp: admin.firestore.FieldValue.serverTimestamp()
+            }
+          });
+        }
+      }
+      
+      if (quantityDiffs.size > 0) {
+        await batch.commit();
+        console.log(`Stock statement updated for sales update ${event.params.salesId}`);
+      }
+      
+    } catch (error) {
+      console.error("Error updating stock statement for sales update:", error);
+      await db.collection("errors").add({
+        type: "stock_statement",
+        operation: "sales_update",
+        salesId: event.params.salesId,
+        message: error.message,
+        timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    }
+  }
+);
+
+// Update stock statement when stock document is updated
+export const updateStockStatementOnStockingUpdate = onDocumentUpdated(
+  "stock/{stockingId}",
+  async (event) => {
+    const beforeData = event.data.before.data();
+    const afterData = event.data.after.data();
+    
+    if (!beforeData || !afterData) return;
+
+    const beforeItems = beforeData.items || [];
+    const afterItems = afterData.items || [];
+    const { schoolId } = afterData;
+    
+    // Check if items have changed
+    if (JSON.stringify(beforeItems) === JSON.stringify(afterItems)) {
+      return; // No changes in items
+    }
+
+    try {
+      const batch = db.batch();
+      
+      // Create a map to track quantity differences per barcode
+      const quantityDiffs = new Map();
+      
+      // Calculate differences
+      beforeItems.forEach(item => {
+        if (item.barcode && item.qty) {
+          quantityDiffs.set(item.barcode, -(Math.abs(item.qty) || 0));
+        }
+      });
+      
+      afterItems.forEach(item => {
+        if (item.barcode && item.qty) {
+          const currentDiff = quantityDiffs.get(item.barcode) || 0;
+          quantityDiffs.set(item.barcode, currentDiff + (Math.abs(item.qty) || 0));
+        }
+      });
+      
+      // Apply changes to stock statements
+      for (const [barcode, qtyDiff] of quantityDiffs) {
+        if (qtyDiff === 0) continue;
+        
+        const stockStatementRef = db.collection("stockStatement").doc(`${barcode}_${schoolId}`);
+        const existingDoc = await stockStatementRef.get();
+        
+        if (existingDoc.exists) {
+          const currentData = existingDoc.data();
+          const newTotalStockQty = Math.max(0, (currentData.totalStockQty || 0) + qtyDiff);
+          const newBalance = newTotalStockQty - (currentData.totalSoldQty || 0);
+          
+          batch.update(stockStatementRef, {
+            totalStockQty: newTotalStockQty,
+            balance: newBalance,
+            lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
+            lastUpdateData: {
+              stockingId: event.params.stockingId,
+              qtyDiff: qtyDiff,
+              reason: "stock_update",
+              timestamp: admin.firestore.FieldValue.serverTimestamp()
+            }
+          });
+        }
+      }
+      
+      if (quantityDiffs.size > 0) {
+        await batch.commit();
+        console.log(`Stock statement updated for stock update ${event.params.stockingId}`);
+      }
+      
+    } catch (error) {
+      console.error("Error updating stock statement for stock update:", error);
+      await db.collection("errors").add({
+        type: "stock_statement",
+        operation: "stock_update",
+        stockingId: event.params.stockingId,
+        message: error.message,
+        timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    }
+  }
+);
+
+// Delete stock statement when sales document is deleted
+export const updateStockStatementOnSalesDelete = onDocumentDeleted(
+  "sales/{salesId}",
+  async (event) => {
+    const deletedData = event.data.data();
+    if (!deletedData) return;
+
+    const { items, schoolId } = deletedData;
+    
+    try {
+      const batch = db.batch();
+      
+      // Process each item in the deleted sales
+      for (const item of items || []) {
+        const { barcode, qty } = item;
+        
+        if (!barcode || !qty || qty <= 0) continue;
+        
+        const stockStatementRef = db.collection("stockStatement").doc(`${barcode}_${schoolId}`);
+        const existingDoc = await stockStatementRef.get();
+        
+        if (existingDoc.exists) {
+          const currentData = existingDoc.data();
+          const newTotalSoldQty = Math.max(0, (currentData.totalSoldQty || 0) - Math.abs(qty));
+          const newBalance = (currentData.totalStockQty || 0) - newTotalSoldQty;
+          
+          batch.update(stockStatementRef, {
+            totalSoldQty: newTotalSoldQty,
+            balance: newBalance,
+            lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
+            lastDeleteData: {
+              salesId: event.params.salesId,
+              reversedQty: Math.abs(qty),
+              reason: "sales_deleted",
+              timestamp: admin.firestore.FieldValue.serverTimestamp()
+            }
+          });
+        }
+      }
+      
+      await batch.commit();
+      console.log(`Stock statement updated for sales deletion ${event.params.salesId}`);
+      
+    } catch (error) {
+      console.error("Error updating stock statement for sales deletion:", error);
+      await db.collection("errors").add({
+        type: "stock_statement",
+        operation: "sales_delete",
+        salesId: event.params.salesId,
+        message: error.message,
+        timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    }
+  }
+);
+
+// Delete stock statement when stock document is deleted
+export const updateStockStatementOnStockingDelete = onDocumentDeleted(
+  "stock/{stockingId}",
+  async (event) => {
+    const deletedData = event.data.data();
+    if (!deletedData) return;
+
+    const { items, schoolId } = deletedData;
+    
+    try {
+      const batch = db.batch();
+      
+      // Process each item in the deleted stocking
+      for (const item of items || []) {
+        const { barcode, qty } = item;
+        
+        if (!barcode || !qty || qty <= 0) continue;
+        
+        const stockStatementRef = db.collection("stockStatement").doc(`${barcode}_${schoolId}`);
+        const existingDoc = await stockStatementRef.get();
+        
+        if (existingDoc.exists) {
+          const currentData = existingDoc.data();
+          const newTotalStockQty = Math.max(0, (currentData.totalStockQty || 0) - Math.abs(qty));
+          const newBalance = newTotalStockQty - (currentData.totalSoldQty || 0);
+          
+          batch.update(stockStatementRef, {
+            totalStockQty: newTotalStockQty,
+            balance: newBalance,
+            lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
+            lastDeleteData: {
+              stockingId: event.params.stockingId,
+              reversedQty: Math.abs(qty),
+              reason: "stock_deleted",
+              timestamp: admin.firestore.FieldValue.serverTimestamp()
+            }
+          });
+        }
+      }
+      
+      await batch.commit();
+      console.log(`Stock statement updated for stock deletion ${event.params.stockingId}`);
+      
+    } catch (error) {
+      console.error("Error updating stock statement for stock deletion:", error);
+      await db.collection("errors").add({
+        type: "stock_statement",
+        operation: "stock_delete",
+        stockingId: event.params.stockingId,
+        message: error.message,
+        timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    }
+  }
+);
+
+// HTTP function to get stock statements with filtering options
+export const getStockStatements = onRequest(async (req, res) => {
+  try {
+    const { barcode, schoolId, includeZeroBalance } = req.query;
+    
+    let query = db.collection("stockStatement");
+    
+    // Apply filters
+    if (barcode) {
+      query = query.where("barcode", "==", barcode);
+    }
+    
+    if (schoolId) {
+      query = query.where("schoolId", "==", schoolId);
+    }
+    
+    // Only order by balance if no specific filters are applied
+    if (!barcode && !schoolId) {
+      query = query.orderBy("balance", "desc");
+    }
+    
+    const snapshot = await query.get();
+    let stockStatements = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      lastUpdated: doc.data().lastUpdated?.toDate?.() || doc.data().lastUpdated,
+      createdAt: doc.data().createdAt?.toDate?.() || doc.data().createdAt
+    }));
+    
+    // Filter out zero balance items if requested
+    if (includeZeroBalance !== 'true') {
+      stockStatements = stockStatements.filter(item => item.balance > 0);
+    }
+    
+    // Sort by balance descending if we have results
+    if (barcode || schoolId) {
+      stockStatements.sort((a, b) => (b.balance || 0) - (a.balance || 0));
+    }
+    
+    res.json({
+      success: true,
+      stockStatements,
+      totalItems: stockStatements.length,
+      totalStockValue: stockStatements.reduce((sum, item) => sum + (item.balance || 0), 0)
+    });
+    
+  } catch (error) {
+    console.error("Error getting stock statements:", error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
+// HTTP function to regenerate all stock statements from existing data
+export const regenerateStockStatements = onRequest(async (req, res) => {
+  try {
+    console.log("Starting stock statements regeneration...");
+    
+    // Clear existing stock statements
+    const existingSnapshot = await db.collection("stockStatement").get();
+    const batch = db.batch();
+    
+    existingSnapshot.docs.forEach(doc => {
+      batch.delete(doc.ref);
+    });
+    
+    await batch.commit();
+    console.log(`Cleared ${existingSnapshot.docs.length} existing stock statements`);
+    
+    // Process all sales documents
+    const salesSnapshot = await db.collection("sales").get();
+    let processedSales = 0;
+    
+    for (const salesDoc of salesSnapshot.docs) {
+      const salesData = salesDoc.data();
+      const { items, schoolId } = salesData;
+      
+      for (const item of items || []) {
+        const { barcode, name, qty } = item;
+        
+        if (!barcode || !qty || qty <= 0) continue;
+        
+        const stockStatementRef = db.collection("stockStatement").doc(`${barcode}_${schoolId}`);
+        const existingDoc = await stockStatementRef.get();
+        
+        if (existingDoc.exists) {
+          const currentData = existingDoc.data();
+          await stockStatementRef.update({
+            totalSoldQty: (currentData.totalSoldQty || 0) + Math.abs(qty),
+            balance: (currentData.totalStockQty || 0) - ((currentData.totalSoldQty || 0) + Math.abs(qty)),
+            lastUpdated: admin.firestore.FieldValue.serverTimestamp()
+          });
+        } else {
+          await stockStatementRef.set({
+            barcode,
+            itemName: name || "Unknown Item",
+            totalSoldQty: Math.abs(qty),
+            totalStockQty: 0,
+            balance: -Math.abs(qty),
+            schoolId: schoolId || null,
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            lastUpdated: admin.firestore.FieldValue.serverTimestamp()
+          });
+        }
+      }
+      processedSales++;
+    }
+    
+    // Process all stock documents
+    const stockingSnapshot = await db.collection("stock").get();
+    let processedStocking = 0;
+    
+    for (const stockingDoc of stockingSnapshot.docs) {
+      const stockingData = stockingDoc.data();
+      const { items, schoolId } = stockingData;
+      
+      for (const item of items || []) {
+        const { barcode, name, qty } = item;
+        
+        if (!barcode || !qty || qty <= 0) continue;
+        
+        const stockStatementRef = db.collection("stockStatement").doc(`${barcode}_${schoolId}`);
+        const existingDoc = await stockStatementRef.get();
+        
+        if (existingDoc.exists) {
+          const currentData = existingDoc.data();
+          const newTotalStockQty = (currentData.totalStockQty || 0) + Math.abs(qty);
+          await stockStatementRef.update({
+            totalStockQty: newTotalStockQty,
+            balance: newTotalStockQty - (currentData.totalSoldQty || 0),
+            lastUpdated: admin.firestore.FieldValue.serverTimestamp()
+          });
+        } else {
+          await stockStatementRef.set({
+            barcode,
+            itemName: name || "Unknown Item",
+            totalSoldQty: 0,
+            totalStockQty: Math.abs(qty),
+            balance: Math.abs(qty),
+            schoolId: schoolId || null,
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            lastUpdated: admin.firestore.FieldValue.serverTimestamp()
+          });
+        }
+      }
+      processedStocking++;
+    }
+    
+    console.log(`Regeneration completed: ${processedSales} sales, ${processedStocking} stock`);
+    
+    res.json({
+      success: true,
+      message: "Stock statements regenerated successfully",
+      processed: {
+        sales: processedSales,
+        stock: processedStocking
+      }
+    });
+    
+  } catch (error) {
+    console.error("Error regenerating stock statements:", error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+

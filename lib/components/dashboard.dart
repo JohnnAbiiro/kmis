@@ -152,49 +152,49 @@ class _DashboardLayoutState extends State<DashboardLayout> {
                       ],
                     ),
                     SizedBox(height: 15),
-                    Wrap(
-                      spacing: 15,
-                      runSpacing: 15,
-                      crossAxisAlignment: WrapCrossAlignment.start,
-                      children: [
-                        ActiveFeePolicy(
-                          cwidth: isMobile
-                              ? screenWidth * 0.95
-                              : isTablet
-                              ? screenWidth * 0.63
-                              : isBigTablet
-                              ? screenWidth * 0.473
-                              : screenWidth * 0.23,
-                        ),
-                        ActiveFeePolicy(
-                          cwidth: isMobile
-                              ? screenWidth * 0.95
-                              : isTablet
-                              ? screenWidth * 0.63
-                              : isBigTablet
-                              ? screenWidth * 0.473
-                              : screenWidth * 0.24,
-                        ),
-                        ActiveFeePolicy(
-                          cwidth: isMobile
-                              ? screenWidth * 0.95
-                              : isTablet
-                              ? screenWidth * 0.63
-                              : isBigTablet
-                              ? screenWidth * 0.473
-                              : screenWidth * 0.23,
-                        ),
-                        ActiveFeePolicy(
-                          cwidth: isMobile
-                              ? screenWidth * 0.95
-                              : isTablet
-                              ? screenWidth * 0.63
-                              : isBigTablet
-                              ? screenWidth * 0.473
-                              : screenWidth * 0.23,
-                        ),
-                      ],
-                    ),
+                    // Wrap(
+                    //   spacing: 15,
+                    //   runSpacing: 15,
+                    //   crossAxisAlignment: WrapCrossAlignment.start,
+                    //   children: [
+                    //     ActiveFeePolicy(
+                    //       cwidth: isMobile
+                    //           ? screenWidth * 0.95
+                    //           : isTablet
+                    //           ? screenWidth * 0.63
+                    //           : isBigTablet
+                    //           ? screenWidth * 0.473
+                    //           : screenWidth * 0.23,
+                    //     ),
+                    //     ActiveFeePolicy(
+                    //       cwidth: isMobile
+                    //           ? screenWidth * 0.95
+                    //           : isTablet
+                    //           ? screenWidth * 0.63
+                    //           : isBigTablet
+                    //           ? screenWidth * 0.473
+                    //           : screenWidth * 0.24,
+                    //     ),
+                    //     ActiveFeePolicy(
+                    //       cwidth: isMobile
+                    //           ? screenWidth * 0.95
+                    //           : isTablet
+                    //           ? screenWidth * 0.63
+                    //           : isBigTablet
+                    //           ? screenWidth * 0.473
+                    //           : screenWidth * 0.23,
+                    //     ),
+                    //     ActiveFeePolicy(
+                    //       cwidth: isMobile
+                    //           ? screenWidth * 0.95
+                    //           : isTablet
+                    //           ? screenWidth * 0.63
+                    //           : isBigTablet
+                    //           ? screenWidth * 0.473
+                    //           : screenWidth * 0.23,
+                    //     ),
+                    //   ],
+                    // ),
                     SizedBox(height: 15),
                     Wrap(
                       runSpacing: 16,
