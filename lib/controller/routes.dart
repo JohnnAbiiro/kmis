@@ -3,9 +3,11 @@ import 'package:ksoftsms/controller/dbmodels/classmodel.dart';
 import 'package:ksoftsms/screen/expenseForm.dart';
 import 'package:ksoftsms/screen/itemCategory.dart';
 import 'package:ksoftsms/screen/itemreg.dart';
+import 'package:ksoftsms/screen/sales.dart';
 
 import 'package:ksoftsms/screen/signup.dart';
 import 'package:ksoftsms/screen/stock_form.dart';
+//import 'package:ksoftsms/screen/stock_statement.dart';
 import 'package:ksoftsms/screen/supplierForm.dart';
 import '../components/academicyrmodel.dart';
 import '../components/dashboard.dart';
@@ -90,6 +92,8 @@ class Routes {
   static const supplier = "/supplier";
   static const itemreg = "/itemreg";
   static const stock = "/stock";
+  static const stockStatement = "/stockStatement";
+  static const sales = "/sales";
 
   static const regstaff = "/regstaff";
   static const accesscomponent = "/accesscomponent";
@@ -170,27 +174,63 @@ final GoRouter router = GoRouter(
   initialLocation: Routes.login,
 
   routes: [
+    GoRoute(path: Routes.sales, builder: (c, s) => Sales()),
     GoRoute(path: Routes.stock, builder: (c, s) => StockForm()),
+    //GoRoute(path: Routes.stockStatement, builder: (c, s) => StockStatement()),
     GoRoute(path: Routes.itemcategory, builder: (c, s) => ItemCategory()),
     GoRoute(path: Routes.itemreg, builder: (c, s) => ItemReg()),
     GoRoute(path: Routes.supplier, builder: (c, s) => SupplierForm()),
     GoRoute(path: Routes.expense, builder: (c, s) => ExpenseForm()),
     GoRoute(path: Routes.login, builder: (c, s) => SpacerSignUpPage()),
-    GoRoute(path: Routes.regstaff, builder: (context, state) {return Regstaff();}),
-    GoRoute(path: Routes.employee, builder: (context, state) => EmployeeScreen()),
+    GoRoute(
+      path: Routes.regstaff,
+      builder: (context, state) {
+        return Regstaff();
+      },
+    ),
+    GoRoute(
+      path: Routes.employee,
+      builder: (context, state) => EmployeeScreen(),
+    ),
     GoRoute(path: Routes.payroll, builder: (context, state) => PayrollScreen()),
-    GoRoute(path: Routes.employee, builder: (context, state) => EmployeeScreen(),),
-    GoRoute(path: Routes.levelreg, builder: (context, state) {final level = state.extra as LevelModel?;return LevelListScreen(levelData: level);}),
+    GoRoute(
+      path: Routes.employee,
+      builder: (context, state) => EmployeeScreen(),
+    ),
+    GoRoute(
+      path: Routes.levelreg,
+      builder: (context, state) {
+        final level = state.extra as LevelModel?;
+        return LevelListScreen(levelData: level);
+      },
+    ),
     GoRoute(path: Routes.dashboard, builder: (c, s) => DashboardLayout()),
     GoRoute(path: Routes.receipt, builder: (c, s) => SchoolReceipt()),
     GoRoute(path: Routes.jscore, builder: (c, s) => JudgeGroundScreen()),
-    GoRoute(path: Routes.term, builder: (context, state) {final term = state.extra as TermModel?;return Term(term: term);},),
-    GoRoute(path: Routes.depart, builder: (context, state) {final depart = state.extra as DepartmentModel?;return Department(depart: depart);}),
-    GoRoute(path: Routes.classes, builder: (context, state) {final classes = state.extra as ClassModel?;
+    GoRoute(
+      path: Routes.term,
+      builder: (context, state) {
+        final term = state.extra as TermModel?;
+        return Term(term: term);
+      },
+    ),
+    GoRoute(
+      path: Routes.depart,
+      builder: (context, state) {
+        final depart = state.extra as DepartmentModel?;
+        return Department(depart: depart);
+      },
+    ),
+    GoRoute(
+      path: Routes.classes,
+      builder: (context, state) {
+        final classes = state.extra as ClassModel?;
         return ClassScreen(classes: classes);
       },
     ),
-    GoRoute(path: Routes.subjects, builder: (context, state) {
+    GoRoute(
+      path: Routes.subjects,
+      builder: (context, state) {
         final subject = state.extra is SubjectModel
             ? state.extra as SubjectModel
             : null;

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_search/dropdown_search.dart'; // <-- add in pubspec.yaml
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../controller/dbmodels/iteRegModel.dart';
+import '../controller/myprovider.dart';
 import '../controller/routes.dart';
 
 class StockForm extends StatefulWidget {
@@ -12,6 +14,8 @@ class StockForm extends StatefulWidget {
 
 class _StockFormState extends State<StockForm> {
   String purchaseMode = 'Cash';
+  String schoolId = '';
+  String staff = '';
   List<ItemRegModel> allItems = [];
   List<ItemRegModel> filteredItems = [];
   List<Map<String, dynamic>> selectedItems = [];
@@ -25,6 +29,12 @@ class _StockFormState extends State<StockForm> {
     super.initState();
     fetchItems();
     fetchSuppliers();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = Provider.of<Myprovider>(context, listen: false);
+      schoolId=provider.schoolid;
+      staff=provider.name;
+
+    });
   }
 
   Future<void> fetchItems() async {
@@ -55,9 +65,7 @@ class _StockFormState extends State<StockForm> {
       if (query.trim().isEmpty) {
         filteredItems = [];
       } else {
-        filteredItems = allItems
-            .where(
-              (item) =>
+        filteredItems = allItems.where((item) =>
           item.name.toLowerCase().contains(query.toLowerCase()) ||
               item.barcode.toLowerCase().contains(query.toLowerCase()),
         )
@@ -108,7 +116,7 @@ class _StockFormState extends State<StockForm> {
       return;
     }
 
-    final docRef = FirebaseFirestore.instance.collection("stockingLists").doc();
+    final docRef = FirebaseFirestore.instance.collection("stock").doc();
 
     double cumulativeCost = 0;
     for (var item in selectedItems) {
@@ -123,6 +131,8 @@ class _StockFormState extends State<StockForm> {
       'items': selectedItems,
       'purchaseMode': purchaseMode,
       'cumulativeCost': cumulativeCost,
+      'schoolId': schoolId,
+      'staff': staff,
     });
 
     setState(() {
@@ -160,7 +170,7 @@ class _StockFormState extends State<StockForm> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Stock Entries',
+                  'Stock Entries $schoolId',
                   style: const TextStyle(color: Colors.white, fontSize: 18),
                 ),
                 Padding(
