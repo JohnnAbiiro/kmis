@@ -512,6 +512,19 @@ class CustomDrawer extends StatelessWidget {
                                   },
                                 ),
                               ),
+                              SizedBox(
+                                child: _drawerTile(
+                                  icon: Icons.grid_view_sharp,
+                                  title: 'Sales',
+                                  onTap: () async {
+                                    try {
+                                      context.go(Routes.sales);
+                                    } catch (e) {
+                                      print(e);
+                                    }
+                                  },
+                                ),
+                              ),
 
 
 
