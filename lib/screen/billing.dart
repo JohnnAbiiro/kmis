@@ -115,57 +115,69 @@ class _BillingState extends State<Billing> {
                               buildDropdown(value: selectedYearGroup, items: _yeargroup, label: "Year Group", fillColor: inputFill, onChanged: (v) => setState(() => selectedYearGroup = v), validatorMsg: "Select year group"),
                               const SizedBox(height: 20),
                               // Save Button
-                              ElevatedButton.icon(style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00496d), padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12)),
-                                onPressed: () async {
-                                  if (_formKey.currentState!.validate()) {
-                                    final progress = ProgressHUD.of(context);
-                                    progress!.show();
-                                    String amount=accountController.text.trim();
-                                    String ids="${value.schoolid}$selectedYearGroup$selectedTerm$selecteddepart$selectedLevel$selectedfee";
-                                    String id = ids.replaceAll(RegExp(r'\s+'), '').toLowerCase();
+                              Row(
+                                children: [
+                                  ElevatedButton.icon(style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00496d), padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12)),
+                                    onPressed: () async {
+                                      if (_formKey.currentState!.validate()) {
+                                        final progress = ProgressHUD.of(context);
+                                        progress!.show();
+                                        String amount=accountController.text.trim();
+                                        String ids="${value.schoolid}$selectedYearGroup$selectedTerm$selecteddepart$selectedLevel$selectedfee";
+                                        String id = ids.replaceAll(RegExp(r'\s+'), '').toLowerCase();
 
-                                    try {
-                                      final dataexist=await value.db.collection("billed").doc(id).get();
-                                      if(dataexist.exists){
-                                        progress.dismiss();
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                           SnackBar(
-                                            content: Text("$selectedfee  has been billed already"),
-                                            backgroundColor: Colors.red,
-                                          ),
-                                        );
-                                        return;
+                                        try {
+                                          final dataexist=await value.db.collection("billed").doc(id).get();
+                                          if(dataexist.exists){
+                                            progress.dismiss();
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                               SnackBar(
+                                                content: Text("$selectedfee  has been billed already"),
+                                                backgroundColor: Colors.red,
+                                              ),
+                                            );
+                                            return;
+                                          }
+                                          final data=BilledModel(level: selectedLevel.toString(), yeargroup: selectedYearGroup.toString(), amount: amount, activityType: "Fee Billing", term: selectedTerm.toString(), schoolId: value.schoolid, dateCreated: DateTime.now(), feeName:selectedfee.toString()).toJson();
+                                          await value.db.collection("billed").doc(id).set(data);
+
+                                          progress.dismiss();
+
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                             SnackBar(
+                                              content: Text("$selectedfee - GHS$amount  Saved Successfully"),
+                                              backgroundColor: Colors.green,
+                                            ),
+                                          );
+
+                                          setState(() {
+                                            // _selectedDebitAccount = null;
+                                            // _selectedCreditAccount = null;
+                                          });
+                                        } catch (e) {
+                                          progress.dismiss();
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: Text("Failed to save data: $e"),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
+                                        }
                                       }
-                                      final data=BilledModel(level: selectedLevel.toString(), yeargroup: selectedYearGroup.toString(), amount: amount, activityType: "Fee Billing", term: selectedTerm.toString(), schoolId: value.schoolid, dateCreated: DateTime.now(), feeName:selectedfee.toString()).toJson();
-                                      await value.db.collection("billed").doc(id).set(data);
-
-                                      progress.dismiss();
-
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                         SnackBar(
-                                          content: Text("$selectedfee - GHS$amount  Saved Successfully"),
-                                          backgroundColor: Colors.green,
-                                        ),
-                                      );
-
-                                      setState(() {
-                                        // _selectedDebitAccount = null;
-                                        // _selectedCreditAccount = null;
-                                      });
-                                    } catch (e) {
-                                      progress.dismiss();
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text("Failed to save data: $e"),
-                                          backgroundColor: Colors.red,
-                                        ),
-                                      );
-                                    }
-                                  }
-                                },
-                                icon: const Icon(Icons.save, color: Colors.white),
-                                label: const Text("Save Activity",
-                                    style: TextStyle(color: Colors.white)),
+                                    },
+                                    icon: const Icon(Icons.save, color: Colors.white),
+                                    label: const Text("Save Activity",
+                                        style: TextStyle(color: Colors.white)),
+                                  ),
+                                  ElevatedButton.icon(style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00496d), padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12)),
+                                    onPressed: () {
+                                      context.go(Routes.billingview);
+                                    },
+                                    icon: const Icon(Icons.save, color: Colors.white),
+                                    label: const Text("View Activity",
+                                        style: TextStyle(color: Colors.white)),
+                                  ),
+                                ],
                               ),
                             ],
                           ),

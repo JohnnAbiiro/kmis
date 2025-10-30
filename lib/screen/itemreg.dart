@@ -150,46 +150,61 @@ class _RevenueGridPageState extends State<ItemReg> {
                                 value == null || value.trim().isEmpty ? "Selling" : null,
                               ),
                               const SizedBox(height: 10),
-                              ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF00496d),
-                                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                                ),
-                                onPressed: () async {
-                                  if (_formKey.currentState!.validate()) {
-                                    final progress = ProgressHUD.of(context);
-                                    progress!.show();
+                              Row(
+                                children: [
+                                  ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF00496d),
+                                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                                    ),
+                                    onPressed: () async {
+                                      if (_formKey.currentState!.validate()) {
+                                        final progress = ProgressHUD.of(context);
+                                        progress!.show();
 
-                                    try {
-                                      String barcodeTxt = barcodeController.text.trim();
-                                      String nameTxt = itemController.text.trim();
-                                      String costPrice = costPriceController.text.trim();
-                                      String sellingPrice = sellingPriceController.text.trim();
-                                      String openingStock = openingStockController.text.trim();
-                                      String ids = "${value.schoolid.toString().toLowerCase()}";
-                                      String id = "$ids${nameTxt.replaceAll(' ', '').toLowerCase()}";
-                                      final data = ItemRegModel(name: nameTxt, costPrice: costPrice, sellingPrice: sellingPrice, openningStock: openingStock, category: _selectedCategory.toString(), staff: value.name, schioolid:value.schoolid, barcode: barcodeTxt);
-                                      await value.db.collection("itemReg").doc(id).set(data.toJson());
-                                      progress.dismiss();
-                                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Data Saved Successfully"), backgroundColor: Colors.green,));
-                                      itemController.clear();
-                                      costPriceController.clear();
-                                      sellingPriceController.clear();
-                                      openingStockController.clear();
+                                        try {
+                                          String barcodeTxt = barcodeController.text.trim();
+                                          String nameTxt = itemController.text.trim();
+                                          String costPrice = costPriceController.text.trim();
+                                          String sellingPrice = sellingPriceController.text.trim();
+                                          String openingStock = openingStockController.text.trim();
+                                          String ids = "${value.schoolid.toString().toLowerCase()}";
+                                          String id = "$ids${nameTxt.replaceAll(' ', '').toLowerCase()}";
+                                          final data = ItemRegModel(name: nameTxt, costPrice: costPrice, sellingPrice: sellingPrice, openningStock: openingStock, category: _selectedCategory.toString(), staff: value.name, schioolid:value.schoolid, barcode: barcodeTxt);
+                                          await value.db.collection("itemReg").doc(id).set(data.toJson());
+                                          progress.dismiss();
+                                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Data Saved Successfully"), backgroundColor: Colors.green,));
+                                          itemController.clear();
+                                          costPriceController.clear();
+                                          sellingPriceController.clear();
+                                          openingStockController.clear();
 
-                                    } catch (e) {
-                                      progress.dismiss();
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text("Failed to save data: $e"),
-                                          backgroundColor: Colors.red,
-                                        ),
-                                      );
-                                    }
-                                  }
-                                },
-                                icon: const Icon(Icons.save, color: Colors.white),
-                                label: const Text("Save Account", style: TextStyle(color: Colors.white)),
+                                        } catch (e) {
+                                          progress.dismiss();
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: Text("Failed to save data: $e"),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
+                                        }
+                                      }
+                                    },
+                                    icon: const Icon(Icons.save, color: Colors.white),
+                                    label: const Text("Save Account", style: TextStyle(color: Colors.white)),
+                                  ),
+                                  ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF00496d),
+                                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                                    ),
+                                    onPressed: () {
+                                      context.go(Routes.itemregview);
+                                    },
+                                    icon: const Icon(Icons.save, color: Colors.white),
+                                    label: const Text("View Account", style: TextStyle(color: Colors.white)),
+                                  ),
+                                ],
                               ),
                             ],
                           ),

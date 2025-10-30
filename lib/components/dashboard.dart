@@ -13,6 +13,7 @@ import 'package:ksoftsms/components/ticketbydaychart.dart';
 import 'package:ksoftsms/controller/myprovider.dart';
 import 'package:ksoftsms/widgets/active_fee_policy.dart';
 import 'package:ksoftsms/widgets/animatedadmission.dart';
+import 'package:ksoftsms/widgets/notice.dart';
 import 'package:provider/provider.dart';
 import '../controller/routes.dart';
 import 'columnchart.dart';
@@ -128,18 +129,6 @@ class _DashboardLayoutState extends State<DashboardLayout> {
                           reader: double.parse(value.totalscored.toString()),
                           totalval: double.parse(value.totaltempaltes.toString()),
                         ),
-                        // DuplicateContainer(
-                        //   heading: 'Staff & Teacher Information',
-                        //   number: value.totalcontestants.toString(),
-                        //   value: '${value.accesslevel}',
-                        //   containerWidth: isMobile
-                        //       ? screenWidth * 0.95
-                        //       : isTablet
-                        //       ? screenWidth * 0.63
-                        //       : isBigTablet
-                        //       ? screenWidth * 0.473
-                        //       : screenWidth * 0.24,
-                        // ),
                         AttendanceTracking(
                           cwidth: isMobile
                               ? screenWidth * 0.95
@@ -151,50 +140,6 @@ class _DashboardLayoutState extends State<DashboardLayout> {
                         )
                       ],
                     ),
-                    SizedBox(height: 15),
-                    // Wrap(
-                    //   spacing: 15,
-                    //   runSpacing: 15,
-                    //   crossAxisAlignment: WrapCrossAlignment.start,
-                    //   children: [
-                    //     ActiveFeePolicy(
-                    //       cwidth: isMobile
-                    //           ? screenWidth * 0.95
-                    //           : isTablet
-                    //           ? screenWidth * 0.63
-                    //           : isBigTablet
-                    //           ? screenWidth * 0.473
-                    //           : screenWidth * 0.23,
-                    //     ),
-                    //     ActiveFeePolicy(
-                    //       cwidth: isMobile
-                    //           ? screenWidth * 0.95
-                    //           : isTablet
-                    //           ? screenWidth * 0.63
-                    //           : isBigTablet
-                    //           ? screenWidth * 0.473
-                    //           : screenWidth * 0.24,
-                    //     ),
-                    //     ActiveFeePolicy(
-                    //       cwidth: isMobile
-                    //           ? screenWidth * 0.95
-                    //           : isTablet
-                    //           ? screenWidth * 0.63
-                    //           : isBigTablet
-                    //           ? screenWidth * 0.473
-                    //           : screenWidth * 0.23,
-                    //     ),
-                    //     ActiveFeePolicy(
-                    //       cwidth: isMobile
-                    //           ? screenWidth * 0.95
-                    //           : isTablet
-                    //           ? screenWidth * 0.63
-                    //           : isBigTablet
-                    //           ? screenWidth * 0.473
-                    //           : screenWidth * 0.23,
-                    //     ),
-                    //   ],
-                    // ),
                     SizedBox(height: 15),
                     Wrap(
                       runSpacing: 16,
@@ -210,15 +155,6 @@ class _DashboardLayoutState extends State<DashboardLayout> {
                               ? screenWidth * 0.955
                               : screenWidth * 0.487,
                         ),
-                        // PriorityDonutChart(
-                        //   cwidth: isMobile
-                        //       ? screenWidth * 0.95
-                        //       : isTablet
-                        //       ? screenWidth * 0.63
-                        //       : isBigTablet
-                        //       ? screenWidth * 0.473
-                        //       : (screenWidth - 20) * 0.233,
-                        // ),
                         AcademicPerformanceCard(
                           cwidth: isMobile
                               ? screenWidth * 0.95
@@ -264,7 +200,7 @@ class _DashboardLayoutState extends State<DashboardLayout> {
                               : (screenWidth - 20) * 0.233,
                               totalvotes: "${value.totalvotes}",
                         ),
-                        CSAT(
+                        NoticeBoard(
                           cwidth: isMobile
                               ? screenWidth * 0.95
                               : isTablet
@@ -273,6 +209,15 @@ class _DashboardLayoutState extends State<DashboardLayout> {
                               ? screenWidth * 0.473
                               : (screenWidth - 20) * 0.233,
                         ),
+                        // CSAT(
+                        //   cwidth: isMobile
+                        //       ? screenWidth * 0.95
+                        //       : isTablet
+                        //       ? screenWidth * 0.63
+                        //       : isBigTablet
+                        //       ? screenWidth * 0.473
+                        //       : (screenWidth - 20) * 0.233,
+                        // ),
                       ],
                     ),
                   ],

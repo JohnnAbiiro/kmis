@@ -153,53 +153,70 @@ class _SystemActivityState extends State<SystemActivity> {
                               ),
                               const SizedBox(height: 30),
                               // Save Button
-                              ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF00496d),
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 30, vertical: 12),
-                                ),
-                                onPressed: () async {
-                                  if (_formKey.currentState!.validate()) {
-                                    final progress = ProgressHUD.of(context);
-                                    progress!.show();
-                                    String activityname=accountController.text.trim();
-                                    //String id="${value.schoolid}";
+                              Row(
+                                children: [
+                                  ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF00496d),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 30, vertical: 12),
+                                    ),
+                                    onPressed: () async {
+                                      if (_formKey.currentState!.validate()) {
+                                        final progress = ProgressHUD.of(context);
+                                        progress!.show();
+                                        String activityname=accountController.text.trim();
+                                        //String id="${value.schoolid}";
 
-                                    String ids = "${value.schoolid.toString().toLowerCase()}_${activityname.replaceAll(RegExp(r'\\s+'), '').toLowerCase()}";
-                                    String id=ids.replaceAll(RegExp(r'[^\w\s]+'),'');
+                                        String ids = "${value.schoolid.toString().toLowerCase()}_${activityname.replaceAll(RegExp(r'\\s+'), '').toLowerCase()}";
+                                        String id=ids.replaceAll(RegExp(r'[^\w\s]+'),'');
 
-                                    try {
-                                      final data=ActivityModel(name: activityname, schoolId: value.schoolid, drAccount: _selectedDebitAccount.toString(), crAccount: _selectedCreditAccount.toString(), staff: value.name, dateCreated: DateTime.now(), crAccountClass: _selectedCreditAccountClass.toString(), drAccountClass: _selectedDebitAccountClass.toString(), crAccountSubClass: _selectedCreditAccountSubClass.toString(), drAccountSubClass: _selectedDebitAccountSubClass.toString()).toJson();
-                                      await value.db.collection("systemActivity").doc(id).set(data);
+                                        try {
+                                          final data=ActivityModel(name: activityname, schoolId: value.schoolid, drAccount: _selectedDebitAccount.toString(), crAccount: _selectedCreditAccount.toString(), staff: value.name, dateCreated: DateTime.now(), crAccountClass: _selectedCreditAccountClass.toString(), drAccountClass: _selectedDebitAccountClass.toString(), crAccountSubClass: _selectedCreditAccountSubClass.toString(), drAccountSubClass: _selectedDebitAccountSubClass.toString()).toJson();
+                                          await value.db.collection("systemActivity").doc(id).set(data);
 
-                                      progress.dismiss();
+                                          progress.dismiss();
 
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                          content: Text("Data Saved Successfully"),
-                                          backgroundColor: Colors.green,
-                                        ),
-                                      );
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(
+                                              content: Text("Data Saved Successfully"),
+                                              backgroundColor: Colors.green,
+                                            ),
+                                          );
 
-                                      setState(() {
-                                        _selectedDebitAccount = null;
-                                        _selectedCreditAccount = null;
-                                      });
-                                    } catch (e) {
-                                      progress.dismiss();
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text("Failed to save data: $e"),
-                                          backgroundColor: Colors.red,
-                                        ),
-                                      );
-                                    }
-                                  }
-                                },
-                                icon: const Icon(Icons.save, color: Colors.white),
-                                label: const Text("Save Activity",
-                                    style: TextStyle(color: Colors.white)),
+                                          setState(() {
+                                            _selectedDebitAccount = null;
+                                            _selectedCreditAccount = null;
+                                          });
+                                        } catch (e) {
+                                          progress.dismiss();
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: Text("Failed to save data: $e"),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
+                                        }
+                                      }
+                                    },
+                                    icon: const Icon(Icons.save, color: Colors.white),
+                                    label: const Text("Save Activity",
+                                        style: TextStyle(color: Colors.white)),
+                                  ),
+                                  ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF00496d),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 30, vertical: 12),
+                                    ),
+                                    onPressed: () {
+                                      context.go(Routes.systemactivityview);
+                                    },
+                                    icon: const Icon(Icons.save, color: Colors.white),
+                                    label: const Text("View Activity",
+                                        style: TextStyle(color: Colors.white)),
+                                  ),
+                                ],
                               ),
                             ],
                           ),

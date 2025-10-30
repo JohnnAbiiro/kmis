@@ -9,6 +9,15 @@ import 'package:ksoftsms/screen/signup.dart';
 import 'package:ksoftsms/screen/stock_form.dart';
 //import 'package:ksoftsms/screen/stock_statement.dart';
 import 'package:ksoftsms/screen/supplierForm.dart';
+import 'package:ksoftsms/views/account_chart_view.dart';
+import 'package:ksoftsms/views/billing_view.dart';
+import 'package:ksoftsms/views/expense_view.dart';
+import 'package:ksoftsms/views/fee_payment_view.dart';
+import 'package:ksoftsms/views/item_reg_view.dart';
+import 'package:ksoftsms/views/single_billing_view.dart';
+import 'package:ksoftsms/views/staff_view.dart';
+import 'package:ksoftsms/views/supplier_view.dart';
+import 'package:ksoftsms/views/system_account_activity.dart';
 import '../components/academicyrmodel.dart';
 import '../components/dashboard.dart';
 
@@ -106,6 +115,15 @@ class Routes {
   static const marks = "/marks";
   static const receipt = "/receipt";
   static const employeee = "/employeee";
+  static const staffview = "/staffview";
+  static const supplierview = "/supplierview";
+  static const expenseview = "/expenseview";
+  static const feepaymentview = "/feepaymentview";
+  static const accountchartview = "/accountchartview";
+  static const systemactivityview = "/systemactivityview";
+  static const billingview = "/billingview";
+  static const singlebillingview = "/singlebillingview";
+  static const itemregview = "/itemregview";
 
   static const weekreg = "/weekreg";
   static const scoresheet = "/scoresheet";
@@ -167,6 +185,7 @@ class Routes {
       Routes.viewmarks,
     ],
   };
+
 }
 
 ///  All routes migrated into GoRouter (no RoleGuard)
@@ -321,5 +340,14 @@ final GoRouter router = GoRouter(
         return StaffScoringPage(args: args);
       },
     ),
+    GoRoute(path: Routes.staffview, builder: (c, s) => StaffView()),
+    GoRoute(path: Routes.supplierview, builder: (c, s) => SupplierView()),
+    GoRoute(path: Routes.expenseview, builder: (c, s) => ExpenseView()),
+    GoRoute(path: Routes.feepaymentview, builder: (c, s) => FeePaymentView()),
+    GoRoute(path: Routes.accountchartview, builder: (c, s) => AccountChartView()),
+    GoRoute(path: Routes.systemactivityview, builder: (c, s) => SystemAccountActivity()),
+    GoRoute(path: Routes.billingview, builder: (c, s) => BillingView()),
+    GoRoute(path: Routes.singlebillingview, builder: (c, s) => SingleBillingView()),
+    GoRoute(path: Routes.itemregview, builder: (c, s) => ItemRegView()),
   ],
 );

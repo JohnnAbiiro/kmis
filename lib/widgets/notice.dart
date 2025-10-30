@@ -6,96 +6,104 @@ class NoticeBoard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        height: 400,
-        width: cwidth,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.2),
-              blurRadius: 6,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
-                Text(
-                  'Notice Board',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+    return Container(
+      height: 400,
+      width: cwidth,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: const [
+              Text(
+                'Notice Board',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400,
                 ),
-                Icon(Icons.more_vert, color: Colors.grey),
-              ],
-            ),
-            const SizedBox(height: 10),
-
-            // List of notices
-            Expanded(
-              child: ListView(
-                children: const [
-                  NoticeItem(
-                    date: '18 Sep, 2022',
-                    title: 'It is a long established fact that a reader',
-                    author: 'Jimmy Solorzano',
-                    timeAgo: '5 min ago',
-                  ),
-                  NoticeItem(
-                    date: '18 Sep, 2022',
-                    title: 'The point of using Lorem Ipsum',
-                    author: 'Jimmy Solorzano',
-                    timeAgo: '10 min ago',
-                  ),
-                  NoticeItem(
-                    date: '18 Sep, 2022',
-                    title: 'Many desktop publishing packages and web',
-                    author: 'Jimmy Solorzano',
-                    timeAgo: '25 min ago',
-                  ),
-                ],
               ),
-            ),
+              Icon(Icons.more_vert, color: Colors.grey),
+            ],
+          ),
+          const SizedBox(height: 10),
 
-            const SizedBox(height: 10),
 
-            // Buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                OutlinedButton(
-                  onPressed: () {},
-                  child: const Text('Clear All'),
+          Expanded(
+            child: ListView(
+              children: const [
+                NoticeItem(
+                  date: '18 Sep, 2022',
+                  title: 'It is a long established fact that a reader',
+                  author: 'Abiiro John',
+                  timeAgo: '5 min ago',
                 ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.purple,
-                    padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  onPressed: () {},
-                  child: const Text(
-                    'Add Notice',
-                    style: TextStyle(color: Colors.white),
-                  ),
+                NoticeItem(
+                  date: '18 Sep, 2022',
+                  title: 'The point of using Lorem Ipsum',
+                  author: 'Kolog John',
+                  timeAgo: '10 min ago',
+                ),
+                NoticeItem(
+                  date: '18 Sep, 2022',
+                  title: 'Many desktop publishing packages and web',
+                  author: 'Yinbey Joe',
+                  timeAgo: '25 min ago',
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+
+          const SizedBox(height: 10),
+
+          // Buttons
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Colors.deepPurple, width: 1.5),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                onPressed: () {},
+                child: const Text(
+                  'Clear All',
+                  style: TextStyle(color: Colors.deepPurple),
+                ),
+              ),
+
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepPurple,
+                  padding:
+                  const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                onPressed: () {},
+                child: const Text(
+                  'Add Notice',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -126,13 +134,13 @@ class NoticeItem extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.purple.shade100,
+              color: Colors.deepPurple.withOpacity(0.1),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
               date,
               style: const TextStyle(
-                color: Colors.purple,
+                color: Colors.deepPurple,
                 fontWeight: FontWeight.bold,
                 fontSize: 12,
               ),
@@ -143,7 +151,7 @@ class NoticeItem extends StatelessWidget {
           // Title
           Text(
             title,
-            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+            style: const TextStyle(fontSize: 14),
           ),
           const SizedBox(height: 4),
 

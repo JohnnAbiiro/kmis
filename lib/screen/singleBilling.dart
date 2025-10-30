@@ -212,102 +212,122 @@ class _SingleBillingState extends State<SingleBilling> {
                               const SizedBox(height: 20),
 
                               // Save button
-                              ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF00496d),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 30,
-                                    vertical: 12,
-                                  ),
-                                ),
-                                onPressed: () async {
-                                  if (_formKey.currentState!.validate() &&
-                                      value.selectedStudents.isNotEmpty) {
-                                    final progress = ProgressHUD.of(context);
-                                    progress!.show();
+                              Row(
+                                children: [
+                                  ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF00496d),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 30,
+                                        vertical: 12,
+                                      ),
+                                    ),
+                                    onPressed: () async {
+                                      if (_formKey.currentState!.validate() &&
+                                          value.selectedStudents.isNotEmpty) {
+                                        final progress = ProgressHUD.of(context);
+                                        progress!.show();
 
-                                    try {
-                                      String amount =
-                                      accountController.text.trim();
+                                        try {
+                                          String amount =
+                                          accountController.text.trim();
 
-                                      for (var student
-                                      in value.selectedStudents) {
-                                        String yearGroup=student.yeargroup;
-                                        String department=student.department;
-                                        String Level=student.level;
-                                        String sid=student.studentid;
-                                        String ids="single-${value.schoolid}$yearGroup$selectedTerm$department$Level$selectedfee$sid";
-                                        String id = ids.replaceAll(RegExp(r'\s+'), '').toLowerCase();
-                                        //String ids="${value.schoolid}$selectedYearGroup$selectedTerm$selecteddepart$selectedLevel$selectedfee";
+                                          for (var student
+                                          in value.selectedStudents) {
+                                            String yearGroup=student.yeargroup;
+                                            String department=student.department;
+                                            String Level=student.level;
+                                            String sid=student.studentid;
+                                            String ids="single-${value.schoolid}$yearGroup$selectedTerm$department$Level$selectedfee$sid";
+                                            String id = ids.replaceAll(RegExp(r'\s+'), '').toLowerCase();
+                                            //String ids="${value.schoolid}$selectedYearGroup$selectedTerm$selecteddepart$selectedLevel$selectedfee";
 
-                                       // String id = "${value.schoolid}${student.studentid}$selectedTerm$selectedfee".replaceAll(RegExp(r'\s+'), '').toLowerCase();
+                                           // String id = "${value.schoolid}${student.studentid}$selectedTerm$selectedfee".replaceAll(RegExp(r'\s+'), '').toLowerCase();
 
-                                        final dataexist = await value.db.collection("singlebilled").doc(id).get();
+                                            final dataexist = await value.db.collection("singlebilled").doc(id).get();
 
-                                        if (dataexist.exists) {
+                                            if (dataexist.exists) {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                      "${student.name} already billed for $selectedfee"),
+                                                  backgroundColor: Colors.orange,
+                                                ),
+                                              );
+                                              progress.dismiss();
+                                              return;
+                                            }
+
+                                            final data = SingleBilledModel(
+                                              level: student.level,
+                                              yeargroup: student.yeargroup,
+                                              amount: amount,
+                                              activityType: "Fee Billing",
+                                              term: selectedTerm.toString(),
+                                              schoolId: value.schoolid,
+                                              dateCreated: DateTime.now(),
+                                              feeName: selectedfee.toString(),
+                                              studentId: student.studentid,
+                                              studentName: student.name ?? "",
+                                              ledgerid: id
+                                            ).toJson();
+
+                                            await value.db
+                                                .collection("singlebilled")
+                                                .doc(id)
+                                                .set(data);
+                                          }
+
+                                          progress.dismiss();
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                              content:
+                                              Text("Billing completed"),
+                                              backgroundColor: Colors.green,
+                                            ),
+                                          );
+
+                                          value.clearSelectedStudents();
+                                          accountController.clear();
+                                          selectedfee = null;
+                                          selectedTerm = null;
+                                          setState(() {}); // refresh dropdowns
+                                        } catch (e) {
+                                          progress.dismiss();
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(
                                             SnackBar(
-                                              content: Text(
-                                                  "${student.name} already billed for $selectedfee"),
-                                              backgroundColor: Colors.orange,
+                                              content: Text("Failed: $e"),
+                                              backgroundColor: Colors.red,
                                             ),
                                           );
-                                          progress.dismiss();
-                                          return;
                                         }
-
-                                        final data = SingleBilledModel(
-                                          level: student.level,
-                                          yeargroup: student.yeargroup,
-                                          amount: amount,
-                                          activityType: "Fee Billing",
-                                          term: selectedTerm.toString(),
-                                          schoolId: value.schoolid,
-                                          dateCreated: DateTime.now(),
-                                          feeName: selectedfee.toString(),
-                                          studentId: student.studentid,
-                                          studentName: student.name ?? "",
-                                          ledgerid: id
-                                        ).toJson();
-
-                                        await value.db
-                                            .collection("singlebilled")
-                                            .doc(id)
-                                            .set(data);
                                       }
-
-                                      progress.dismiss();
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                          content:
-                                          Text("Billing completed"),
-                                          backgroundColor: Colors.green,
-                                        ),
-                                      );
-
-                                      value.clearSelectedStudents();
-                                      accountController.clear();
-                                      selectedfee = null;
-                                      selectedTerm = null;
-                                      setState(() {}); // refresh dropdowns
-                                    } catch (e) {
-                                      progress.dismiss();
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                          content: Text("Failed: $e"),
-                                          backgroundColor: Colors.red,
-                                        ),
-                                      );
-                                    }
-                                  }
-                                },
-                                icon: const Icon(Icons.save,
-                                    color: Colors.white),
-                                label: const Text("Bill Students",
-                                    style: TextStyle(color: Colors.white)),
+                                    },
+                                    icon: const Icon(Icons.save,
+                                        color: Colors.white),
+                                    label: const Text("Bill Students",
+                                        style: TextStyle(color: Colors.white)),
+                                  ),
+                                  ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF00496d),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 30,
+                                        vertical: 12,
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      context.go(Routes.singlebillingview);
+                                    },
+                                    icon: const Icon(Icons.save,
+                                        color: Colors.white),
+                                    label: const Text("View Billed Students",
+                                        style: TextStyle(color: Colors.white)),
+                                  ),
+                                ],
                               ),
                             ],
                           ),

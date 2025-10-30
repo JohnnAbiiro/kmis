@@ -75,7 +75,7 @@ class _FeepaymentState extends State<Feepayment> {
                           child: Padding(
                            padding: const EdgeInsets.all(20),
                            child: Container(
-                              constraints: const BoxConstraints(maxWidth: 300),
+                              constraints: const BoxConstraints(maxWidth: 600),
                              child: Form(
                               key: _formKey,
                               child: Column(
@@ -260,114 +260,134 @@ class _FeepaymentState extends State<Feepayment> {
                                 ),
                                 const SizedBox(height: 20),
 
-                                ElevatedButton.icon(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF00496d),
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 30,
-                                      vertical: 12,
-                                    ),
-                                  ),
-                                  onPressed: () async {
-                                    if (_formKey.currentState!.validate() &&
-                                        value.selectedStudents.isNotEmpty) {
-                                      final progress = ProgressHUD.of(context);
-                                      progress!.show();
+                               Row(
+                                 children: [
+                                   ElevatedButton.icon(
+                                     style: ElevatedButton.styleFrom(
+                                       backgroundColor: const Color(0xFF00496d),
+                                       padding: const EdgeInsets.symmetric(
+                                         horizontal: 30,
+                                         vertical: 12,
+                                       ),
+                                     ),
+                                     onPressed: () async {
+                                       if (_formKey.currentState!.validate() &&
+                                           value.selectedStudents.isNotEmpty) {
+                                         final progress = ProgressHUD.of(context);
+                                         progress!.show();
 
-                                      try {
-                                        String amount = accountController.text.trim();
-                                        String note = noteController.text.trim();
+                                         try {
+                                           String amount = accountController.text.trim();
+                                           String note = noteController.text.trim();
 
-                                        for (var student in value.selectedStudents)
-                                        {
-                                          String id =receiptNumberController.text.trim().toString();
-                                          final dataexist = await value.db.collection("feepayment").doc(id).get();
-                                          if (dataexist.exists) {
-                                            final existingData = dataexist.data() as Map<String, dynamic>;
-                                            final existingFees = Map<String, dynamic>.from(existingData["fees"] ?? {});
-                                            if(existingData['studentID']!=student.studentid){
-                                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Receipt ID $id already exists for another student."), backgroundColor: Colors.red,));
-                                              progress.dismiss();
-                                              return;
-                                            }
+                                           for (var student in value.selectedStudents)
+                                           {
+                                             String id =receiptNumberController.text.trim().toString();
+                                             final dataexist = await value.db.collection("feepayment").doc(id).get();
+                                             if (dataexist.exists) {
+                                               final existingData = dataexist.data() as Map<String, dynamic>;
+                                               final existingFees = Map<String, dynamic>.from(existingData["fees"] ?? {});
+                                               if(existingData['studentID']!=student.studentid){
+                                                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Receipt ID $id already exists for another student."), backgroundColor: Colors.red,));
+                                                 progress.dismiss();
+                                                 return;
+                                               }
 
-                                            // Only add if fee does not already exist
-                                           else if (!existingFees.containsKey(selectedfee)) {
-                                              existingFees[selectedfee.toString()] = double.tryParse(amount) ?? 0;
-                                              await value.db.collection("feepayment").doc(id).update({"fees": existingFees});
-                                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Fee '${selectedfee}' added to Receipt $id"), backgroundColor: Colors.green,));
-                                            } else {
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(
-                                                  content: Text("Fee '$selectedfee' already exists in Receipt $id"),
-                                                  backgroundColor: Colors.orange,
-                                                ),
-                                              );
-                                            }
+                                               // Only add if fee does not already exist
+                                               else if (!existingFees.containsKey(selectedfee)) {
+                                                 existingFees[selectedfee.toString()] = double.tryParse(amount) ?? 0;
+                                                 await value.db.collection("feepayment").doc(id).update({"fees": existingFees});
+                                                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Fee '${selectedfee}' added to Receipt $id"), backgroundColor: Colors.green,));
+                                               } else {
+                                                 ScaffoldMessenger.of(context).showSnackBar(
+                                                   SnackBar(
+                                                     content: Text("Fee '$selectedfee' already exists in Receipt $id"),
+                                                     backgroundColor: Colors.orange,
+                                                   ),
+                                                 );
+                                               }
 
-                                            progress.dismiss();
-                                            return;
-                                          }
-                                          final data = FeePaymentModel(
-                                            level: student.level,
-                                            yeargroup: student.yeargroup,
-                                            activityType: "Fee Payment",
-                                            term: selectedTerm.toString(),
-                                            schoolId: value.schoolid,
-                                            dateCreated: DateTime.now(),
-                                            studentId: student.studentid,
-                                            studentName: student.name ?? "",
-                                            ledgerid: id,
-                                            paymentmethod: selectedpaymentmethod ?? '',
-                                            receivedaccount: selectedLinkedAccount ?? '',
-                                            note: note,
-                                            staff: value.name,
-                                            fees: {
-                                              selectedfee.toString(): double.tryParse(amount) ?? 0,
-                                            }, // ✅ add first fee
-                                          ).toJson();
-                                          //await docRef.set(data);
-                                          await value.db.collection("feepayment").doc(id).set(data);
-                                        }
+                                               progress.dismiss();
+                                               return;
+                                             }
+                                             final data = FeePaymentModel(
+                                               level: student.level,
+                                               yeargroup: student.yeargroup,
+                                               activityType: "Fee Payment",
+                                               term: selectedTerm.toString(),
+                                               schoolId: value.schoolid,
+                                               dateCreated: DateTime.now(),
+                                               studentId: student.studentid,
+                                               studentName: student.name ?? "",
+                                               ledgerid: id,
+                                               paymentmethod: selectedpaymentmethod ?? '',
+                                               receivedaccount: selectedLinkedAccount ?? '',
+                                               note: note,
+                                               staff: value.name,
+                                               fees: {
+                                                 selectedfee.toString(): double.tryParse(amount) ?? 0,
+                                               }, // ✅ add first fee
+                                             ).toJson();
+                                             //await docRef.set(data);
+                                             await value.db.collection("feepayment").doc(id).set(data);
+                                           }
 
-                                        progress.dismiss();
-                                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Payment Received completed"),
-                                          backgroundColor: Colors.green,
-                                          ),
-                                        );
+                                           progress.dismiss();
+                                           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Payment Received completed"),
+                                             backgroundColor: Colors.green,
+                                           ),
+                                           );
 
-                                        value.clearSelectedStudents();
-                                        accountController.clear();
-                                        selectedfee = null;
-                                        selectedTerm = null;
-                                        selectedpaymentmethod = null;
-                                        selectedLinkedAccount = null;
-                                        value.linkedAccounts.clear();
-                                        setState(() {});
-                                      } catch (e) {
-                                        progress.dismiss();
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          SnackBar(
-                                            content: Text("Failed: $e"),
-                                            backgroundColor: Colors.red,
-                                          ),
-                                        );
-                                      }
-                                    }
-                                  },
-                                  icon: const Icon(Icons.save,
-                                      color: Colors.white),
-                                  label: const Text("Save Payment",
-                                      style: TextStyle(color: Colors.white)),
-                                ),
+                                           value.clearSelectedStudents();
+                                           accountController.clear();
+                                           selectedfee = null;
+                                           selectedTerm = null;
+                                           selectedpaymentmethod = null;
+                                           selectedLinkedAccount = null;
+                                           value.linkedAccounts.clear();
+                                           setState(() {});
+                                         } catch (e) {
+                                           progress.dismiss();
+                                           ScaffoldMessenger.of(context)
+                                               .showSnackBar(
+                                             SnackBar(
+                                               content: Text("Failed: $e"),
+                                               backgroundColor: Colors.red,
+                                             ),
+                                           );
+                                         }
+                                       }
+                                     },
+                                     icon: const Icon(Icons.save,
+                                         color: Colors.white),
+                                     label: const Text("Save Payment",
+                                         style: TextStyle(color: Colors.white)),
+                                   ),
+                                   ElevatedButton.icon(
+                                     style: ElevatedButton.styleFrom(
+                                       backgroundColor: const Color(0xFF00496d),
+                                       padding: const EdgeInsets.symmetric(
+                                         horizontal: 30,
+                                         vertical: 12,
+                                       ),
+                                     ),
+                                     onPressed: () {
+                                       context.go(Routes.feepaymentview);
+                                     },
+                                     icon: const Icon(Icons.save,
+                                         color: Colors.white),
+                                     label: const Text("View Payment",
+                                         style: TextStyle(color: Colors.white)),
+                                   ),
 
-                                ElevatedButton(onPressed: ()async{
-                                  //await value.setreceiptnumber(receiptNumberController.text.trim());
+                                   ElevatedButton(onPressed: ()async{
+                                     //await value.setreceiptnumber(receiptNumberController.text.trim());
 
-                                  context.go(Routes.receipt);
-                                }, child: Text("Print Receipt"))
+                                     context.go(Routes.receipt);
+                                   }, child: Text("Print Receipt"))
 
+                                 ],
+                               )
                               ],
                                                        ),
                                                         ),
