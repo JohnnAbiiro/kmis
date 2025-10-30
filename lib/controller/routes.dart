@@ -7,7 +7,7 @@ import 'package:ksoftsms/screen/sales.dart';
 
 import 'package:ksoftsms/screen/signup.dart';
 import 'package:ksoftsms/screen/stock_form.dart';
-import 'package:ksoftsms/screen/stock_statement.dart';
+//import 'package:ksoftsms/screen/stock_statement.dart';
 import 'package:ksoftsms/screen/supplierForm.dart';
 import '../components/academicyrmodel.dart';
 import '../components/dashboard.dart';
@@ -176,7 +176,7 @@ final GoRouter router = GoRouter(
   routes: [
     GoRoute(path: Routes.sales, builder: (c, s) => Sales()),
     GoRoute(path: Routes.stock, builder: (c, s) => StockForm()),
-    GoRoute(path: Routes.stockStatement, builder: (c, s) => StockStatement()),
+    //GoRoute(path: Routes.stockStatement, builder: (c, s) => StockStatement()),
     GoRoute(path: Routes.itemcategory, builder: (c, s) => ItemCategory()),
     GoRoute(path: Routes.itemreg, builder: (c, s) => ItemReg()),
     GoRoute(path: Routes.supplier, builder: (c, s) => SupplierForm()),
