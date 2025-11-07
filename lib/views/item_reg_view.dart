@@ -13,6 +13,97 @@ class ItemRegView extends StatefulWidget {
 }
 
 class _ItemRegViewState extends State<ItemRegView> {
+  Future<void> editStaffDialog(BuildContext context, String docId, Map<String, dynamic> data) async {
+    final nameController = TextEditingController(text: data['name']);
+    final barcodeController = TextEditingController(text: data['barcode']);
+    final sellingController = TextEditingController(text: data['costPrice']);
+    final costController = TextEditingController(text: data['sellingPrice']);
+    final openingController = TextEditingController(text: data['openningStock']);
+
+    String selectedCategory = data['category'] ?? '';
+
+    final categories = ['Books', 'Food', 'Pens', 'Best', 'Uniform'];
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Edit Item"),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: barcodeController,
+                  decoration: const InputDecoration(labelText: "Barcode"),
+                ),
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(labelText: "name"),
+                ),
+                TextField(
+                  controller: sellingController,
+                  decoration: const InputDecoration(labelText: "Selling Price"),
+                ),
+
+                TextField(
+                  controller: costController,
+                  decoration: const InputDecoration(labelText: "Cost Price"),
+                ),
+
+
+                DropdownButtonFormField<String>(
+                  value: selectedCategory.isNotEmpty ? selectedCategory : null,
+                  decoration: const InputDecoration(labelText: "Category"),
+                  items: categories.map((region) {
+                    return DropdownMenuItem(
+                      value: region,
+                      child: Text(region),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    selectedCategory = value!;
+                  },
+                ),
+
+                TextField(
+                  controller: openingController,
+                  decoration: const InputDecoration(labelText: "Opening Stock"),
+                ),
+
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                await FirebaseFirestore.instance.collection('itemReg').doc(docId).update({
+                  'barcode': barcodeController.text.trim(),
+                  'name': nameController.text.trim(),
+                  'sellingPrice': sellingController.text.trim(),
+                  'costPrice': costController.text.trim(),
+                  'category': selectedCategory,
+                  'openningStock': openingController.text.trim()
+                });
+
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Item updated successfully")),
+                );
+
+                setState(() {});
+              },
+              child: const Text("Update"),
+            ),
+          ],
+        );
+      },
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return ProgressHUD(
@@ -109,7 +200,10 @@ class _ItemRegViewState extends State<ItemRegView> {
                                                                   onTap: () => deleteItemReg(doc.id)
                                                               ),
                                                               SizedBox(width: 8),
-                                                              Icon(Icons.edit, color: Colors.orangeAccent, size: 20,),
+                                                              InkWell(
+                                                                  child: Icon(Icons.edit, color: Colors.orangeAccent, size: 20,),
+                                                                onTap: ()=> editStaffDialog(context, doc.id, data),
+                                                              ),
                                                             ],
                                                           )
                                                       ),

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
@@ -75,14 +76,21 @@ class _DuplicateContainerState extends State<DuplicateContainer> {
                         borderRadius: BorderRadius.all(Radius.circular(6))
                     ),
                     child: Center(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.school_sharp, size: 40, color: Color(0xFF7A6FF0),),
-                          Text("Total Staff", style: TextStyle(fontSize: 13)),
-                          Text("1,200", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30))
-                        ],
+                      child: StreamBuilder(
+                          stream: FirebaseFirestore.instance.collection('staff').snapshots(),
+                          builder: (context, snapshot){
+                            if (!snapshot.hasData) return const CircularProgressIndicator();
+                            final count = snapshot.data!.docs.length;
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.school_sharp, size: 40, color: Color(0xFF7A6FF0),),
+                                Text("Total Staff", style: TextStyle(fontSize: 12)),
+                                Text(count.toString(), style: TextStyle(fontWeight: FontWeight.w600, fontSize: 30))
+                              ],
+                            );
+                          }
                       ),
                     ),
                   ),

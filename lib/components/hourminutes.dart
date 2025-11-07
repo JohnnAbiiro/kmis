@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ksoftsms/controller/myprovider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -49,14 +50,21 @@ class HourMinutes extends StatelessWidget {
                           borderRadius: BorderRadius.all(Radius.circular(6))
                         ),
                         child: Center(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.people_alt, color: Color(0xFF00b377), size: 40),
-                              Text("Total Students", style: TextStyle(fontSize: 13),),
-                              Text("1,200", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30))
-                            ],
+                          child: StreamBuilder(
+                              stream: FirebaseFirestore.instance.collection('students').snapshots(),
+                              builder: (context, snapshot){
+                                if (!snapshot.hasData) return const CircularProgressIndicator();
+                                final count = snapshot.data!.docs.length;
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.people_alt, color: Color(0xFF00b377), size: 40),
+                                    Text("Total Students", style: TextStyle(fontSize: 12),),
+                                    Text(count.toString(), style: TextStyle(fontWeight: FontWeight.w600, fontSize: 30))
+                                  ],
+                                );
+                              }
                           ),
                         ),
                       ),

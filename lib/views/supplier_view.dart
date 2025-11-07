@@ -13,6 +13,57 @@ class SupplierView extends StatefulWidget {
 }
 
 class _SupplierViewState extends State<SupplierView> {
+  Future<void> editStaffDialog(BuildContext context, String docId, Map<String, dynamic> data) async {
+    final nameController = TextEditingController(text: data['name']);
+    final contactController = TextEditingController(text: data['phone']);
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Edit Supplier"),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(labelText: "Supplier Name"),
+                ),
+                TextField(
+                  controller: contactController,
+                  decoration: const InputDecoration(labelText: "Phone"),
+                ),
+
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                await FirebaseFirestore.instance.collection('supplier').doc(docId).update({
+                  'name': nameController.text.trim(),
+                  'phone': contactController.text.trim(),
+                });
+
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Supplier updated successfully")),
+                );
+
+                setState(() {});
+              },
+              child: const Text("Update"),
+            ),
+          ],
+        );
+      },
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return ProgressHUD(
@@ -101,7 +152,10 @@ class _SupplierViewState extends State<SupplierView> {
                                                               onTap: () => deleteSupplier(doc.id),
                                                             ),
                                                             SizedBox(width: 8),
-                                                            Icon(Icons.edit, color: Colors.orangeAccent, size: 20,),
+                                                            InkWell(
+                                                              child: Icon(Icons.edit, color: Colors.orangeAccent, size: 20,),
+                                                              onTap: ()=> editStaffDialog(context, doc.id, data),
+                                                            ),
                                                           ],
                                                         ),
                                                     ),
