@@ -12,7 +12,17 @@ class StaffView extends StatefulWidget {
   State<StaffView> createState() => _StaffViewState();
 }
 
+
 class _StaffViewState extends State<StaffView> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<Myprovider>().fetchStaff();
+
+    });
+  }
   Future<void> editStaffDialog(BuildContext context, String docId, Map<String, dynamic> data) async {
     final nameController = TextEditingController(text: data['name']);
     final phoneController = TextEditingController(text: data['phone']);
@@ -48,7 +58,6 @@ class _StaffViewState extends State<StaffView> {
                   decoration: const InputDecoration(labelText: "Email"),
                 ),
 
-                // --- REGION DROPDOWN ---
                 DropdownButtonFormField<String>(
                   value: selectedRegion.isNotEmpty ? selectedRegion : null,
                   decoration: const InputDecoration(labelText: "Region"),
@@ -63,7 +72,6 @@ class _StaffViewState extends State<StaffView> {
                   },
                 ),
 
-                // --- SEX DROPDOWN ---
                 DropdownButtonFormField<String>(
                   value: selectedSex.isNotEmpty ? selectedSex : null,
                   decoration: const InputDecoration(labelText: "Sex"),
@@ -78,7 +86,6 @@ class _StaffViewState extends State<StaffView> {
                   },
                 ),
 
-                // --- ACCESS LEVEL DROPDOWN ---
                 DropdownButtonFormField<String>(
                   value: selectedAccess.isNotEmpty ? selectedAccess : null,
                   decoration: const InputDecoration(labelText: "Access Level"),
@@ -132,7 +139,7 @@ class _StaffViewState extends State<StaffView> {
       child: Builder(
           builder: (context){
             return Consumer<Myprovider>(
-                builder: (context, value, child, ){
+                builder: (context, value, child){
                   return Scaffold(
                     appBar: AppBar(
                       title: Text("Staff View"),
@@ -179,9 +186,9 @@ class _StaffViewState extends State<StaffView> {
                                     child: FutureBuilder<QuerySnapshot>(
                                       future: FirebaseFirestore.instance.collection('staff').get(),
                                       builder: (context, snapshot) {
-                                        if (snapshot.connectionState == ConnectionState.waiting) {
-                                          return const Center(child: CircularProgressIndicator());
-                                        }
+                                        // if (snapshot.connectionState == ConnectionState.waiting) {
+                                        //   return const Center(child: CircularProgressIndicator());
+                                        // }
 
                                         if (snapshot.hasError) {
                                           return Center(
@@ -200,18 +207,7 @@ class _StaffViewState extends State<StaffView> {
                                         }
 
                                         final staffDocs = snapshot.data!.docs;
-                                        Future<void> deleteStaff(String id) async {
-                                          try {
-                                            await FirebaseFirestore.instance.collection('staff').doc(id).delete();
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              const SnackBar(content: Text("deleted successfully")),
-                                            );
-                                          } catch (e) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text("Error deleting: $e")),
-                                            );
-                                          }
-                                        }
+
 
                                         if (isWideScreen){
                                           return SingleChildScrollView(
@@ -229,26 +225,29 @@ class _StaffViewState extends State<StaffView> {
                                                 DataColumn(label: Text('Access Level', style: TextStyle(color: Colors.white))),
                                                 DataColumn(label: Text('Action', style: TextStyle(color: Colors.white))),
                                               ],
-                                              rows: staffDocs.map((doc) {
-                                                final data = doc.data() as Map<String, dynamic>;
+                                              rows: value.stafflist.map((doc) {
+                                              //  final data = doc.
                                                 return DataRow(cells: [
-                                                  DataCell(Text(data['name'] ?? '')),
-                                                  DataCell(Text(data['phone'] ?? '')),
-                                                  DataCell(Text(data['email'] ?? '')),
-                                                  DataCell(Text(data['sex'] ?? '')),
-                                                  DataCell(Text(data['region'] ?? '')),
-                                                  DataCell(Text(data['accessLevel'] ?? '')),
+                                                  DataCell(Text(doc.name ?? '')),
+                                                  DataCell(Text(doc.phone ?? '')),
+                                                  DataCell(Text(doc.email?? '')),
+                                                  DataCell(Text(doc.sex ?? '')),
+                                                  DataCell(Text(doc.region ?? '')),
+                                                  DataCell(Text(doc.accessLevel ?? '')),
                                                   DataCell(
                                                       Row(
                                                         children: [
                                                           InkWell(
                                                               child: Icon(Icons.delete_forever, color: Colors.red, size: 20),
-                                                            onTap: ()=>deleteStaff(doc.id),
+                                                            onTap: (){
+                                                                print(DataCell);
+                                                                //value.deleteStaff(doc.id.toString(),context)
+                                                            },
                                                           ),
                                                           SizedBox(width: 8),
                                                           InkWell(
                                                             child: const Icon(Icons.edit, color: Colors.orangeAccent, size: 20),
-                                                            onTap: () => editStaffDialog(context, doc.id, data),
+                                                            onTap: null,//() => editStaffDialog(context, doc.id, data),
                                                           ),
 
                                                         ],
@@ -279,26 +278,24 @@ class _StaffViewState extends State<StaffView> {
                                                   child: ListView.builder(
                                                       shrinkWrap: true,
                                                       physics: NeverScrollableScrollPhysics(),
-                                                      itemCount: staffDocs.length,
+                                                      itemCount: value.stafflist.length,
                                                       itemBuilder: (context, index){
 
-                                                        final doc = staffDocs[index];
-                                                        final data = staffDocs[index].data() as Map<String, dynamic>;
+                                                        final doc = value.stafflist;
+                                                        final data = value.stafflist[index];
 
                                                         return Column(
                                                           children: [
                                                             ListTile(
-                                                              title: Text(
-                                                                data['name'] ?? '',
-                                                              ),
+                                                              title: Text('name: ${data.name?? ''}'),
                                                               subtitle: Column(
                                                                 crossAxisAlignment: CrossAxisAlignment.start,
                                                                 children: [
-                                                                  Text('Phone: ${data['phone'] ?? ''}'),
-                                                                  Text('Email: ${data['email'] ?? ''}'),
-                                                                  Text('Sex: ${data['sex'] ?? ''}'),
-                                                                  Text('Region: ${data['region'] ?? ''}'),
-                                                                  Text('Access Level: ${data['accessLevel'] ?? ''}'),
+                                                                  Text('Phone: ${data.phone ?? ''}'),
+                                                                  Text('Email: ${data.email?? ''}'),
+                                                                  Text('Sex: ${data.sex ?? ''}'),
+                                                                  Text('Region: ${data.region?? ''}'),
+                                                                  Text('Access Level: ${data.accessLevel?? ''}'),
                                                                 ],
                                                               ),
                                                               trailing: Row(
@@ -308,7 +305,11 @@ class _StaffViewState extends State<StaffView> {
                                                                   SizedBox(width: 8),
                                                                   InkWell(
                                                                       child: Icon(Icons.delete_forever, color: Colors.red),
-                                                                    onTap: ()=>deleteStaff(doc.id),
+                                                                    onTap: ()async{
+                                                                        await value.deleteStaff(data.id.toString(),index,context);
+                                                                        //data.re(index);
+
+                                                                    },
                                                                   ),
                                                                 ],
                                                               ),

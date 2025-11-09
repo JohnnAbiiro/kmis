@@ -2,6 +2,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:ksoftsms/controller/dbmodels/SupplierModel.dart';
@@ -22,6 +23,7 @@ class LoginProvider extends ChangeNotifier {
   List<String> schoolnames=[];
   List<SchoolModel> schoolList = [];
   List<Staff> staffschools = [];
+  List<Staff> stafflist = [];
   List<String> staffaccesslevel = ["admin", "teacher", "super admin"];
   List<StudentModel> selectedStudents = [];
   List<ExpenseModel> expenselist = [];
@@ -154,6 +156,40 @@ class LoginProvider extends ChangeNotifier {
       return 0;
     }
   }
+
+   fetchStaff() async {
+     try{
+       final snapshot = await db.collection('staff').get();
+       print(snapshot.docs);
+       stafflist = snapshot.docs.map((doc) {
+         return Staff.fromMap(doc.data(), doc.id);
+       }).toList();
+
+     }catch(e){
+       print(e);
+     }
+    notifyListeners();
+   // return snapshot.docs.map((doc) => Staff.fromMap().toList();
+    
+  }
+
+
+  Future<void> deleteStaff(String id,int index,BuildContext context) async {
+    try {
+      await db.collection('staff').doc(id).delete();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("deleted successfully")),
+      );
+      stafflist.removeAt(index);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error deleting: $e")),
+      );
+    }
+    fetchStaff();
+    notifyListeners();
+  }
+
    Future<bool> staffexistbyphone(String phone) async {
     try {
       final detail = await db

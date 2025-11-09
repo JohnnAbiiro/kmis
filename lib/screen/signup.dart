@@ -233,7 +233,7 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: const [
                       Text(
-                        'Welcome to the Election System',
+                        'Welcome to KologSoft Management Information System',
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
@@ -373,7 +373,7 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: const [
                         Text(
-                          'Welcome to the Election System',
+                          'Welcome to KologSoft Management Information System',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -645,7 +645,6 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                                                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('You must agree to the terms to continue.'),));
                                                   return;
                                                 }
-
                                                 String school = _schoolController.text.trim();
                                                 String name = _nameController.text.trim();
                                                 String email = _emailController.text.trim().toString().toLowerCase();
@@ -695,11 +694,7 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                                                 catch(e){
                                                   print(e);
                                                   progress?.dismiss();
-
                                                 }
-
-
-
                                               }
                                             },
                                             child: Container(
