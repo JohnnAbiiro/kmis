@@ -13,6 +13,16 @@ class SystemAccountActivity extends StatefulWidget {
 }
 
 class _SystemAccountActivityState extends State<SystemAccountActivity> {
+
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<Myprovider>().fetchActivityList();
+
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return ProgressHUD(
@@ -90,25 +100,26 @@ class _SystemAccountActivityState extends State<SystemAccountActivity> {
                                                 DataColumn(label: Text('Action', style: TextStyle(color: Colors.white),)),
 
                                               ],
-                                              rows: activityDocs.map((doc){
-                                                final data = doc.data() as Map<String, dynamic>;
+                                              rows: value.activitylist.map((doc){
+                                                //final data = doc.data() as Map<String, dynamic>;
                                                 return DataRow(
                                                     cells: [
-                                                      DataCell(Text(data['name'] ?? '')),
-                                                      DataCell(Text(data['drAccount'] ?? '')),
-                                                      DataCell(Text(data['drAccountClass'] ?? '')),
-                                                      DataCell(Text(data['drAccountSubClass'] ?? '')),
-                                                      DataCell(Text(data['crAccount'] ?? '')),
-                                                      DataCell(Text(data['crAccountClass'] ?? '')),
-                                                      DataCell(Text(data['crAccountSubClass'] ?? '')),
-                                                      DataCell(Text(data['schoolId'] ?? '')),
-                                                      DataCell(Text(data['staff'] ?? '')),
+                                                      DataCell(Text(doc.name)),
+                                                      DataCell(Text(doc.drAccount)),
+                                                      DataCell(Text(doc.drAccountClass)),
+                                                      DataCell(Text(doc.drAccountSubClass)),
+                                                      DataCell(Text(doc.crAccount)),
+                                                      DataCell(Text(doc.crAccountClass)),
+                                                      DataCell(Text(doc.drAccountSubClass)),
+                                                      DataCell(Text(doc.schoolId)),
+                                                      DataCell(Text(doc.staff)),
                                                       DataCell(
                                                           Row(
                                                             children: [
                                                               InkWell(
                                                                   child: Icon(Icons.delete_forever, color: Colors.red, size: 20,),
-                                                                  onTap: ()=>deleteSystemActivity(doc.id)
+                                                                  onTap: (){}
+                                                                  //=>deleteSystemActivity(doc.id)
                                                               ),
                                                               SizedBox(width: 8),
                                                               Icon(Icons.edit, color: Colors.orangeAccent, size: 20,),
@@ -146,26 +157,26 @@ class _SystemAccountActivityState extends State<SystemAccountActivity> {
                                                     physics: NeverScrollableScrollPhysics(),
                                                     itemCount: activityDocs.length,
                                                     itemBuilder: (context, index){
-                                                      final doc = activityDocs[index];
-                                                      final data = activityDocs[index].data() as Map<String, dynamic>;
+                                                      final doc = value.activitylist[index];
+                                                      //final data = activityDocs[index].data() as Map<String, dynamic>;
 
                                                       return Column(
                                                         children: [
                                                           ListTile(
                                                             title: Text(
-                                                                'Activity Name: ${data['name'] ?? ''}'
+                                                                'Activity Name: ${doc.name}'
                                                             ),
                                                             subtitle: Column(
                                                               crossAxisAlignment: CrossAxisAlignment.start,
                                                               children: [
-                                                                Text('Debit Account: ${data['drAccount'] ?? ''}'),
-                                                                Text('Debit Account Class: ${data['drAccountClass'] ?? ''}'),
-                                                                Text('Debit Account Subclass: ${data['drAccountSubClass'] ?? ''}'),
-                                                                Text('Credit Account: ${data['crAccount'] ?? ''}'),
-                                                                Text('Credit Account Class: ${data['crAccountClass'] ?? ''}'),
-                                                                Text('Credit Account Subclass: ${data['crAccountSubClass'] ?? ''}'),
-                                                                Text('School ID: ${data['schoolId'] ?? ''}'),
-                                                                Text('Staff: ${data['staff'] ?? ''}'),
+                                                                Text('Debit Account: ${doc.drAccount}'),
+                                                                Text('Debit Account Class: ${doc.drAccountClass}'),
+                                                                Text('Debit Account Subclass: ${doc.drAccountSubClass}'),
+                                                                Text('Credit Account: ${doc.crAccount}'),
+                                                                Text('Credit Account Class: ${doc.crAccountClass}'),
+                                                                Text('Credit Account Subclass: ${doc.crAccountSubClass}'),
+                                                                Text('School ID: ${doc.schoolId}'),
+                                                                Text('Staff: ${doc.staff}'),
                                                               ],
                                                             ),
                                                             trailing: Row(
@@ -175,7 +186,8 @@ class _SystemAccountActivityState extends State<SystemAccountActivity> {
                                                                 SizedBox(width: 8),
                                                                 InkWell(
                                                                     child: Icon(Icons.delete_forever, color: Colors.red),
-                                                                  onTap: ()=>deleteSystemActivity(doc.id),
+                                                                  onTap: (){}
+                                                                  //=>deleteSystemActivity(doc.id),
                                                                 ),
                                                               ],
                                                             ),

@@ -13,6 +13,16 @@ class SupplierView extends StatefulWidget {
 }
 
 class _SupplierViewState extends State<SupplierView> {
+
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<Myprovider>().fetchSupplier();
+
+    });
+  }
+
   Future<void> editStaffDialog(BuildContext context, String docId, Map<String, dynamic> data) async {
     final nameController = TextEditingController(text: data['name']);
     final contactController = TextEditingController(text: data['phone']);
@@ -136,28 +146,35 @@ class _SupplierViewState extends State<SupplierView> {
                                                 columns: [
                                                   DataColumn(label: Text('Supplier Name', style: TextStyle(color: Colors.white),)),
                                                   DataColumn(label: Text('Supplier Contact', style: TextStyle(color: Colors.white),)),
+                                                  DataColumn(label: Text('School ID', style: TextStyle(color: Colors.white),)),
+                                                  DataColumn(label: Text('Staff ID', style: TextStyle(color: Colors.white),)),
                                                   DataColumn(label: Text('Action', style: TextStyle(color: Colors.white),)),
 
                                                 ],
-                                                rows: supplierDocs.map((doc){
-                                                  final data = doc.data() as Map<String, dynamic>;
+                                                rows: value.supplierlist.map((doc){
+                                                  //final data = doc.data() as Map<String, dynamic>;
                                                   return DataRow(cells: [
-                                                    DataCell(Text(data['name'] ?? '')),
-                                                    DataCell(Text(data['phone'] ?? '')),
+                                                    DataCell(Text(doc.name ?? '')),
+                                                    DataCell(Text(doc.phone ?? '')),
+                                                    DataCell(Text(doc.schoolId ?? '')),
+                                                    DataCell(Text(doc.staff ?? '')),
                                                     DataCell(
-                                                        Row(
-                                                          children: [
-                                                            InkWell(
+                                                      Row(
+                                                        children: [
+                                                          InkWell(
                                                               child: Icon(Icons.delete_forever, color: Colors.red, size: 20,),
-                                                              onTap: () => deleteSupplier(doc.id),
-                                                            ),
-                                                            SizedBox(width: 8),
-                                                            InkWell(
+                                                              onTap: () {}
+
+                                                            //=> deleteSupplier(doc.id),
+                                                          ),
+                                                          SizedBox(width: 8),
+                                                          InkWell(
                                                               child: Icon(Icons.edit, color: Colors.orangeAccent, size: 20,),
-                                                              onTap: ()=> editStaffDialog(context, doc.id, data),
-                                                            ),
-                                                          ],
-                                                        ),
+                                                              onTap: (){}
+                                                            //=> editStaffDialog(context, doc.id, data),
+                                                          ),
+                                                        ],
+                                                      ),
                                                     ),
                                                   ]);
                                                 }).toList()
@@ -185,23 +202,31 @@ class _SupplierViewState extends State<SupplierView> {
                                                 child: ListView.builder(
                                                     shrinkWrap: true,
                                                     physics: NeverScrollableScrollPhysics(),
-                                                    itemCount: supplierDocs.length,
+                                                    itemCount: value.supplierlist.length,
                                                     itemBuilder: (context, index){
-                                                      final doc = supplierDocs[index];
-                                                      final data = supplierDocs[index].data() as Map<String, dynamic>;
+
+                                                      final data = value.supplierlist[index];
+
                                                       return Column(
                                                         children: [
                                                           ListTile(
-                                                            title: Text("Name: ${data['name'] ?? ''}"),
-                                                            subtitle: Text("Phone: ${data['phone'] ?? ''}"),
+                                                            title: Text('Name: ${data.name?? ''}'),
+                                                            subtitle: Column(
+                                                              children: [
+                                                                Text("Phone: ${data.phone ?? ''}"),
+                                                                Text("School ID: ${data.schoolId ?? ''}"),
+                                                                Text("Staff ID: ${data.staff ?? ''}"),
+                                                              ],
+                                                            ),
                                                             trailing: Row(
                                                               mainAxisSize: MainAxisSize.min,
                                                               children: [
                                                                 const Icon(Icons.edit, color: Colors.orangeAccent),
                                                                 const SizedBox(width: 8),
                                                                 InkWell(
-                                                                  child: Icon(Icons.delete_forever, color: Colors.red, size: 20,),
-                                                                  onTap: () => deleteSupplier(doc.id),
+                                                                    child: Icon(Icons.delete_forever, color: Colors.red, size: 20,),
+                                                                    onTap: () {}
+                                                                  //=> deleteSupplier(doc.id),
                                                                 ),
                                                               ],
                                                             ),

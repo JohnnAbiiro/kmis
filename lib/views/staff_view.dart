@@ -287,7 +287,7 @@ class _StaffViewState extends State<StaffView> {
                                                         return Column(
                                                           children: [
                                                             ListTile(
-                                                              title: Text('name: ${data.name?? ''}'),
+                                                              title: Text('Name: ${data.name?? ''}'),
                                                               subtitle: Column(
                                                                 crossAxisAlignment: CrossAxisAlignment.start,
                                                                 children: [

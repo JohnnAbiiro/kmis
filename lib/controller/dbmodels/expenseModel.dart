@@ -13,7 +13,7 @@ class ExpenseModel {
   final String paidAccount;
   final String note;
   final String staff;
-  final String amount;
+  final String fees;
   final String expenseType;
 
 
@@ -31,7 +31,7 @@ class ExpenseModel {
     required this.paidAccount,
     required this.note,
     required this.staff,
-    required this.amount,
+    required this.fees,
   });
 
   Map<String, dynamic> toJson() {
@@ -49,7 +49,7 @@ class ExpenseModel {
       "paidAccount": paidAccount,
       "note": note,
       "staff": staff,
-      "fees": amount,
+      "fees": fees,
     };
   }
 
@@ -68,7 +68,7 @@ class ExpenseModel {
       note: json["note"] ?? "",
       staff: json["staff"] ?? "",
       expenseName: json["expenseName"] ?? "",
-      amount: json["amount"] ?? "",
+      fees: json["fees"] ?? "00",
     );
   }
 }

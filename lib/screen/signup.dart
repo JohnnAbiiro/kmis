@@ -667,16 +667,16 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                                                   if(result.docs.isEmpty){
                                                     await value.db.collection("schools").doc(schoolid).set(staffdata);
                                                     await value.db.collection("staff").doc(schoolid).set(staffdata);
-                                                    // await value.auth.createUserWithEmailAndPassword(email: email, password: password);
-                                                    // await value.auth.currentUser!.sendEmailVerification();
+                                                    await value.auth.createUserWithEmailAndPassword(email: email, password: password);
+                                                    await value.auth.currentUser!.sendEmailVerification();
                                                     String message='Welcome to KologSoft MIS, $name. Your school ID is $schoolid. Please verify your email to complete the registration process.';
-                                                    // await value.db.collection("smsQueue").add({
-                                                    //   'phone': phone,
-                                                    //   'message': message,
-                                                    //   'senderId': "KologSoft",
-                                                    //   'createdat': dateTime,
-                                                    //   'status': 'pending',
-                                                    // });
+                                                    await value.db.collection("smsQueue").add({
+                                                      'phone': phone,
+                                                      'message': message,
+                                                      'senderId': "KologSoft",
+                                                      'createdat': dateTime,
+                                                      'status': 'pending',
+                                                    });
                                                     SnackBar snackBar =  SnackBar(
                                                       content: Text(message,style: TextStyle(color:Colors.white),),
                                                       backgroundColor: Colors.green.shade900,
@@ -1470,16 +1470,16 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                                                       if(result.docs.isEmpty){
                                                         await value.db.collection("schools").doc(schoolid).set(staffdata);
                                                         await value.db.collection("staff").doc(schoolid).set(staffdata);
-                                                        // await value.auth.createUserWithEmailAndPassword(email: email, password: password);
-                                                        // await value.auth.currentUser!.sendEmailVerification();
+                                                        await value.auth.createUserWithEmailAndPassword(email: email, password: password);
+                                                        await value.auth.currentUser!.sendEmailVerification();
                                                         String message='Welcome to KologSoft MIS, $name. Your school ID is $schoolid. Please verify your email to complete the registration process.';
-                                                        // await value.db.collection("smsQueue").add({
-                                                        //   'phone': phone,
-                                                        //   'message': message,
-                                                        //   'senderId': "KologSoft",
-                                                        //   'createdat': dateTime,
-                                                        //   'status': 'pending',
-                                                        // });
+                                                        await value.db.collection("smsQueue").add({
+                                                          'phone': phone,
+                                                          'message': message,
+                                                          'senderId': "KologSoft",
+                                                          'createdat': dateTime,
+                                                          'status': 'pending',
+                                                        });
                                                         SnackBar snackBar =  SnackBar(
                                                           content: Text(message,style: TextStyle(color:Colors.white),),
                                                           backgroundColor: Colors.green.shade900,

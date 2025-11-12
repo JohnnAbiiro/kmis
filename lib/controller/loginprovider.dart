@@ -6,9 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:ksoftsms/controller/dbmodels/SupplierModel.dart';
+import 'package:ksoftsms/controller/dbmodels/accountsModel.dart';
+import 'package:ksoftsms/controller/dbmodels/activityModel.dart';
+import 'package:ksoftsms/controller/dbmodels/billedModel.dart';
 import 'package:ksoftsms/controller/dbmodels/contestantsmodel.dart';
 import 'package:ksoftsms/controller/dbmodels/feeSetUpModel.dart';
 import 'package:ksoftsms/controller/dbmodels/paymentMethodsModel.dart';
+import 'package:ksoftsms/controller/dbmodels/singleBilledModel.dart';
 import 'package:ksoftsms/controller/routes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -23,11 +27,19 @@ class LoginProvider extends ChangeNotifier {
   List<String> schoolnames=[];
   List<SchoolModel> schoolList = [];
   List<Staff> staffschools = [];
+
   List<Staff> stafflist = [];
+  List<SupplierModel> supplierlist = [];
+  List<ExpenseModel> expenselists = [];
+  List<FeePaymentModel> feepaymentlist = [];
+  List<SingleBilledModel> singlebilledlist = [];
+  List<BilledModel> billedlist = [];
+  List<ActivityModel> activitylist = [];
+  List<CoaModel> accountlist = [];
+
   List<String> staffaccesslevel = ["admin", "teacher", "super admin"];
   List<StudentModel> selectedStudents = [];
   List<ExpenseModel> expenselist = [];
-
   List<SupplierModel> supplierList = [];
   List<StudentModel> searchResults = [];
   List<Map<String, String>> linkedAccounts = []; // holds account id + name
@@ -157,7 +169,7 @@ class LoginProvider extends ChangeNotifier {
     }
   }
 
-   fetchStaff() async {
+  fetchStaff() async {
      try{
        final snapshot = await db.collection('staff').get();
        print(snapshot.docs);
@@ -166,13 +178,74 @@ class LoginProvider extends ChangeNotifier {
        }).toList();
 
      }catch(e){
-       print(e);
+       //print(e);
      }
     notifyListeners();
    // return snapshot.docs.map((doc) => Staff.fromMap().toList();
     
   }
+  fetchSupplier()async{
+     try{
+       final snapshot = await db.collection('supplier').get();
+       supplierlist = snapshot.docs.map((doc) {
+         return SupplierModel.fromMap(doc.data());
+       }).toList();
+     }catch(e){
+       //print(e);
+     }
+     notifyListeners();
+  }
+  fetchExpense()async{
+     try{
+       final snapshot = await db.collection('expense').get();
+       expenselists = snapshot.docs.map((doc){
+         return ExpenseModel.fromJson(doc.data());
+       }).toList();
+     }catch(e){
 
+     }
+     notifyListeners();
+  }
+  fetchFeePayment () async {
+     try{
+       final snapshot = await db.collection('feepayment').get();
+       feepaymentlist = snapshot.docs.map((doc){
+         return FeePaymentModel.fromJson(doc.data());
+       }).toList();
+     }catch(e){}
+  }
+  fetchSingleBilled() async {
+     try{
+       final snapshot = await db.collection('singlebilled').get();
+       singlebilledlist = snapshot.docs.map((doc){
+         return SingleBilledModel.fromMap(doc.data());
+       }).toList();
+     }catch(e){}
+  }
+  fetchBilled()async{
+     try{
+       final snapshot = await db.collection('billed').get();
+       billedlist = snapshot.docs.map((doc){
+         return BilledModel.fromMap(doc.data());
+       }).toList();
+     }catch(e){}
+  }
+  fetchActivityList()async{
+     try{
+       final snapshot = await db.collection('systemActivity').get();
+       activitylist = snapshot.docs.map((doc){
+         return ActivityModel.fromMap(doc.data());
+       }).toList();
+     }catch(e){}
+  }
+  fetchAccountList()async{
+     try{
+       final snapshot = await db.collection('mainaccounts').get();
+       accountlist = snapshot.docs.map((doc){
+         return CoaModel.fromMap(doc.data());
+       }).toList();
+     }catch(e){}
+  }
 
   Future<void> deleteStaff(String id,int index,BuildContext context) async {
     try {

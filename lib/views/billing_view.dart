@@ -13,6 +13,16 @@ class BillingView extends StatefulWidget {
 }
 
 class _BillingViewState extends State<BillingView> {
+
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<Myprovider>().fetchBilled();
+
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return ProgressHUD(
@@ -88,23 +98,24 @@ class _BillingViewState extends State<BillingView> {
                                                 DataColumn(label: Text('Action', style: TextStyle(color: Colors.white),)),
 
                                               ],
-                                              rows: activityDocs.map((doc){
-                                                final data = doc.data() as Map<String, dynamic>;
+                                              rows: value.billedlist.map((doc){
+                                                //final data = doc.data() as Map<String, dynamic>;
                                                 return DataRow(
                                                     cells: [
-                                                      DataCell(Text(data['feeName'] ?? '')),
-                                                      DataCell(Text(data['activityType'] ?? '')),
-                                                      DataCell(Text(data['amount'] ?? '')),
-                                                      DataCell(Text(data['level'] ?? '')),
-                                                      DataCell(Text(data['schoolId'] ?? '')),
-                                                      DataCell(Text(data['term'] ?? '')),
-                                                      DataCell(Text(data['yeargroup'] ?? '')),
+                                                      DataCell(Text(doc.feeName)),
+                                                      DataCell(Text(doc.activityType)),
+                                                      DataCell(Text(doc.amount)),
+                                                      DataCell(Text(doc.level)),
+                                                      DataCell(Text(doc.schoolId)),
+                                                      DataCell(Text(doc.term)),
+                                                      DataCell(Text(doc.yeargroup)),
                                                       DataCell(
                                                           Row(
                                                             children: [
                                                               InkWell(
                                                                   child: Icon(Icons.delete_forever, color: Colors.red, size: 20,),
-                                                                  onTap: ()=> deleteFeeBilling(doc.id),
+                                                                  onTap: (){}
+                                                                  //=> deleteFeeBilling(doc.id),
                                                               ),
                                                               SizedBox(width: 8),
                                                               Icon(Icons.edit, color: Colors.orangeAccent, size: 20,),
@@ -142,24 +153,24 @@ class _BillingViewState extends State<BillingView> {
                                                     physics: NeverScrollableScrollPhysics(),
                                                     itemCount: activityDocs.length,
                                                     itemBuilder: (context, index){
-                                                      final doc = activityDocs[index];
-                                                      final data = activityDocs[index].data() as Map<String, dynamic>;
+                                                      final doc = value.billedlist[index];
+                                                      //final data = activityDocs[index].data() as Map<String, dynamic>;
 
                                                       return Column(
                                                         children: [
                                                           ListTile(
                                                             title: Text(
-                                                                'Fee Name: ${data['feeName'] ?? ''}'
+                                                                'Fee Name: ${doc.feeName}'
                                                             ),
                                                             subtitle: Column(
                                                               crossAxisAlignment: CrossAxisAlignment.start,
                                                               children: [
-                                                                Text('Activity Type: ${data['activityType'] ?? ''}'),
-                                                                Text('Billed Amount: ${data['amount'] ?? ''}'),
-                                                                Text('Level: ${data['level'] ?? ''}'),
-                                                                Text('School ID: ${data['schoolId'] ?? ''}'),
-                                                                Text('Term: ${data['term'] ?? ''}'),
-                                                                Text('Year Group: ${data['yeargroup'] ?? ''}'),
+                                                                Text('Activity Type: ${doc.activityType}'),
+                                                                Text('Billed Amount: ${doc.amount}'),
+                                                                Text('Level: ${doc.level}'),
+                                                                Text('School ID: ${doc.schoolId}'),
+                                                                Text('Term: ${doc.term}'),
+                                                                Text('Year Group: ${doc.yeargroup}'),
                                                               ],
                                                             ),
                                                             trailing: Row(
@@ -169,7 +180,8 @@ class _BillingViewState extends State<BillingView> {
                                                                 SizedBox(width: 8),
                                                                 InkWell(
                                                                     child: Icon(Icons.delete_forever, color: Colors.red),
-                                                                  onTap: () =>deleteFeeBilling(doc.id),
+                                                                  onTap: (){}
+                                                                  //=>deleteFeeBilling(doc.id),
                                                                 ),
                                                               ],
                                                             ),

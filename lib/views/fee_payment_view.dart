@@ -13,6 +13,16 @@ class FeePaymentView extends StatefulWidget {
 }
 
 class _FeePaymentViewState extends State<FeePaymentView> {
+
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<Myprovider>().fetchFeePayment();
+
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return ProgressHUD(
@@ -96,8 +106,9 @@ class _FeePaymentViewState extends State<FeePaymentView> {
                                                 DataColumn(label: Text('Action', style: TextStyle(color: Colors.white),)),
 
                                               ],
-                                              rows: feeDocs.map((doc){
-                                                final data = doc.data() as Map<String, dynamic>;
+                                              rows: value.feepaymentlist.map((doc){
+
+                                                //final data = doc.data() as Map<String, dynamic>;
                                               //  // print();
                                               //   Map mapdata =data['fees'];
                                               //  // print(mapdata.length);
@@ -114,20 +125,21 @@ class _FeePaymentViewState extends State<FeePaymentView> {
                                               //   //data['fees']
                                                 return DataRow(
                                                     cells: [
-                                                      DataCell(Text(data['studentName'] ?? '')),
-                                                      DataCell(Text(data['studentId'] ?? '')),
-                                                      DataCell(Text(data['term'] ?? '')),
-                                                      DataCell(Text(data['paymentmethod'] ?? '')),
-                                                      DataCell(Text(data['receivedaccount'] ?? '')),
-                                                      DataCell(Text(data['ledgerid'] ?? '')),
-                                                      DataCell(Text(data['level'] ?? '')),
+                                                      DataCell(Text(doc.studentName)),
+                                                      DataCell(Text(doc.studentId)),
+                                                      DataCell(Text(doc.term)),
+                                                      DataCell(Text(doc.paymentmethod)),
+                                                      DataCell(Text(doc.receivedaccount)),
+                                                      DataCell(Text(doc.ledgerid)),
+                                                      DataCell(Text(doc.level)),
                                                       //DataCell(Text(data['fees'][0] ?? '')),
                                                       DataCell(
                                                           Row(
                                                             children: [
                                                               InkWell(
                                                                 child: Icon(Icons.delete_forever, color: Colors.red, size: 20,),
-                                                                onTap: ()=>deleteFeePayment(doc.id)
+                                                                onTap: (){}
+                                                                //=>deleteFeePayment(doc.id)
                                                               ),
                                                               SizedBox(width: 8),
                                                               Icon(Icons.edit, color: Colors.orangeAccent, size: 20,),
@@ -166,24 +178,24 @@ class _FeePaymentViewState extends State<FeePaymentView> {
                                                     physics: NeverScrollableScrollPhysics(),
                                                     itemCount: feeDocs.length,
                                                     itemBuilder: (context, index){
-                                                      final doc = feeDocs[index];
-                                                      final data = feeDocs[index].data() as Map<String, dynamic>;
+                                                      final doc = value.feepaymentlist[index];
+                                                      //final data = feeDocs[index].data() as Map<String, dynamic>;
 
                                                       return Column(
                                                         children: [
                                                           ListTile(
                                                             title: Text(
-                                                                'Student Name: ${data['studentName'] ?? ''}'
+                                                                'Student Name: ${doc.studentName}'
                                                             ),
                                                             subtitle: Column(
                                                               crossAxisAlignment: CrossAxisAlignment.start,
                                                               children: [
-                                                                Text('Student ID: ${data['studentID'] ?? ''}'),
-                                                                Text('Term: ${data['term'] ?? ''}'),
-                                                                Text('Payment Method: ${data['paymentmethod'] ?? ''}'),
-                                                                Text('Received Account: ${data['receivedaccount'] ?? ''}'),
-                                                                Text('Ledger ID: ${data['ledgerId'] ?? ''}'),
-                                                                Text('level: ${data['level'] ?? ''}'),
+                                                                Text('Student ID: ${doc.studentId}'),
+                                                                Text('Term: ${doc.term}'),
+                                                                Text('Payment Method: ${doc.paymentmethod}'),
+                                                                Text('Received Account: ${doc.receivedaccount}'),
+                                                                Text('Ledger ID: ${doc.ledgerid}'),
+                                                                Text('level: ${doc.level}'),
                                                               ],
                                                             ),
                                                             trailing: Row(
@@ -193,7 +205,8 @@ class _FeePaymentViewState extends State<FeePaymentView> {
                                                                 SizedBox(width: 8),
                                                                 InkWell(
                                                                     child: Icon(Icons.delete_forever, color: Colors.red),
-                                                                  onTap: ()=>deleteFeePayment(doc.id),
+                                                                  onTap: (){}
+                                                                  //=>deleteFeePayment(doc.id),
                                                                 ),
                                                               ],
                                                             ),

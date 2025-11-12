@@ -13,6 +13,16 @@ class AccountChartView extends StatefulWidget {
 }
 
 class _AccountChartViewState extends State<AccountChartView> {
+
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<Myprovider>().fetchAccountList();
+
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return ProgressHUD(
@@ -56,20 +66,20 @@ class _AccountChartViewState extends State<AccountChartView> {
                                       );
                                     }
 
-                                    final staffDocs = snapshot.data!.docs;
+                                    //final staffDocs = snapshot.data!.docs;
 
-                                    Future<void> deleteAccounts(String id) async {
-                                      try {
-                                        await FirebaseFirestore.instance.collection('mainaccounts').doc(id).delete();
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(content: Text("deleted successfully")),
-                                        );
-                                      } catch (e) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(content: Text("Error deleting: $e")),
-                                        );
-                                      }
-                                    }
+                                    // Future<void> deleteAccounts(String id) async {
+                                    //   try {
+                                    //     await FirebaseFirestore.instance.collection('mainaccounts').doc(id).delete();
+                                    //     ScaffoldMessenger.of(context).showSnackBar(
+                                    //       const SnackBar(content: Text("deleted successfully")),
+                                    //     );
+                                    //   } catch (e) {
+                                    //     ScaffoldMessenger.of(context).showSnackBar(
+                                    //       SnackBar(content: Text("Error deleting: $e")),
+                                    //     );
+                                    //   }
+                                    // }
 
 
                                     if (isWideScreen){
@@ -87,20 +97,21 @@ class _AccountChartViewState extends State<AccountChartView> {
                                             DataColumn(label: Text('Action', style: TextStyle(color: Colors.white),)),
 
                                           ],
-                                          rows: staffDocs.map((doc) {
-                                            final data = doc.data() as Map<String, dynamic>;
+                                          rows: value.accountlist.map((doc) {
+                                            //final data = doc.data() as Map<String, dynamic>;
                                             return DataRow(cells: [
-                                              DataCell(Text(data['name'] ?? '')),
-                                              DataCell(Text(data['schoolId'] ?? '')),
-                                              DataCell(Text(data['accountType'] ?? '')),
-                                              DataCell(Text(data['subType'] ?? '')),
+                                              DataCell(Text(doc.name)),
+                                              DataCell(Text(doc.schoolId)),
+                                              DataCell(Text(doc.accountType)),
+                                              DataCell(Text(doc.subType)),
 
                                               DataCell(
                                                   Row(
                                                     children: [
                                                       InkWell(
                                                           child: Icon(Icons.delete_forever, color: Colors.red, size: 20,),
-                                                        onTap: ()=> deleteAccounts(doc.id),
+                                                        onTap: (){}
+                                                        //=> deleteAccounts(doc.id),
                                                       ),
                                                       SizedBox(width: 8),
                                                       Icon(Icons.edit, color: Colors.orangeAccent, size: 20,),
@@ -132,10 +143,10 @@ class _AccountChartViewState extends State<AccountChartView> {
                                               child: ListView.builder(
                                                   shrinkWrap: true,
                                                   physics: NeverScrollableScrollPhysics(),
-                                                  itemCount: staffDocs.length,
+                                                  itemCount: value.accountlist.length,
                                                   itemBuilder: (context, index){
-                                                    final doc = staffDocs[index];
-                                                    final data = staffDocs[index].data() as Map<String, dynamic>;
+                                                    final doc = value.accountlist[index];
+                                                    //final data = staffDocs[index].data() as Map<String, dynamic>;
 
                                                     return Column(
                                                       children: [
@@ -145,7 +156,7 @@ class _AccountChartViewState extends State<AccountChartView> {
                                                                   text: "Account Name: ",
                                                                 children: [
                                                                   TextSpan(
-                                                                    text: data['name']
+                                                                    text: doc.name
                                                                   )
                                                                 ]
                                                               ),
@@ -156,9 +167,9 @@ class _AccountChartViewState extends State<AccountChartView> {
                                                           subtitle: Column(
                                                             crossAxisAlignment: CrossAxisAlignment.start,
                                                             children: [
-                                                              Text('School ID: ${data['schoolId'] ?? ''}'),
-                                                              Text('Account Class: ${data['accountType'] ?? ''}'),
-                                                              Text('Account Sub-Type: ${data['subType'] ?? ''}'),
+                                                              Text('School ID: ${doc.schoolId}'),
+                                                              Text('Account Class: ${doc.accountType}'),
+                                                              Text('Account Sub-Type: ${doc.subType}'),
                                                             ],
                                                           ),
                                                           trailing: Row(
@@ -168,7 +179,8 @@ class _AccountChartViewState extends State<AccountChartView> {
                                                               const SizedBox(width: 8),
                                                               InkWell(
                                                                   child: const Icon(Icons.delete_forever, color: Colors.red),
-                                                                onTap: ()=> deleteAccounts(doc.id),
+                                                                onTap: (){}
+                                                                //=> deleteAccounts(doc.id),
                                                               ),
                                                             ],
                                                           ),

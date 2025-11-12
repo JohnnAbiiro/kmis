@@ -284,7 +284,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
                                                       : '',
                                                   note: noteController.text.trim(),
                                                   staff: value.name,
-                                                  amount: accountController.text.trim(),
+                                                  fees: accountController.text.trim(),
                                                   expenseType: selectedExpenseType ?? "Unpaid",
                                                   expenseName: selectedExpense.toString(),
                                                 ).toJson();

@@ -13,6 +13,16 @@ class ExpenseView extends StatefulWidget {
 }
 
 class _ExpenseViewState extends State<ExpenseView> {
+
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<Myprovider>().fetchExpense();
+
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return ProgressHUD(
@@ -30,6 +40,7 @@ class _ExpenseViewState extends State<ExpenseView> {
                             bool isWideScreen = constraints.maxWidth > 500;
                             return Center(
                               child: Container(
+                                margin: EdgeInsets.only(top: 20, left: 100, right: 100, bottom: 20),
                                 color: Colors.white,
                                 //width: 700,
                                 //height: 400,
@@ -39,7 +50,6 @@ class _ExpenseViewState extends State<ExpenseView> {
                                       if (snapshot.connectionState == ConnectionState.waiting) {
                                         return const Center(child: CircularProgressIndicator());
                                       }
-
                                       if (snapshot.hasError) {
                                         return Center(
                                           child: Text('Error: ${snapshot.error}',
@@ -82,24 +92,37 @@ class _ExpenseViewState extends State<ExpenseView> {
                                                 DataColumn(label: Text('Expense Name', style: TextStyle(color: Colors.white),)),
                                                 DataColumn(label: Text('Fee Amount', style: TextStyle(color: Colors.white),)),
                                                 DataColumn(label: Text('Expense Type', style: TextStyle(color: Colors.white),)),
+                                                DataColumn(label: Text('Payment Method', style: TextStyle(color: Colors.white),)),
+                                                DataColumn(label: Text('Receiving Account', style: TextStyle(color: Colors.white),)),
+                                                DataColumn(label: Text('Ledger No.', style: TextStyle(color: Colors.white),)),
+                                                DataColumn(label: Text('Term', style: TextStyle(color: Colors.white),)),
+                                                DataColumn(label: Text('School ID', style: TextStyle(color: Colors.white),)),
+                                                DataColumn(label: Text('Staff', style: TextStyle(color: Colors.white),)),
                                                 DataColumn(label: Text('Action', style: TextStyle(color: Colors.white),)),
 
                                               ],
-                                              rows: expenseDocs.map((doc){
-                                                final data = doc.data() as Map<String, dynamic>;
+                                              rows: value.expenselists.map((doc){
+                                                //final data = doc.data() as Map<String, dynamic>;
                                                 return DataRow(
                                                     cells: [
-                                                      DataCell(Text(data['supplier'] ?? '')),
-                                                      DataCell(Text(data['expenseName'] ?? '')),
-                                                      DataCell(Text(data['name'] ?? '')),
-                                                      DataCell(Text(data['fees'] ?? '')),
-                                                      DataCell(Text(data['expenseType'] ?? '')),
+                                                      DataCell(Text(doc.supplier)),
+                                                      DataCell(Text(doc.expenseName)),
+                                                      DataCell(Text(doc.name)),
+                                                      DataCell(Text(doc.fees)),
+                                                      DataCell(Text(doc.expenseType)),
+                                                      DataCell(Text(doc.paymentmethod)),
+                                                      DataCell(Text(doc.paidAccount)),
+                                                      DataCell(Text(doc.ledgerid)),
+                                                      DataCell(Text(doc.term)),
+                                                      DataCell(Text(doc.schoolId)),
+                                                      DataCell(Text(doc.staff)),
                                                       DataCell(
                                                           Row(
                                                             children: [
                                                               InkWell(
                                                                 child: Icon(Icons.delete_forever, color: Colors.red, size: 20,),
-                                                                onTap: ()=> deleteExpense(doc.id)
+                                                                onTap: (){}
+                                                                //=> deleteExpense(doc.id)
                                                               ),
                                                               SizedBox(width: 8),
                                                               Icon(Icons.edit, color: Colors.orangeAccent, size: 20,),
@@ -135,24 +158,29 @@ class _ExpenseViewState extends State<ExpenseView> {
                                                 child: ListView.builder(
                                                     shrinkWrap: true,
                                                     physics: NeverScrollableScrollPhysics(),
-                                                    itemCount: expenseDocs.length,
+                                                    itemCount: value.expenselists.length,
                                                     itemBuilder: (context, index){
-                                                      final doc = expenseDocs[index];
-                                                      final data = expenseDocs[index].data() as Map<String, dynamic>;
+                                                      final data = value.expenselists[index];
 
                                                       return Column(
                                                         children: [
                                                           ListTile(
                                                             title: Text(
-                                                                'Supplier Name: ${data['supplier'] ?? ''}'
+                                                                'Supplier Name: ${data.supplier}'
                                                             ),
                                                             subtitle: Column(
                                                               crossAxisAlignment: CrossAxisAlignment.start,
                                                               children: [
-                                                                Text('Expense Category: ${data['expenseName'] ?? ''}'),
-                                                                Text('Expense Name: ${data['name'] ?? ''}'),
-                                                                Text('Fee Amount: ${data['fees'] ?? ''}'),
-                                                                Text('Expense Type: ${data['expenseType'] ?? ''}'),
+                                                                Text('Expense Category: ${data.expenseName}'),
+                                                                Text('Expense Name: ${data.name}'),
+                                                                Text('Fee Amount: ${data.fees}'),
+                                                                Text('Expense Type: ${data.expenseType}'),
+                                                                Text('Payment Method: ${data.paymentmethod}'),
+                                                                Text('Receiving Account: ${data.paidAccount}'),
+                                                                Text('Ledger No.: ${data.ledgerid}'),
+                                                                Text('Term.: ${data.term}'),
+                                                                Text('School ID.: ${data.schoolId}'),
+                                                                Text('Staff.: ${data.staff}'),
                                                               ],
                                                             ),
                                                             trailing: Row(
@@ -162,7 +190,8 @@ class _ExpenseViewState extends State<ExpenseView> {
                                                                 SizedBox(width: 8),
                                                                 InkWell(
                                                                     child: Icon(Icons.delete_forever, color: Colors.red),
-                                                                  onTap: ()=> deleteExpense(doc.id),
+                                                                  onTap: (){}
+                                                                  //=> deleteExpense(doc.id),
                                                                 ),
                                                               ],
                                                             ),

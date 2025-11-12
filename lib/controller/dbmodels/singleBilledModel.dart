@@ -6,7 +6,7 @@ class SingleBilledModel {
   final String level;
   final String yeargroup;
   final String feeName;
-  final  String amount;
+  final String amount;
   final String activityType;
   final String term;
   final String schoolId;

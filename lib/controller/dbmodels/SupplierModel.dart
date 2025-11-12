@@ -1,12 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 class SupplierModel {
+  final String? id;
   final String name;
   final String phone;
   final  String staff;
   final String schoolId;
   final DateTime? dateCreated;
   SupplierModel({
+    this.id,
     required this.name,
     required this.phone,
     required this.staff,
@@ -33,6 +35,4 @@ class SupplierModel {
           : FieldValue.serverTimestamp(),
     };
   }
-
-
 }

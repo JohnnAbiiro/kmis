@@ -13,6 +13,16 @@ class SingleBillingView extends StatefulWidget {
 }
 
 class _SingleBillingViewState extends State<SingleBillingView> {
+
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<Myprovider>().fetchSingleBilled();
+
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return ProgressHUD(
@@ -57,7 +67,7 @@ class _SingleBillingViewState extends State<SingleBillingView> {
                                         );
                                       }
 
-                                      final activityDocs = snapshot.data!.docs;
+                                      //final activityDocs = snapshot.data!.docs;
 
                                       Future<void> deleteSingleBilling(String id) async {
                                         try {
@@ -91,25 +101,26 @@ class _SingleBillingViewState extends State<SingleBillingView> {
                                                 DataColumn(label: Text('Action', style: TextStyle(color: Colors.white),)),
 
                                               ],
-                                              rows: activityDocs.map((doc){
-                                                final data = doc.data() as Map<String, dynamic>;
+                                              rows: value.singlebilledlist.map((doc){
+                                                //final data = doc.data() as Map<String, dynamic>;
                                                 return DataRow(
                                                     cells: [
-                                                      DataCell(Text(data['studentName'] ?? '')),
-                                                      DataCell(Text(data['activityType'] ?? '')),
-                                                      DataCell(Text(data['amount'] ?? '')),
-                                                      DataCell(Text(data['feeName'] ?? '')),
-                                                      DataCell(Text(data['level'] ?? '')),
-                                                      DataCell(Text(data['schoolId'] ?? '')),
-                                                      DataCell(Text(data['studentId'] ?? '')),
-                                                      DataCell(Text(data['term'] ?? '')),
-                                                      DataCell(Text(data['yeargroup'] ?? '')),
+                                                      DataCell(Text(doc.studentName)),
+                                                      DataCell(Text(doc.activityType)),
+                                                      DataCell(Text(doc.amount)),
+                                                      DataCell(Text(doc.feeName)),
+                                                      DataCell(Text(doc.level)),
+                                                      DataCell(Text(doc.schoolId)),
+                                                      DataCell(Text(doc.studentId)),
+                                                      DataCell(Text(doc.term)),
+                                                      DataCell(Text(doc.yeargroup)),
                                                       DataCell(
                                                           Row(
                                                             children: [
                                                               InkWell(
                                                                   child: Icon(Icons.delete_forever, color: Colors.red, size: 20,),
-                                                                  onTap: ()=>deleteSingleBilling(doc.id)
+                                                                  onTap: (){}
+                                                                  //=>deleteSingleBilling(doc.id)
                                                               ),
                                                               SizedBox(width: 8),
                                                               Icon(Icons.edit, color: Colors.orangeAccent, size: 20,),
@@ -145,28 +156,28 @@ class _SingleBillingViewState extends State<SingleBillingView> {
                                                 child: ListView.builder(
                                                     shrinkWrap: true,
                                                     physics: NeverScrollableScrollPhysics(),
-                                                    itemCount: activityDocs.length,
+                                                    itemCount: value.singlebilledlist.length,
                                                     itemBuilder: (context, index){
-                                                      final doc=activityDocs[index];
-                                                      final data = activityDocs[index].data() as Map<String, dynamic>;
+                                                      final doc=value.singlebilledlist[index];
+                                                      //final data = activityDocs[index].data() as Map<String, dynamic>;
 
                                                       return Column(
                                                         children: [
                                                           ListTile(
                                                             title: Text(
-                                                                'Student Name: ${data['studentName'] ?? ''}'
+                                                                'Student Name: ${doc.studentName}'
                                                             ),
                                                             subtitle: Column(
                                                               crossAxisAlignment: CrossAxisAlignment.start,
                                                               children: [
-                                                                Text('Activity Type: ${data['activityType'] ?? ''}'),
-                                                                Text('Billed Amount: ${data['amount'] ?? ''}'),
-                                                                Text('Fee Name: ${data['feeName'] ?? ''}'),
-                                                                Text('Level: ${data['level'] ?? ''}'),
-                                                                Text('School ID: ${data['schoolId'] ?? ''}'),
-                                                                Text('Student ID: ${data['studentId'] ?? ''}'),
-                                                                Text('Term: ${data['term'] ?? ''}'),
-                                                                Text('Year Group: ${data['yeargroup'] ?? ''}'),
+                                                                Text('Activity Type: ${doc.activityType}'),
+                                                                Text('Billed Amount: ${doc.amount}'),
+                                                                Text('Fee Name: ${doc.feeName}'),
+                                                                Text('Level: ${doc.level}'),
+                                                                Text('School ID: ${doc.schoolId}'),
+                                                                Text('Student ID: ${doc.studentId}'),
+                                                                Text('Term: ${doc.term}'),
+                                                                Text('Year Group: ${doc.yeargroup}'),
                                                               ],
                                                             ),
                                                             trailing: Row(
@@ -176,7 +187,8 @@ class _SingleBillingViewState extends State<SingleBillingView> {
                                                                 SizedBox(width: 8),
                                                                 InkWell(
                                                                     child: Icon(Icons.delete_forever, color: Colors.red),
-                                                                  onTap: ()=>deleteSingleBilling(doc.id),
+                                                                  onTap: (){}
+                                                                  //=>deleteSingleBilling(doc.id),
                                                                 ),
                                                               ],
                                                             ),
