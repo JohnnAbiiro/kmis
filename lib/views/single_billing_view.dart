@@ -69,18 +69,18 @@ class _SingleBillingViewState extends State<SingleBillingView> {
 
                                       //final activityDocs = snapshot.data!.docs;
 
-                                      Future<void> deleteSingleBilling(String id) async {
-                                        try {
-                                          await FirebaseFirestore.instance.collection('singlebilled').doc(id).delete();
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            const SnackBar(content: Text("deleted successfully")),
-                                          );
-                                        } catch (e) {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text("Error deleting: $e")),
-                                          );
-                                        }
-                                      }
+                                      // Future<void> deleteSingleBilling(String id) async {
+                                      //   try {
+                                      //     await FirebaseFirestore.instance.collection('singlebilled').doc(id).delete();
+                                      //     ScaffoldMessenger.of(context).showSnackBar(
+                                      //       const SnackBar(content: Text("deleted successfully")),
+                                      //     );
+                                      //   } catch (e) {
+                                      //     ScaffoldMessenger.of(context).showSnackBar(
+                                      //       SnackBar(content: Text("Error deleting: $e")),
+                                      //     );
+                                      //   }
+                                      // }
 
                                       if (isWideScreen){
                                         return SingleChildScrollView(

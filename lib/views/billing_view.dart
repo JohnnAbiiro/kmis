@@ -67,19 +67,19 @@ class _BillingViewState extends State<BillingView> {
                                         );
                                       }
 
-                                      final activityDocs = snapshot.data!.docs;
-                                      Future<void> deleteFeeBilling(String id) async {
-                                        try {
-                                          await FirebaseFirestore.instance.collection('billed').doc(id).delete();
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            const SnackBar(content: Text("deleted successfully")),
-                                          );
-                                        } catch (e) {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text("Error deleting: $e")),
-                                          );
-                                        }
-                                      }
+                                      //final activityDocs = snapshot.data!.docs;
+                                      // Future<void> deleteFeeBilling(String id) async {
+                                      //   try {
+                                      //     await FirebaseFirestore.instance.collection('billed').doc(id).delete();
+                                      //     ScaffoldMessenger.of(context).showSnackBar(
+                                      //       const SnackBar(content: Text("deleted successfully")),
+                                      //     );
+                                      //   } catch (e) {
+                                      //     ScaffoldMessenger.of(context).showSnackBar(
+                                      //       SnackBar(content: Text("Error deleting: $e")),
+                                      //     );
+                                      //   }
+                                      // }
 
                                       if (isWideScreen){
                                         return SingleChildScrollView(
@@ -151,7 +151,7 @@ class _BillingViewState extends State<BillingView> {
                                                 child: ListView.builder(
                                                     shrinkWrap: true,
                                                     physics: NeverScrollableScrollPhysics(),
-                                                    itemCount: activityDocs.length,
+                                                    itemCount: value.billedlist.length,
                                                     itemBuilder: (context, index){
                                                       final doc = value.billedlist[index];
                                                       //final data = activityDocs[index].data() as Map<String, dynamic>;

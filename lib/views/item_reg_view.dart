@@ -13,6 +13,16 @@ class ItemRegView extends StatefulWidget {
 }
 
 class _ItemRegViewState extends State<ItemRegView> {
+
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<Myprovider>().fetchItemRegList();
+
+    });
+  }
+
   Future<void> editStaffDialog(BuildContext context, String docId, Map<String, dynamic> data) async {
     final nameController = TextEditingController(text: data['name']);
     final barcodeController = TextEditingController(text: data['barcode']);
@@ -180,29 +190,31 @@ class _ItemRegViewState extends State<ItemRegView> {
                                                 DataColumn(label: Text('Action', style: TextStyle(color: Colors.white),)),
 
                                               ],
-                                              rows: activityDocs.map((doc){
-                                                final data = doc.data() as Map<String, dynamic>;
+                                              rows: value.itemreglist.map((doc){
+                                                //final data = doc.data() as Map<String, dynamic>;
                                                 return DataRow(
                                                     cells: [
-                                                      DataCell(Text(data['name'] ?? '')),
-                                                      DataCell(Text(data['barcode'] ?? '')),
-                                                      DataCell(Text(data['category'] ?? '')),
-                                                      DataCell(Text(data['costPrice'] ?? '')),
-                                                      DataCell(Text(data['sellingPrice'] ?? '')),
-                                                      DataCell(Text(data['openningStock'] ?? '')),
-                                                      DataCell(Text(data['schioolid'] ?? '')),
-                                                      DataCell(Text(data['staff'] ?? '')),
+                                                      DataCell(Text(doc.name)),
+                                                      DataCell(Text(doc.barcode)),
+                                                      DataCell(Text(doc.category)),
+                                                      DataCell(Text(doc.costPrice)),
+                                                      DataCell(Text(doc.sellingPrice)),
+                                                      DataCell(Text(doc.openningStock)),
+                                                      DataCell(Text(doc.schioolid)),
+                                                      DataCell(Text(doc.staff)),
                                                       DataCell(
                                                           Row(
                                                             children: [
                                                               InkWell(
                                                                   child: Icon(Icons.delete_forever, color: Colors.red, size: 20,),
-                                                                  onTap: () => deleteItemReg(doc.id)
+                                                                  onTap: () {}
+                                                                  //=> deleteItemReg(doc.id)
                                                               ),
                                                               SizedBox(width: 8),
                                                               InkWell(
                                                                   child: Icon(Icons.edit, color: Colors.orangeAccent, size: 20,),
-                                                                onTap: ()=> editStaffDialog(context, doc.id, data),
+                                                                onTap: (){}
+                                                                //=> editStaffDialog(context, doc.id, data),
                                                               ),
                                                             ],
                                                           )
@@ -234,27 +246,27 @@ class _ItemRegViewState extends State<ItemRegView> {
                                                 child: ListView.builder(
                                                     shrinkWrap: true,
                                                     physics: NeverScrollableScrollPhysics(),
-                                                    itemCount: activityDocs.length,
+                                                    itemCount: value.itemreglist.length,
                                                     itemBuilder: (context, index){
-                                                      final doc = activityDocs[index];
-                                                      final data = activityDocs[index].data() as Map<String, dynamic>;
+                                                      final doc = value.itemreglist[index];
+                                                      //final data = activityDocs[index].data() as Map<String, dynamic>;
 
                                                       return Column(
                                                         children: [
                                                           ListTile(
                                                             title: Text(
-                                                                'Item Name: ${data['name'] ?? ''}'
+                                                                'Item Name: ${doc.name}'
                                                             ),
                                                             subtitle: Column(
                                                               crossAxisAlignment: CrossAxisAlignment.start,
                                                               children: [
-                                                                Text('Barcode: ${data['barcode'] ?? ''}'),
-                                                                Text('Item Category: ${data['category'] ?? ''}'),
-                                                                Text('Cost Price: ${data['costPrice'] ?? ''}'),
-                                                                Text('Selling Price: ${data['sellingPrice'] ?? ''}'),
-                                                                Text('Opening Stock: ${data['openningStock'] ?? ''}'),
-                                                                Text('School ID: ${data['schioolid'] ?? ''}'),
-                                                                Text('Staff: ${data['staff'] ?? ''}'),
+                                                                Text('Barcode: ${doc.barcode}'),
+                                                                Text('Item Category: ${doc.category}'),
+                                                                Text('Cost Price: ${doc.costPrice}'),
+                                                                Text('Selling Price: ${doc.sellingPrice}'),
+                                                                Text('Opening Stock: ${doc.openningStock}'),
+                                                                Text('School ID: ${doc.schioolid}'),
+                                                                Text('Staff: ${doc.staff}'),
                                                               ],
                                                             ),
                                                             trailing: Row(
@@ -264,7 +276,8 @@ class _ItemRegViewState extends State<ItemRegView> {
                                                                 SizedBox(width: 8),
                                                                 InkWell(
                                                                     child: Icon(Icons.delete_forever, color: Colors.red),
-                                                                  onTap: ()=>deleteItemReg(doc.id),
+                                                                  onTap: (){}
+                                                                  //=>deleteItemReg(doc.id),
                                                                 ),
                                                               ],
                                                             ),

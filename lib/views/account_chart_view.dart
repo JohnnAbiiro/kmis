@@ -66,7 +66,6 @@ class _AccountChartViewState extends State<AccountChartView> {
                                       );
                                     }
 
-                                    //final staffDocs = snapshot.data!.docs;
 
                                     // Future<void> deleteAccounts(String id) async {
                                     //   try {

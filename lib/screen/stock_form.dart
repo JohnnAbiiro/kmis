@@ -461,16 +461,33 @@ class _StockFormState extends State<StockForm> {
                                       ),
                                       Padding(
                                         padding: const EdgeInsets.all(8.0),
-                                        child: ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.deepPurple,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(10),
+                                        child: Row(
+                                          children: [
+                                            ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: Colors.deepPurple,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                ),
+                                                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 14),
+                                              ),
+                                              onPressed: saveStockingList,
+                                              child: const Text("Save", style: TextStyle(color: Colors.white)),
                                             ),
-                                            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 14),
-                                          ),
-                                          onPressed: saveStockingList,
-                                          child: const Text("Save", style: TextStyle(color: Colors.white)),
+                                            ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: Colors.deepPurple,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                ),
+                                                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 14),
+                                              ),
+                                              onPressed: (){
+                                                context.go(Routes.stockview);
+                                              },
+                                              child: const Text("View", style: TextStyle(color: Colors.white)),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ],
@@ -546,16 +563,33 @@ class _StockFormState extends State<StockForm> {
                                       ),
                                       Padding(
                                         padding: const EdgeInsets.all(8.0),
-                                        child: ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.deepPurple,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(10),
+                                        child: Row(
+                                          children: [
+                                            ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: Colors.deepPurple,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                ),
+                                                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 14),
+                                              ),
+                                              onPressed: saveStockingList,
+                                              child: const Text("Save", style: TextStyle(color: Colors.white)),
                                             ),
-                                            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 14),
-                                          ),
-                                          onPressed: saveStockingList,
-                                          child: const Text("Save", style: TextStyle(color: Colors.white)),
+                                            ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: Colors.deepPurple,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                ),
+                                                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 14),
+                                              ),
+                                              onPressed: (){
+                                                context.go(Routes.stockview);
+                                              },
+                                              child: const Text("View", style: TextStyle(color: Colors.white)),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ],

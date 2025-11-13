@@ -66,19 +66,19 @@ class _ExpenseViewState extends State<ExpenseView> {
                                         );
                                       }
 
-                                      final expenseDocs = snapshot.data!.docs;
-                                      Future<void> deleteExpense(String id) async {
-                                        try {
-                                          await FirebaseFirestore.instance.collection('expense').doc(id).delete();
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            const SnackBar(content: Text("deleted successfully")),
-                                          );
-                                        } catch (e) {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text("Error deleting: $e")),
-                                          );
-                                        }
-                                      }
+                                      //final expenseDocs = snapshot.data!.docs;
+                                      // Future<void> deleteExpense(String id) async {
+                                      //   try {
+                                      //     await FirebaseFirestore.instance.collection('expense').doc(id).delete();
+                                      //     ScaffoldMessenger.of(context).showSnackBar(
+                                      //       const SnackBar(content: Text("deleted successfully")),
+                                      //     );
+                                      //   } catch (e) {
+                                      //     ScaffoldMessenger.of(context).showSnackBar(
+                                      //       SnackBar(content: Text("Error deleting: $e")),
+                                      //     );
+                                      //   }
+                                      // }
 
                                       if (isWideScreen){
                                         return SingleChildScrollView(

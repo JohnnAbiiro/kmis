@@ -67,19 +67,19 @@ class _FeePaymentViewState extends State<FeePaymentView> {
                                         );
                                       }
 
-                                      final feeDocs = snapshot.data!.docs;
-                                      Future<void> deleteFeePayment(String id) async {
-                                        try {
-                                          await FirebaseFirestore.instance.collection('feemayment').doc(id).delete();
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            const SnackBar(content: Text("deleted successfully")),
-                                          );
-                                        } catch (e) {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text("Error deleting: $e")),
-                                          );
-                                        }
-                                      }
+                                      //final feeDocs = snapshot.data!.docs;
+                                      // Future<void> deleteFeePayment(String id) async {
+                                      //   try {
+                                      //     await FirebaseFirestore.instance.collection('feemayment').doc(id).delete();
+                                      //     ScaffoldMessenger.of(context).showSnackBar(
+                                      //       const SnackBar(content: Text("deleted successfully")),
+                                      //     );
+                                      //   } catch (e) {
+                                      //     ScaffoldMessenger.of(context).showSnackBar(
+                                      //       SnackBar(content: Text("Error deleting: $e")),
+                                      //     );
+                                      //   }
+                                      // }
 
                                       double total = 0;
                                       for (var doc in snapshot.data!.docs) {
@@ -176,7 +176,7 @@ class _FeePaymentViewState extends State<FeePaymentView> {
                                                 child: ListView.builder(
                                                     shrinkWrap: true,
                                                     physics: NeverScrollableScrollPhysics(),
-                                                    itemCount: feeDocs.length,
+                                                    itemCount: value.feepaymentlist.length,
                                                     itemBuilder: (context, index){
                                                       final doc = value.feepaymentlist[index];
                                                       //final data = feeDocs[index].data() as Map<String, dynamic>;

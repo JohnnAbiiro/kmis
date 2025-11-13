@@ -206,7 +206,7 @@ class _StaffViewState extends State<StaffView> {
                                           );
                                         }
 
-                                        final staffDocs = snapshot.data!.docs;
+                                        //final staffDocs = snapshot.data!.docs;
 
 
                                         if (isWideScreen){

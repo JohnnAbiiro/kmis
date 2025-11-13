@@ -11,6 +11,7 @@ import 'package:ksoftsms/controller/dbmodels/activityModel.dart';
 import 'package:ksoftsms/controller/dbmodels/billedModel.dart';
 import 'package:ksoftsms/controller/dbmodels/contestantsmodel.dart';
 import 'package:ksoftsms/controller/dbmodels/feeSetUpModel.dart';
+import 'package:ksoftsms/controller/dbmodels/iteRegModel.dart';
 import 'package:ksoftsms/controller/dbmodels/paymentMethodsModel.dart';
 import 'package:ksoftsms/controller/dbmodels/singleBilledModel.dart';
 import 'package:ksoftsms/controller/routes.dart';
@@ -36,6 +37,7 @@ class LoginProvider extends ChangeNotifier {
   List<BilledModel> billedlist = [];
   List<ActivityModel> activitylist = [];
   List<CoaModel> accountlist = [];
+  List<ItemRegModel> itemreglist = [];
 
   List<String> staffaccesslevel = ["admin", "teacher", "super admin"];
   List<StudentModel> selectedStudents = [];
@@ -213,6 +215,7 @@ class LoginProvider extends ChangeNotifier {
          return FeePaymentModel.fromJson(doc.data());
        }).toList();
      }catch(e){}
+    notifyListeners();
   }
   fetchSingleBilled() async {
      try{
@@ -221,6 +224,7 @@ class LoginProvider extends ChangeNotifier {
          return SingleBilledModel.fromMap(doc.data());
        }).toList();
      }catch(e){}
+    notifyListeners();
   }
   fetchBilled()async{
      try{
@@ -229,6 +233,7 @@ class LoginProvider extends ChangeNotifier {
          return BilledModel.fromMap(doc.data());
        }).toList();
      }catch(e){}
+    notifyListeners();
   }
   fetchActivityList()async{
      try{
@@ -237,6 +242,7 @@ class LoginProvider extends ChangeNotifier {
          return ActivityModel.fromMap(doc.data());
        }).toList();
      }catch(e){}
+    notifyListeners();
   }
   fetchAccountList()async{
      try{
@@ -245,6 +251,16 @@ class LoginProvider extends ChangeNotifier {
          return CoaModel.fromMap(doc.data());
        }).toList();
      }catch(e){}
+    notifyListeners();
+  }
+  fetchItemRegList()async{
+     try{
+       final snapshot = await db.collection('itemReg').get();
+       itemreglist = snapshot.docs.map((doc){
+         return ItemRegModel.fromMap(doc.data());
+       }).toList();
+     }catch(e){}
+    notifyListeners();
   }
 
   Future<void> deleteStaff(String id,int index,BuildContext context) async {

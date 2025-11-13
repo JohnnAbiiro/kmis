@@ -16,6 +16,7 @@ import 'package:ksoftsms/views/fee_payment_view.dart';
 import 'package:ksoftsms/views/item_reg_view.dart';
 import 'package:ksoftsms/views/single_billing_view.dart';
 import 'package:ksoftsms/views/staff_view.dart';
+import 'package:ksoftsms/views/stock_view.dart';
 import 'package:ksoftsms/views/supplier_view.dart';
 import 'package:ksoftsms/views/system_account_activity.dart';
 import '../components/academicyrmodel.dart';
@@ -124,6 +125,7 @@ class Routes {
   static const billingview = "/billingview";
   static const singlebillingview = "/singlebillingview";
   static const itemregview = "/itemregview";
+  static const stockview = "/stockview";
 
   static const weekreg = "/weekreg";
   static const scoresheet = "/scoresheet";
@@ -349,5 +351,6 @@ final GoRouter router = GoRouter(
     GoRoute(path: Routes.billingview, builder: (c, s) => BillingView()),
     GoRoute(path: Routes.singlebillingview, builder: (c, s) => SingleBillingView()),
     GoRoute(path: Routes.itemregview, builder: (c, s) => ItemRegView()),
+    GoRoute(path: Routes.stockview, builder: (c, s) => StockView()),
   ],
 );

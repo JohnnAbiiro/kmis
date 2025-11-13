@@ -154,10 +154,10 @@ class _SupplierViewState extends State<SupplierView> {
                                                 rows: value.supplierlist.map((doc){
                                                   //final data = doc.data() as Map<String, dynamic>;
                                                   return DataRow(cells: [
-                                                    DataCell(Text(doc.name ?? '')),
-                                                    DataCell(Text(doc.phone ?? '')),
-                                                    DataCell(Text(doc.schoolId ?? '')),
-                                                    DataCell(Text(doc.staff ?? '')),
+                                                    DataCell(Text(doc.name)),
+                                                    DataCell(Text(doc.phone)),
+                                                    DataCell(Text(doc.schoolId)),
+                                                    DataCell(Text(doc.staff)),
                                                     DataCell(
                                                       Row(
                                                         children: [
@@ -213,9 +213,9 @@ class _SupplierViewState extends State<SupplierView> {
                                                             title: Text('Name: ${data.name?? ''}'),
                                                             subtitle: Column(
                                                               children: [
-                                                                Text("Phone: ${data.phone ?? ''}"),
-                                                                Text("School ID: ${data.schoolId ?? ''}"),
-                                                                Text("Staff ID: ${data.staff ?? ''}"),
+                                                                Text("Phone: ${data.phone}"),
+                                                                Text("School ID: ${data.schoolId}"),
+                                                                Text("Staff ID: ${data.staff}"),
                                                               ],
                                                             ),
                                                             trailing: Row(
