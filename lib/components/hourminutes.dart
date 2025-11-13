@@ -78,87 +78,127 @@ class HourMinutes extends StatelessWidget {
                             color: Color(0xFFe1fef3),
                             borderRadius: BorderRadius.all(Radius.circular(6))
                         ),
-                        child: Center(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Text(
-                                "Male vs Female",
-                                style: TextStyle(fontSize: 13),
-                              ),
-                              //const SizedBox(height: 10),
-                              SizedBox(
-                                height: 60,
-                                child: PieChart(
-                                  PieChartData(
-                                    sectionsSpace: 1,
-                                    centerSpaceRadius: 0,
-                                    sections: [
-                                      PieChartSectionData(
-                                        value: male.toDouble(),
-                                        color: Color(0xFF00b377),
-                                        title: male.toString(),
-                                        radius: 30,
-                                        titleStyle: const TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white),
+                        child: StreamBuilder(
+                            stream: FirebaseFirestore.instance.collection('students').snapshots(),
+                            builder: (context, snapshot){
+                              if (!snapshot.hasData) {
+                                return const Text("Loading...");
+                              }
+
+                              final docs = snapshot.data!.docs;
+                              int male = docs.where((doc) => (doc['sex']?.toString().toLowerCase() == 'male')).length;
+                              int female = docs.where((doc) => (doc['sex']?.toString().toLowerCase() == 'female')).length;
+
+                              if (male == 0 && female == 0) {
+                                return const Center(child: Text('No data'));
+                              }
+
+
+                              int maleCount = 0;
+                              int femaleCount = 0;
+
+                              for (var doc in snapshot.data!.docs) {
+                                String sex = doc['sex'].toString().toLowerCase();
+
+                                if (sex == 'male') {
+                                  maleCount++;
+                                } else if (sex == 'female') {
+                                  femaleCount++;
+                                }
+                              }
+
+                              int total = maleCount + femaleCount;
+
+                              double malePercentage = total > 0 ? (maleCount / total) * 100 : 0;
+                              double femalePercentage = total > 0 ? (femaleCount / total) * 100 : 0;
+
+                              print(maleCount);
+                              print(malePercentage.toStringAsFixed(1) + "%");
+                              print(femalePercentage.toStringAsFixed(1) + "%");
+
+                              return Center(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Text(
+                                      "Male vs Female",
+                                      style: TextStyle(fontSize: 13),
+                                    ),
+                                    //const SizedBox(height: 10),
+                                    SizedBox(
+                                      height: 60,
+                                      child: PieChart(
+                                        PieChartData(
+                                          sectionsSpace: 1,
+                                          centerSpaceRadius: 0,
+                                          sections: [
+                                            PieChartSectionData(
+                                              value: male.toDouble(),
+                                              color: Color(0xFF00b377),
+                                              title: male.toString(),
+                                              radius: 30,
+                                              titleStyle: const TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.white),
+                                            ),
+                                            PieChartSectionData(
+                                              value: female.toDouble(),
+                                              color: Color(0xFF00d7c4),
+                                              title: female.toString(),
+                                              radius: 20,
+                                              titleStyle: const TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.white),
+                                            ),
+                                          ],
+                                        ),
+                                        swapAnimationDuration: const Duration(milliseconds: 1200),
+                                        swapAnimationCurve: Curves.easeOutCubic,
                                       ),
-                                      PieChartSectionData(
-                                        value: female.toDouble(),
-                                        color: Color(0xFF00d7c4),
-                                        title: female.toString(),
-                                        radius: 20,
-                                        titleStyle: const TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white),
-                                      ),
-                                    ],
-                                  ),
-                                  swapAnimationDuration: const Duration(milliseconds: 1200),
-                                  swapAnimationCurve: Curves.easeOutCubic,
+                                    ),
+                                    SizedBox(height: 12),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Container(
+                                              width: 12,
+                                              height: 12,
+                                              decoration: BoxDecoration(color: Color(0xFF00b377), shape: BoxShape.circle),
+                                            ),
+                                            const SizedBox(width: 6),
+                                            Text(
+                                              "Male",
+                                              style: const TextStyle(fontSize: 12),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(width: 10),
+                                        Row(
+                                          children: [
+                                            Container(
+                                              width: 12,
+                                              height: 12,
+                                              decoration: BoxDecoration(color: Color(0xFF00d7c4), shape: BoxShape.circle),
+                                            ),
+                                            const SizedBox(width: 6),
+                                            Text(
+                                              "Female",
+                                              style: const TextStyle(fontSize: 12),
+                                            ),
+                                          ],
+                                        )
+                                      ],
+                                    )
+                                  ],
                                 ),
-                              ),
-                              SizedBox(height: 12),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Container(
-                                        width: 12,
-                                        height: 12,
-                                        decoration: BoxDecoration(color: Color(0xFF00b377), shape: BoxShape.circle),
-                                      ),
-                                      const SizedBox(width: 6),
-                                      Text(
-                                        "Male",
-                                        style: const TextStyle(fontSize: 12),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(width: 10),
-                                  Row(
-                                    children: [
-                                      Container(
-                                        width: 12,
-                                        height: 12,
-                                        decoration: BoxDecoration(color: Color(0xFF00d7c4), shape: BoxShape.circle),
-                                      ),
-                                      const SizedBox(width: 6),
-                                      Text(
-                                        "Female",
-                                        style: const TextStyle(fontSize: 12),
-                                      ),
-                                    ],
-                                  )
-                                ],
-                              )
-                            ],
-                          ),
-                        ),
+                              );
+                            }
+                        )
                       ),
                     ),
                   ],
