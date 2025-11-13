@@ -43,7 +43,7 @@ class _DashboardLayoutState extends State<DashboardLayout> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<Myprovider>().getdata();
-      print(context.read<Myprovider>().currentschool);
+      //print(context.read<Myprovider>().currentschool);
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
      final provider= context.read<Myprovider>();
@@ -51,7 +51,7 @@ class _DashboardLayoutState extends State<DashboardLayout> {
       setState(() {
         schoolname=provider.currentschool;
       });
-     print(provider.phone);
+     //print(provider.phone);
     });
 
   }

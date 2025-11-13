@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:ksoftsms/controller/myprovider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -52,7 +51,7 @@ class HourMinutes extends StatelessWidget {
                         ),
                         child: Center(
                           child: StreamBuilder(
-                              stream: FirebaseFirestore.instance.collection('students').where('email', isEqualTo: FirebaseAuth.instance.currentUser!.email).snapshots(),
+                              stream: FirebaseFirestore.instance.collection('students').snapshots(),
                               builder: (context, snapshot){
                                 if (!snapshot.hasData) return const CircularProgressIndicator();
                                 final count = snapshot.data!.docs.length;
@@ -164,14 +163,6 @@ class HourMinutes extends StatelessWidget {
                     ),
                   ],
                 )
-                // Text(topcollector.toUpperCase(), style: TextStyle(fontSize: 15,
-                //     color: Colors.green,
-                //     fontWeight: FontWeight.bold),),
-                // SizedBox(height: 50),
-                // Center(
-                //   child: Text('${0}/${0}', style: TextStyle(
-                //       fontSize: 24, fontWeight: FontWeight.w700, color: Color(0xFFfb7d5b))),
-                // ),
               ],
             ),
           ),

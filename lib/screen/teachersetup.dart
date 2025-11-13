@@ -1305,9 +1305,9 @@ class MultiSelectField<T> extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
         decoration: BoxDecoration(
-          color: const Color(0xFF2D2F45),
+          color: const Color(0xFFffffff),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.white24),
+          border: Border.all(color: Colors.grey),
         ),
         child: Row(
           children: [
@@ -1316,11 +1316,11 @@ class MultiSelectField<T> extends StatelessWidget {
                 selectedLabels.isNotEmpty
                     ? selectedLabels.join(", ")
                     : (hintText.isNotEmpty ? hintText : "Select $label"),
-                style: const TextStyle(color: Colors.white70),
+                style: const TextStyle(color: Colors.black),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            const Icon(Icons.arrow_drop_down, color: Colors.white70),
+            const Icon(Icons.arrow_drop_down, color: Colors.black),
           ],
         ),
       ),
@@ -1409,7 +1409,7 @@ class _TeacherSetupPageState extends State<TeacherSetupPage> {
 
         return Scaffold(
           appBar: AppBar(
-            backgroundColor: const Color(0xFF2D2F45),
+            backgroundColor: const Color(0xFF00273a),
             title: Text(
               widget.setupData != null
                   ? "Edit Teacher Setup"
@@ -1421,185 +1421,195 @@ class _TeacherSetupPageState extends State<TeacherSetupPage> {
               onPressed: () => context.go(Routes.dashboard),
             ),
           ),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  ChoiceChip(
-                    label: Text("${value.year} - ${value.term}"),
-                    selected: true,
-                    selectedColor: Colors.blueAccent,
-                    labelStyle: const TextStyle(color: Colors.white),
-                    onSelected: (_) {},
-                  ),
-                  const SizedBox(height: 15),
-
-                  // Teachers
-                  MultiSelectField<String>(
-                    label: "Teachers",
-                    items: teacherItems,
-                    selectedValues: selectedTeachers,
-                    hintText: "Select Teachers",
-                    onConfirm: (val) {
-                      setState(() => selectedTeachers = val);
-                    },
-                  ),
-                  const SizedBox(height: 15),
-
-                  // Subjects
-                  MultiSelectField<String>(
-                    label: "Subjects",
-                    items: subjectItems,
-                    selectedValues: selectedSubjects,
-                    hintText: "Select Subjects",
-                    onConfirm: (val) {
-                      setState(() => selectedSubjects = val);
-                    },
-                  ),
-                  const SizedBox(height: 15),
-
-                  // Classes
-                  MultiSelectField<String>(
-                    label: "Classes",
-                    items: classItems,
-                    selectedValues: selectedClasses,
-                    hintText: "Select Classes",
-                    onConfirm: (val) {
-                      setState(() => selectedClasses = val);
-                    },
-                  ),
-                  const SizedBox(height: 15),
-
-                  // Components
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: value.accessComponents.map((comp) {
-                      final isSelected = selectedComponents.contains(comp);
-                      return ChoiceChip(
-                        label: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(comp.name,
-                                style: const TextStyle(
-                                    color: Colors.white, fontSize: 13)),
-                            Text("Mark: ${comp.totalMark}",
-                                style: const TextStyle(
-                                    color: Colors.yellowAccent, fontSize: 11)),
-                          ],
+          body: Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 800),
+              child: Container(
+                margin: EdgeInsets.only(top: 20),
+                color: Colors.white,
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(20),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        ChoiceChip(
+                          label: Text("${value.year} - ${value.term}"),
+                          selected: true,
+                          selectedColor: Colors.blueAccent,
+                          labelStyle: const TextStyle(color: Colors.white),
+                          onSelected: (_) {},
                         ),
-                        selected: isSelected,
-                        selectedColor: Colors.blueAccent,
-                        backgroundColor: const Color(0xFF2D2F45),
-                        onSelected: (sel) {
-                          setState(() {
-                            if (sel) {
-                              if (!selectedComponents.contains(comp)) {
-                                selectedComponents.add(comp);
-                              }
-                            } else {
-                              selectedComponents.remove(comp);
+                        const SizedBox(height: 15),
+
+                        // Teachers
+                        MultiSelectField<String>(
+                          label: "Teachers",
+                          items: teacherItems,
+                          selectedValues: selectedTeachers,
+                          hintText: "Select Teachers",
+                          onConfirm: (val) {
+                            setState(() => selectedTeachers = val);
+                          },
+                        ),
+                        const SizedBox(height: 15),
+
+                        // Subjects
+                        MultiSelectField<String>(
+                          label: "Subjects",
+                          items: subjectItems,
+                          selectedValues: selectedSubjects,
+                          hintText: "Select Subjects",
+                          onConfirm: (val) {
+                            setState(() => selectedSubjects = val);
+                          },
+                        ),
+                        const SizedBox(height: 15),
+
+                        // Classes
+                        MultiSelectField<String>(
+                          label: "Classes",
+                          items: classItems,
+                          selectedValues: selectedClasses,
+                          hintText: "Select Classes",
+                          onConfirm: (val) {
+                            setState(() => selectedClasses = val);
+                          },
+                        ),
+                        const SizedBox(height: 15),
+
+                        // Components
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: value.accessComponents.map((comp) {
+                            final isSelected = selectedComponents.contains(comp);
+                            return ChoiceChip(
+                              label: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(comp.name,
+                                      style: const TextStyle(
+                                          color: Colors.white, fontSize: 13)),
+                                  Text("Mark: ${comp.totalMark}",
+                                      style: const TextStyle(
+                                          color: Colors.yellowAccent, fontSize: 11)),
+                                ],
+                              ),
+                              selected: isSelected,
+                              selectedColor: Colors.blueAccent,
+                              backgroundColor: const Color(0xFF2D2F45),
+                              onSelected: (sel) {
+                                setState(() {
+                                  if (sel) {
+                                    if (!selectedComponents.contains(comp)) {
+                                      selectedComponents.add(comp);
+                                    }
+                                  } else {
+                                    selectedComponents.remove(comp);
+                                  }
+                                });
+                              },
+                            );
+                          }).toList(),
+                        ),
+                        const SizedBox(height: 30),
+
+                        // Save Button
+                        ElevatedButton.icon(
+                          onPressed: value.savingSetup
+                              ? null
+                              : () async {
+                            if (selectedTeachers.isEmpty ||
+                                selectedSubjects.isEmpty ||
+                                selectedComponents.isEmpty ||
+                                selectedClasses.isEmpty) {
+                              _showMsg(context, "Fill all fields", true);
+                              return;
                             }
-                          });
-                        },
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 30),
 
-                  // Save Button
-                  ElevatedButton.icon(
-                    onPressed: value.savingSetup
-                        ? null
-                        : () async {
-                      if (selectedTeachers.isEmpty ||
-                          selectedSubjects.isEmpty ||
-                          selectedComponents.isEmpty ||
-                          selectedClasses.isEmpty) {
-                        _showMsg(context, "Fill all fields", true);
-                        return;
-                      }
+                            try {
+                              value.savingSetup = true;
 
-                      try {
-                        value.savingSetup = true;
+                              final selectedTeacher = value.stafflist
+                                  .where((t) =>
+                                  selectedTeachers.contains(t.id ?? ""))
+                                  .toList();
 
-                        final selectedTeacher = value.stafflist
-                            .where((t) =>
-                            selectedTeachers.contains(t.id ?? ""))
-                            .toList();
+                              await value.saveTeacherSetupMulti(
+                                teacherIds: selectedTeacher,
+                                schoolId: value.schoolid,
+                                academicYear: value.academicyrid,
+                                term: value.term,
+                                subjects: value.subjectList
+                                    .where((s) =>
+                                    selectedSubjects.contains(s.id))
+                                    .toList(),
+                                components: selectedComponents,
+                                classes: value.classdata
+                                    .where((c) =>
+                                    selectedClasses.contains(c.name))
+                                    .toList(),
+                              );
 
-                        await value.saveTeacherSetupMulti(
-                          teacherIds: selectedTeacher,
-                          schoolId: value.schoolid,
-                          academicYear: value.academicyrid,
-                          term: value.term,
-                          subjects: value.subjectList
-                              .where((s) =>
-                              selectedSubjects.contains(s.id))
-                              .toList(),
-                          components: selectedComponents,
-                          classes: value.classdata
-                              .where((c) =>
-                              selectedClasses.contains(c.name))
-                              .toList(),
-                        );
+                              _showMsg(context, "Setup saved", false);
+                            } catch (e) {
+                              _showMsg(context, "Error: $e", true);
+                            } finally {
+                              value.savingSetup = false;
+                            }
+                          },
+                          icon: value.savingSetup
+                              ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2, color: Colors.white))
+                              : const Icon(Icons.save),
+                          label: Text(value.savingSetup
+                              ? "Saving..."
+                              : widget.setupData != null
+                              ? "Update Setup"
+                              : "Save Teacher Setup"),
+                          style: _btnStyle(),
+                        ),
+                        const SizedBox(height: 20),
 
-                        _showMsg(context, "Setup saved", false);
-                      } catch (e) {
-                        _showMsg(context, "Error: $e", true);
-                      } finally {
-                        value.savingSetup = false;
-                      }
-                    },
-                    icon: value.savingSetup
-                        ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white))
-                        : const Icon(Icons.save),
-                    label: Text(value.savingSetup
-                        ? "Saving..."
-                        : widget.setupData != null
-                        ? "Update Setup"
-                        : "Save Teacher Setup"),
-                    style: _btnStyle(),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // View setups
-                  InkWell(
-                    onTap: () => context.go(Routes.viewteachersetup),
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF2D2F45),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                            color: Colors.blueAccent, width: 1),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: const [
-                          Icon(Icons.list, color: Colors.white),
-                          SizedBox(width: 8),
-                          Text(
-                            "View teacher",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                        // View setups
+                        InkWell(
+                          onTap: () => context.go(Routes.viewteachersetup),
+                          borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 24, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF2D2F45),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                  color: Colors.blueAccent, width: 1),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: const [
+                                Icon(Icons.list, color: Colors.white),
+                                SizedBox(width: 8),
+                                Text(
+                                  "View teacher",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
+                ),
               ),
             ),
           ),

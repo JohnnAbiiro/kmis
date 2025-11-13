@@ -7,9 +7,32 @@ import 'package:provider/provider.dart';
 
 import '../controller/routes.dart';
 
-class CustomDrawer extends StatelessWidget {
+class CustomDrawer extends StatefulWidget {
   const CustomDrawer({super.key});
 
+  @override
+  State<CustomDrawer> createState() => _CustomDrawerState();
+}
+
+class _CustomDrawerState extends State<CustomDrawer> {
+  String schoolname = '';
+
+  void initState()  {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<Myprovider>().getdata();
+      //print(context.read<Myprovider>().currentschool);
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider= context.read<Myprovider>();
+      provider.getdata();
+      setState(() {
+        schoolname=provider.currentschool;
+      });
+      //print(provider.phone);
+    });
+
+  }
   @override
   Widget build(BuildContext context) {
     return Consumer<Myprovider>(
@@ -36,7 +59,7 @@ class CustomDrawer extends StatelessWidget {
                       ),
                       SizedBox(height: 10),
                       Text(
-                        'KMIS',
+                        schoolname,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,

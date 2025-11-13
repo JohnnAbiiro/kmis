@@ -105,7 +105,7 @@ class _TeacherListPageState extends State<TeacherListPage> {
         final pageItems = filteredTeachers.sublist(startIndex, endIndex);
 
         return Scaffold(
-          backgroundColor: const Color(0xFF1B1D2A),
+          //backgroundColor: const Color(0xFF1B1D2A),
           appBar: AppBar(
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -147,11 +147,11 @@ class _TeacherListPageState extends State<TeacherListPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
-              Expanded(
+                const SizedBox(height: 16),
+                Expanded(
                 child: pageItems.isEmpty
                     ? const Center(
-                  child: Text(
+                      child: Text(
                     "No Teachers Found",
                     style: TextStyle(
                       color: Colors.white70,
@@ -159,10 +159,9 @@ class _TeacherListPageState extends State<TeacherListPage> {
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                )
-                    : ListView.builder(
-                  itemCount: pageItems.length,
-                  itemBuilder: (context, idx) {
+                  ) : ListView.builder(
+                    itemCount: pageItems.length,
+                    itemBuilder: (context, idx) {
                     final index = idx + startIndex;
                     final item = pageItems[idx];
 
@@ -246,8 +245,7 @@ class _TeacherListPageState extends State<TeacherListPage> {
                                     label: Text(sub,
                                         style: const TextStyle(color: Colors.white)),
                                     backgroundColor: Colors.teal.shade700,
-                                  ))
-                                      .toList(),
+                                  )).toList(),
                                 ),
                                 const SizedBox(height: 12),
                                 // Action buttons
@@ -337,21 +335,21 @@ class _TeacherListPageState extends State<TeacherListPage> {
                 children: [
                   IconButton(
                     onPressed: _currentPage > 0 ? () => setState(() => _currentPage--) : null,
-                    icon: const Icon(Icons.chevron_left, color: Colors.white),
+                    icon: const Icon(Icons.chevron_left, color: Colors.black54),
                   ),
                   Text(
                     "Page ${_currentPage + 1} of ${((filteredTeachers.length - 1) / _rowsPerPage).floor() + 1}",
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(color: Colors.black54),
                   ),
                   IconButton(
                     onPressed: endIndex < filteredTeachers.length
                         ? () => setState(() => _currentPage++)
                         : null,
-                    icon: const Icon(Icons.chevron_right, color: Colors.white),
+                    icon: const Icon(Icons.chevron_right, color: Colors.black54),
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
             ],
           ),
         );

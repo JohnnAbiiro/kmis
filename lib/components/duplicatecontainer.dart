@@ -85,7 +85,7 @@ class _DuplicateContainerState extends State<DuplicateContainer> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.school_sharp, size: 40, color: Color(0xFF7A6FF0),),
+                                Icon(Icons.school_sharp, size: 40, color: Color(0xFF7A6FF0)),
                                 Text("Total Staff", style: TextStyle(fontSize: 12)),
                                 Text(count.toString(), style: TextStyle(fontWeight: FontWeight.w600, fontSize: 30))
                               ],
