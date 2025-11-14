@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shimmer/shimmer.dart';
 
 class StockView extends StatefulWidget {
   const StockView({super.key});
@@ -21,7 +22,6 @@ class _StockListScreenState extends State<StockView> {
       ),
       body: Column(
         children: [
-
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
@@ -41,13 +41,24 @@ class _StockListScreenState extends State<StockView> {
             ),
           ),
 
-
           Expanded(
             child: FutureBuilder<QuerySnapshot>(
               future: FirebaseFirestore.instance.collection('stock').get(),
               builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                if (!snapshot.hasData) {
+                  return Shimmer.fromColors(
+                    baseColor: Colors.grey.shade300,
+                    highlightColor: Colors.grey.shade100,
+                    child: Container(
+                      height: 80,
+                      width: double.infinity,
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  );
                 }
 
                 if (snapshot.hasError) {

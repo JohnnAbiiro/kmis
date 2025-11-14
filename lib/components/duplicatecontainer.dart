@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:shimmer/shimmer.dart';
 
 class DuplicateContainer extends StatefulWidget {
   final String heading;
@@ -28,14 +29,14 @@ class _DuplicateContainerState extends State<DuplicateContainer> {
 
     List<PieChartSectionData> showingSections() {
       final data = [
-        {'value': 85.0, 'color': const Color(0xFF7A6FF0)}, // Present
-        {'value': 10.0, 'color': const Color(0xFFFFA726)}, // Late
-        {'value': 5.0, 'color': const Color(0xFFE53935)}, // Absent
+        {'value': 70.0, 'color': const Color(0xFF7A6FF0)},
+        {'value': 30.0, 'color': const Color(0xFFFFA726)},
+        //{'value': 5.0, 'color': const Color(0xFFE53935)},
       ];
 
       return List.generate(data.length, (i) {
         final isTouched = i == touchedIndex;
-        final double radius = isTouched ? 50 : 40;
+        final double radius = isTouched ? 40 : 30;
         return PieChartSectionData(
           color: data[i]['color'] as Color,
           value: data[i]['value'] as double,
@@ -66,7 +67,7 @@ class _DuplicateContainerState extends State<DuplicateContainer> {
               children: [
                 Expanded(
                   child: Container(
-                    height: 120,
+                    height: 150,
                     width: 150,
                     decoration: BoxDecoration(
                         color: Colors.white,
@@ -79,7 +80,63 @@ class _DuplicateContainerState extends State<DuplicateContainer> {
                       child: StreamBuilder(
                           stream: FirebaseFirestore.instance.collection('staff').snapshots(),
                           builder: (context, snapshot){
-                            if (!snapshot.hasData) return const CircularProgressIndicator();
+
+                            final docs = snapshot.data!.docs;
+                            int teaching = docs.where((doc) => (doc['accessLevel']?.toString().toLowerCase() == 'teacher')).length;
+
+                            if (!snapshot.hasData) {
+                              return Shimmer.fromColors(
+                                baseColor: const Color(0xFF7A6FF0).withOpacity(0.2),
+                                highlightColor: const Color(0xFFada1ff).withOpacity(0.4),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      height: 12,
+                                      width: 100,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+
+                                    Container(
+                                      height: 50,
+                                      width: 50,
+                                      decoration: const BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 20),
+
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Container(
+                                          height: 12,
+                                          width: 50,
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius: BorderRadius.circular(4),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 20),
+                                        Container(
+                                          height: 12,
+                                          width: 50,
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius: BorderRadius.circular(4),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
                             final count = snapshot.data!.docs.length;
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -98,7 +155,7 @@ class _DuplicateContainerState extends State<DuplicateContainer> {
                 SizedBox(width: 10),
                 Expanded(
                   child: Container(
-                    height: 120,
+                    height: 150,
                     width: 150,
                     decoration: BoxDecoration(
                         color: Color(0xFFada1ff).withOpacity(0.3),
@@ -121,7 +178,7 @@ class _DuplicateContainerState extends State<DuplicateContainer> {
                             ],
                           ),
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 10),
                         SizedBox(
                           height: 30,
                           child: PieChart(
@@ -136,6 +193,43 @@ class _DuplicateContainerState extends State<DuplicateContainer> {
                             swapAnimationCurve: Curves.easeOut,
                           ),
                         ),
+                        SizedBox(height: 10),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 12,
+                                    height: 12,
+                                    decoration: BoxDecoration(color: Color(0xFF7A6FF0), shape: BoxShape.circle),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    "Teaching Staff",
+                                    style: const TextStyle(fontSize: 12),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 12,
+                                    height: 12,
+                                    decoration: BoxDecoration(color: Color(0xFFFFA726), shape: BoxShape.circle),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    "Non-Teaching Staff",
+                                    style: const TextStyle(fontSize: 12),
+                                  ),
+                                ],
+                              )
+                            ],
+                          ),
+                        )
                       ],
                     ),
                   ),

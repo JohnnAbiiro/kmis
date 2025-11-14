@@ -34,7 +34,7 @@ class AttendanceTracking extends StatelessWidget {
                       fontSize: fontSize, color: Color(0xFF00496d)
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 30),
                 Container(
                   padding: EdgeInsets.all(innerPadding),
                   decoration: BoxDecoration(

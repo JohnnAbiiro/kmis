@@ -3,6 +3,7 @@ import 'package:ksoftsms/controller/myprovider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:shimmer/shimmer.dart';
 
 class HourMinutes extends StatelessWidget {
   final double cwidth;
@@ -40,7 +41,7 @@ class HourMinutes extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Container(
-                        height: 120,
+                        height: 150,
                         width: 150,
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -53,7 +54,62 @@ class HourMinutes extends StatelessWidget {
                           child: StreamBuilder(
                               stream: FirebaseFirestore.instance.collection('students').snapshots(),
                               builder: (context, snapshot){
-                                if (!snapshot.hasData) return const CircularProgressIndicator();
+                                if (!snapshot.hasData) {
+                                  return Shimmer.fromColors(
+                                    baseColor: const Color(0xFF00b377).withOpacity(0.2),
+                                    highlightColor: const Color(0xFF00d7c4).withOpacity(0.4),
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        // Title shimmer
+                                        Container(
+                                          height: 12,
+                                          width: 100,
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius: BorderRadius.circular(4),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 16),
+
+                                        // Shimmer pie circle
+                                        Container(
+                                          height: 50,
+                                          width: 50,
+                                          decoration: const BoxDecoration(
+                                            color: Colors.white,
+                                            shape: BoxShape.circle,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 20),
+
+                                        // Male & Female legend shimmer
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Container(
+                                              height: 12,
+                                              width: 50,
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius: BorderRadius.circular(4),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 20),
+                                            Container(
+                                              height: 12,
+                                              width: 50,
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius: BorderRadius.circular(4),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }
                                 final count = snapshot.data!.docs.length;
                                 return Column(
                                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -72,7 +128,7 @@ class HourMinutes extends StatelessWidget {
                     SizedBox(width: 10),
                     Expanded(
                       child: Container(
-                        height: 120,
+                        height: 150,
                         width: 150,
                         decoration: BoxDecoration(
                             color: Color(0xFFe1fef3),
@@ -82,7 +138,60 @@ class HourMinutes extends StatelessWidget {
                             stream: FirebaseFirestore.instance.collection('students').snapshots(),
                             builder: (context, snapshot){
                               if (!snapshot.hasData) {
-                                return const Text("Loading...");
+                                return Shimmer.fromColors(
+                                  baseColor: const Color(0xFF00b377).withOpacity(0.2),
+                                  highlightColor: const Color(0xFF00d7c4).withOpacity(0.4),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      // Title shimmer
+                                      Container(
+                                        height: 12,
+                                        width: 100,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16),
+
+                                      // Shimmer pie circle
+                                      Container(
+                                        height: 50,
+                                        width: 50,
+                                        decoration: const BoxDecoration(
+                                          color: Colors.white,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 20),
+
+                                      // Male & Female legend shimmer
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Container(
+                                            height: 12,
+                                            width: 50,
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius: BorderRadius.circular(4),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 20),
+                                          Container(
+                                            height: 12,
+                                            width: 50,
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius: BorderRadius.circular(4),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                );
                               }
 
                               final docs = snapshot.data!.docs;
@@ -92,7 +201,6 @@ class HourMinutes extends StatelessWidget {
                               if (male == 0 && female == 0) {
                                 return const Center(child: Text('No data'));
                               }
-
 
                               int maleCount = 0;
                               int femaleCount = 0;
@@ -112,9 +220,9 @@ class HourMinutes extends StatelessWidget {
                               double malePercentage = total > 0 ? (maleCount / total) * 100 : 0;
                               double femalePercentage = total > 0 ? (femaleCount / total) * 100 : 0;
 
-                              print(maleCount);
-                              print(malePercentage.toStringAsFixed(1) + "%");
-                              print(femalePercentage.toStringAsFixed(1) + "%");
+                              //print(maleCount);
+                              //print(malePercentage.toStringAsFixed(1) + "%");
+                              //print(femalePercentage.toStringAsFixed(1) + "%");
 
                               return Center(
                                 child: Column(
@@ -136,20 +244,20 @@ class HourMinutes extends StatelessWidget {
                                             PieChartSectionData(
                                               value: male.toDouble(),
                                               color: Color(0xFF00b377),
-                                              title: male.toString(),
+                                              title: "${malePercentage.toStringAsFixed(1)}%",
                                               radius: 30,
                                               titleStyle: const TextStyle(
-                                                  fontSize: 12,
+                                                  fontSize: 10,
                                                   fontWeight: FontWeight.bold,
                                                   color: Colors.white),
                                             ),
                                             PieChartSectionData(
                                               value: female.toDouble(),
                                               color: Color(0xFF00d7c4),
-                                              title: female.toString(),
-                                              radius: 20,
+                                              title: "${femalePercentage.toStringAsFixed(1)}%",
+                                              radius: 28,
                                               titleStyle: const TextStyle(
-                                                  fontSize: 12,
+                                                  fontSize: 10,
                                                   fontWeight: FontWeight.bold,
                                                   color: Colors.white),
                                             ),
