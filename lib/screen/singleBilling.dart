@@ -322,7 +322,7 @@ class _SingleBillingState extends State<SingleBilling> {
                                     onPressed: () {
                                       context.go(Routes.singlebillingview);
                                     },
-                                    icon: const Icon(Icons.save,
+                                    icon: const Icon(Icons.list,
                                         color: Colors.white),
                                     label: const Text("View Billed Students",
                                         style: TextStyle(color: Colors.white)),

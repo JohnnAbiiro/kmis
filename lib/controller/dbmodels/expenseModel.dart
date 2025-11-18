@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ExpenseModel {
+  final String id;
   final String supplier;
   final String expenseName;
   final String name;
@@ -18,6 +19,7 @@ class ExpenseModel {
 
 
   ExpenseModel({
+    required this.id,
     required this.expenseName,
     required this.supplier,
     required this.expenseType,
@@ -53,8 +55,9 @@ class ExpenseModel {
     };
   }
 
-  factory ExpenseModel.fromJson(Map<String, dynamic> json) {
+  factory ExpenseModel.fromJson(Map<String, dynamic> json, String id) {
     return ExpenseModel(
+      id: id,
       supplier: json["supplier"] ?? "",
       expenseType: json["expenseType"] ?? "",
       name: json["name"] ?? "",

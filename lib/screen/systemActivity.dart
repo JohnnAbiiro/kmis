@@ -172,7 +172,7 @@ class _SystemActivityState extends State<SystemActivity> {
                                         String id=ids.replaceAll(RegExp(r'[^\w\s]+'),'');
 
                                         try {
-                                          final data=ActivityModel(name: activityname, schoolId: value.schoolid, drAccount: _selectedDebitAccount.toString(), crAccount: _selectedCreditAccount.toString(), staff: value.name, dateCreated: DateTime.now(), crAccountClass: _selectedCreditAccountClass.toString(), drAccountClass: _selectedDebitAccountClass.toString(), crAccountSubClass: _selectedCreditAccountSubClass.toString(), drAccountSubClass: _selectedDebitAccountSubClass.toString()).toJson();
+                                          final data=ActivityModel(name: activityname, schoolId: value.schoolid, drAccount: _selectedDebitAccount.toString(), crAccount: _selectedCreditAccount.toString(), staff: value.name, dateCreated: DateTime.now(), crAccountClass: _selectedCreditAccountClass.toString(), drAccountClass: _selectedDebitAccountClass.toString(), crAccountSubClass: _selectedCreditAccountSubClass.toString(), drAccountSubClass: _selectedDebitAccountSubClass.toString(), id: '').toJson();
                                           await value.db.collection("systemActivity").doc(id).set(data);
 
                                           progress.dismiss();
@@ -212,7 +212,7 @@ class _SystemActivityState extends State<SystemActivity> {
                                     onPressed: () {
                                       context.go(Routes.systemactivityview);
                                     },
-                                    icon: const Icon(Icons.save, color: Colors.white),
+                                    icon: const Icon(Icons.list, color: Colors.white),
                                     label: const Text("View Activity",
                                         style: TextStyle(color: Colors.white)),
                                   ),

@@ -112,7 +112,9 @@ class _ExpenseFormState extends State<ExpenseForm> {
                                     ),
                                     const SizedBox(height: 10),
                                     // Supplier Dropdown (always show)
-                                    buildDropdown(value: selectedSupplier, items: value.supplierList.map((e) => e.name).toList(),
+                                    buildDropdown(
+                                      value: selectedSupplier,
+                                      items: value.supplierList.map((e) => e.name).toList(),
                                       label: "Supplier",
                                       fillColor: inputFill,
                                       onChanged: (v) {
@@ -152,7 +154,10 @@ class _ExpenseFormState extends State<ExpenseForm> {
                                     ),
                                     const SizedBox(height: 20),
 
-                                    buildDropdown(value: selectedExpenseType, items: expenseTypes, label: "Expense Type",
+                                    buildDropdown(
+                                      value: selectedExpenseType,
+                                      items: expenseTypes,
+                                      label: "Expense Type",
                                       fillColor: inputFill,
                                       onChanged: (v) {
                                         setState(() {
@@ -229,7 +234,10 @@ class _ExpenseFormState extends State<ExpenseForm> {
                                       ),
                                     ),
                                     const SizedBox(height: 20),
-                                    buildDropdown(value: selectedTerm, items: value.terms.map((e) => e.name).toList(), label: "Select Your Term",
+                                    buildDropdown(
+                                      value: selectedTerm,
+                                      items: value.terms.map((e) => e.name).toList(),
+                                      label: "Select Your Term",
                                       fillColor: inputFill,
                                       onChanged: (v) {
                                         setState(() {
@@ -286,7 +294,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
                                                   staff: value.name,
                                                   fees: accountController.text.trim(),
                                                   expenseType: selectedExpenseType ?? "Unpaid",
-                                                  expenseName: selectedExpense.toString(),
+                                                  expenseName: selectedExpense.toString(), id: '',
                                                 ).toJson();
 
                                                 await value.db.collection("expense").doc(id).set(data);
@@ -335,7 +343,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
                                           onPressed: () {
                                             context.go(Routes.expenseview);
                                           },
-                                          icon: const Icon(Icons.save, color: Colors.white),
+                                          icon: const Icon(Icons.list, color: Colors.white),
                                           label: const Text(
                                             "View Expense",
                                             style: TextStyle(color: Colors.white),

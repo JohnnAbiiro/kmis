@@ -132,7 +132,7 @@ class _SupplierFormState extends State<SupplierForm> {
                                                     String id = name.replaceAll(RegExp(r'\s+'), '').toLowerCase();
 
                                                     try {
-                                                      final data=SupplierModel(phone:phonetxt,name: name, staff: value.name,  dateCreated: DateTime.now(),  schoolId: value.schoolid).toJson();
+                                                      final data=SupplierModel(phone:phonetxt,name: name, staff: value.name,  dateCreated: DateTime.now(),  schoolId: value.schoolid, id: '').toJson();
                                                       await value.db.collection("supplier").doc('${value.schoolid}_$id').set(data);
                                                       progress.dismiss();
                                                       feeNameController.clear();

@@ -174,7 +174,7 @@ class LoginProvider extends ChangeNotifier {
   fetchStaff() async {
      try{
        final snapshot = await db.collection('staff').get();
-       print(snapshot.docs);
+       //print(snapshot.docs);
        stafflist = snapshot.docs.map((doc) {
          return Staff.fromMap(doc.data(), doc.id);
        }).toList();
@@ -190,7 +190,7 @@ class LoginProvider extends ChangeNotifier {
      try{
        final snapshot = await db.collection('supplier').get();
        supplierlist = snapshot.docs.map((doc) {
-         return SupplierModel.fromMap(doc.data());
+         return SupplierModel.fromMap(doc.data(), doc.id);
        }).toList();
      }catch(e){
        //print(e);
@@ -201,7 +201,7 @@ class LoginProvider extends ChangeNotifier {
      try{
        final snapshot = await db.collection('expense').get();
        expenselists = snapshot.docs.map((doc){
-         return ExpenseModel.fromJson(doc.data());
+         return ExpenseModel.fromJson(doc.data(), doc.id);
        }).toList();
      }catch(e){
 
@@ -239,7 +239,7 @@ class LoginProvider extends ChangeNotifier {
      try{
        final snapshot = await db.collection('systemActivity').get();
        activitylist = snapshot.docs.map((doc){
-         return ActivityModel.fromMap(doc.data());
+         return ActivityModel.fromMap(doc.data(), doc.id);
        }).toList();
      }catch(e){}
     notifyListeners();
@@ -248,7 +248,7 @@ class LoginProvider extends ChangeNotifier {
      try{
        final snapshot = await db.collection('mainaccounts').get();
        accountlist = snapshot.docs.map((doc){
-         return CoaModel.fromMap(doc.data());
+         return CoaModel.fromMap(doc.data(), doc.id);
        }).toList();
      }catch(e){}
     notifyListeners();
@@ -263,9 +263,9 @@ class LoginProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> deleteStaff(String id,int index,BuildContext context) async {
+  Future<void> deleteStaff(String id,int index,BuildContext context, String collections) async {
     try {
-      await db.collection('staff').doc(id).delete();
+      await db.collection(collections).doc(id).delete();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("deleted successfully")),
       );
@@ -275,11 +275,112 @@ class LoginProvider extends ChangeNotifier {
         SnackBar(content: Text("Error deleting: $e")),
       );
     }
-    fetchStaff();
+    if (collections == 'staff'){
+      fetchStaff();
+    }
+    else if (collections == 'expense'){
+      fetchExpense();
+    }
+    else if (collections == 'supplier'){
+      fetchSupplier();
+    }
+
+    notifyListeners();
+  }
+  Future<void> deleteSupplier(String id, int index, BuildContext context) async {
+     try{
+       await db.collection('supplier').doc(id).delete();
+       ScaffoldMessenger.of(context).showSnackBar(
+         const SnackBar(content: Text("deleted successfully")),
+       );
+       supplierlist.removeAt(index);
+     } catch (e) {
+       ScaffoldMessenger.of(context).showSnackBar(
+         SnackBar(content: Text("Error deleting: $e")),
+       );
+       fetchSupplier();
+       notifyListeners();
+     }
+  }
+  Future<void> deleteExpenses(String id, int index, BuildContext context) async {
+    try{
+      await db.collection('expense').doc(id).delete();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("deleted successfully")),
+      );
+      expenselists.removeAt(index);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error deleting: $e")),
+      );
+
+    }
+    fetchExpense();
     notifyListeners();
   }
 
-   Future<bool> staffexistbyphone(String phone) async {
+  Future<void> deleteFeePayment(String id, int index, BuildContext context) async {
+     try{
+       await db.collection("feepayment").doc(id).delete();
+       ScaffoldMessenger.of(context).showSnackBar(
+         const SnackBar(content: Text("deleted successfully"),)
+       );
+       feepaymentlist.removeAt(index);
+     }catch(e){
+       ScaffoldMessenger.of(context).showSnackBar(
+         SnackBar(content: Text("Error deleting: $e")),
+       );
+     }
+     fetchFeePayment();
+     notifyListeners();
+  }
+
+
+  Future<void> updateStaff({
+    required String id,
+    required int index,
+    required BuildContext context,
+    required String name,
+    required String phone,
+    required String email,
+    required String sex,
+    required String region,
+    required String accessLevel,
+  }) async {
+    try {
+      await db.collection('staff').doc(id).update({
+        'name': name,
+        'phone': phone,
+        'email': email,
+        'sex': sex,
+        'region': region,
+        'accessLevel': accessLevel,
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Staff updated successfully"),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      // Refresh staff list
+      await fetchStaff();
+
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Error updating: $e"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+
+    notifyListeners();
+  }
+
+
+  Future<bool> staffexistbyphone(String phone) async {
     try {
       final detail = await db
           .collection("staff")
@@ -501,7 +602,7 @@ class LoginProvider extends ChangeNotifier {
       final snapshot = await db.collection("mainaccounts").where('accountType',isEqualTo:"Expense" ).get();
 
       expenselist = snapshot.docs.map((doc) {
-        return ExpenseModel.fromJson(doc.data());
+        return ExpenseModel.fromJson(doc.data(), doc.id);
       }).toList();
 
       // loadterms = false;
@@ -517,7 +618,7 @@ class LoginProvider extends ChangeNotifier {
       //loadterms = true;
       final snapshot = await db.collection("supplier").where('schoolId',isEqualTo:schoolid ).get();
       supplierList = snapshot.docs.map((doc) {
-        return SupplierModel.fromMap(doc.data());
+        return SupplierModel.fromMap(doc.data(), doc.id);
       }).toList();
       notifyListeners();
     } catch (e) {

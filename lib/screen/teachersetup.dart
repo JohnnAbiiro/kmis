@@ -1371,7 +1371,7 @@ class _TeacherSetupPageState extends State<TeacherSetupPage> {
 
   ButtonStyle _btnStyle() {
     return ElevatedButton.styleFrom(
-      backgroundColor: Colors.blueAccent,
+      backgroundColor: Color(0xFF00496d),
       foregroundColor: Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
       textStyle: const TextStyle(fontSize: 16),
@@ -1437,7 +1437,8 @@ class _TeacherSetupPageState extends State<TeacherSetupPage> {
                         ChoiceChip(
                           label: Text("${value.year} - ${value.term}"),
                           selected: true,
-                          selectedColor: Colors.blueAccent,
+                          checkmarkColor: Colors.white54,
+                          selectedColor: Color(0xFF00496d),
                           labelStyle: const TextStyle(color: Colors.white),
                           onSelected: (_) {},
                         ),
@@ -1494,12 +1495,13 @@ class _TeacherSetupPageState extends State<TeacherSetupPage> {
                                           color: Colors.white, fontSize: 13)),
                                   Text("Mark: ${comp.totalMark}",
                                       style: const TextStyle(
-                                          color: Colors.yellowAccent, fontSize: 11)),
+                                          color: Colors.white54, fontSize: 11)),
                                 ],
                               ),
                               selected: isSelected,
-                              selectedColor: Colors.blueAccent,
-                              backgroundColor: const Color(0xFF2D2F45),
+                              selectedColor: Color(0xFF2D2F45),
+                              checkmarkColor: Colors.white54,
+                              backgroundColor: const Color(0xFF00496d),
                               onSelected: (sel) {
                                 setState(() {
                                   if (sel) {
@@ -1515,7 +1517,6 @@ class _TeacherSetupPageState extends State<TeacherSetupPage> {
                           }).toList(),
                         ),
                         const SizedBox(height: 30),
-
                         // Save Button
                         ElevatedButton.icon(
                           onPressed: value.savingSetup
@@ -1552,7 +1553,6 @@ class _TeacherSetupPageState extends State<TeacherSetupPage> {
                                     selectedClasses.contains(c.name))
                                     .toList(),
                               );
-
                               _showMsg(context, "Setup saved", false);
                             } catch (e) {
                               _showMsg(context, "Error: $e", true);
@@ -1575,29 +1575,28 @@ class _TeacherSetupPageState extends State<TeacherSetupPage> {
                           style: _btnStyle(),
                         ),
                         const SizedBox(height: 20),
-
                         // View setups
                         InkWell(
                           onTap: () => context.go(Routes.viewteachersetup),
                           borderRadius: BorderRadius.circular(12),
                           child: Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 24, vertical: 12),
+                                horizontal: 20, vertical: 10),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF2D2F45),
+                              //color: const Color(0xFF2D2F45),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                  color: Colors.blueAccent, width: 1),
+                                  color: Color(0xFF00496d), width: 1),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: const [
-                                Icon(Icons.list, color: Colors.white),
+                                Icon(Icons.list, color: Colors.black),
                                 SizedBox(width: 8),
                                 Text(
                                   "View teacher",
                                   style: TextStyle(
-                                    color: Colors.white,
+                                    color: Colors.black,
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
                                   ),

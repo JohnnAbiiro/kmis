@@ -661,7 +661,7 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                                                 int count_exist=result_count.docs.length;
                                                 int new_count=count_exist+1;
                                                 String schoolid='KS${new_count.toString().padLeft(4, '0')}';
-                                                final Map<String,dynamic>  staffdata=Staff(name: name, accessLevel: "admin", phone: phone, email: email, sex: "", region: "", schoolId: schoolid, schoolname: school, createdAt: dateTime).toMap();
+                                                final Map<String,dynamic>  staffdata=Staff(name: name, accessLevel: "admin", phone: phone, email: email, sex: "", region: "", schoolId: schoolid, schoolname: school, createdAt: dateTime, teaching: '').toMap();
 
                                                 try{
                                                   if(result.docs.isEmpty){
@@ -1464,7 +1464,7 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                                                     int count_exist=result_count.docs.length;
                                                     int new_count=count_exist+1;
                                                     String schoolid='KS${new_count.toString().padLeft(4, '0')}';
-                                                    final Map<String,dynamic>  staffdata=Staff(name: name, accessLevel: "admin", phone: phone, email: email, sex: "", region: "", schoolId: schoolid, schoolname: school, createdAt: dateTime).toMap();
+                                                    final Map<String,dynamic>  staffdata=Staff(name: name, accessLevel: "admin", phone: phone, email: email, sex: "", region: "", schoolId: schoolid, schoolname: school, createdAt: dateTime, teaching: '').toMap();
 
                                                     try{
                                                       if(result.docs.isEmpty){

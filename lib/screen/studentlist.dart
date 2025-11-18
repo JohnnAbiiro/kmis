@@ -100,7 +100,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
         final pageItems = filteredStudents.sublist(startIndex, endIndex);
 
         return Scaffold(
-          backgroundColor: const Color(0xFF1B1D2A),
+          //backgroundColor: const Color(0xFF1B1D2A),
           appBar: AppBar(
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -178,6 +178,11 @@ class _StudentListScreenState extends State<StudentListScreen> {
                         "region": 5,
                       }[_sortColumn],
                       sortAscending: _isAscending,
+                      headingRowColor:
+                      MaterialStateProperty.resolveWith(
+                              (states) =>
+                          const Color(0xFF2D2F45)),
+                      border: TableBorder.all(color: Colors.grey.shade300),
                       columns: [
                         const DataColumn(
                           label: Text('No.',
@@ -222,16 +227,19 @@ class _StudentListScreenState extends State<StudentListScreen> {
                         final StudentModel item = entry.value;
 
                         return DataRow(
+                          color: MaterialStateProperty.resolveWith(
+                                  (states) =>
+                              const Color(0xFFffffff)),
                           cells: [
                             DataCell(Text('${index + 1}',
                                 style:
-                                const TextStyle(color: Colors.white))),
+                                const TextStyle(color: Colors.black))),
                             DataCell(Text(item.name,
                                 style:
-                                const TextStyle(color: Colors.white))),
+                                const TextStyle(color: Colors.black))),
                             DataCell(Text(item.studentid,
                                 style:
-                                const TextStyle(color: Colors.white))),
+                                const TextStyle(color: Colors.black))),
                             DataCell(
                               item.photourl.isNotEmpty
                                   ? CircleAvatar(
@@ -260,19 +268,19 @@ class _StudentListScreenState extends State<StudentListScreen> {
                             ),
                             DataCell(Text(item.level,
                                 style:
-                                const TextStyle(color: Colors.white))),
+                                const TextStyle(color: Colors.black))),
                             DataCell(Text(item.region,
                                 style:
-                                const TextStyle(color: Colors.white))),
+                                const TextStyle(color: Colors.black))),
                             DataCell(Text(item.status,
                                 style:
-                                const TextStyle(color: Colors.white))),
+                                const TextStyle(color: Colors.black))),
                             DataCell(
                               Row(
                                 children: [
                                   IconButton(
                                     icon: const Icon(Icons.edit,
-                                        color: Colors.blueAccent),
+                                        color: Colors.amber),
                                     onPressed: () {
                                       context.push(
                                         Routes.registerstudent,

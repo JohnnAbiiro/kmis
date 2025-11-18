@@ -40,7 +40,7 @@ class _ClassScreenState extends State<ClassScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final inputFill = const Color(0xFF2C2C3C);
+    final inputFill = const Color(0xFFffffff);
     final isEdit = widget.classes != null;
 
     return ProgressHUD(
@@ -72,7 +72,7 @@ class _ClassScreenState extends State<ClassScreen> {
                   child: Align(
                     alignment: Alignment.topCenter,
                     child: Container(
-                      color: const Color(0xFF2D2F45),
+                      color: const Color(0xFFffffff),
                       margin: const EdgeInsets.all(30.0),
                       constraints: const BoxConstraints(maxWidth: 800),
                       child: SingleChildScrollView(
@@ -102,7 +102,7 @@ class _ClassScreenState extends State<ClassScreen> {
                                   labelText: "Class Name",
                                   hintText: "Enter Class Name",
                                   labelStyle:
-                                  const TextStyle(color: Colors.white),
+                                  const TextStyle(color: Colors.black54),
                                   hintStyle:
                                   const TextStyle(color: Colors.grey),
                                   border: OutlineInputBorder(
@@ -117,18 +117,18 @@ class _ClassScreenState extends State<ClassScreen> {
                                   ),
                                   focusedBorder: const OutlineInputBorder(
                                     borderSide: BorderSide(
-                                      color: Colors.blueAccent,
+                                      color: Color(0xFF00496d),
                                     ),
                                   ),
                                   contentPadding: const EdgeInsets.symmetric(
                                     vertical: 10,
                                     horizontal: 12,
                                   ),
-                                  filled: true,
+                                  filled: false,
                                   fillColor: inputFill,
                                 ),
                                 style: const TextStyle(
-                                    fontSize: 16, color: Colors.white),
+                                    fontSize: 16, color: Colors.black),
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {
                                     return 'Class name cannot be empty';
@@ -164,7 +164,6 @@ class _ClassScreenState extends State<ClassScreen> {
                                           timestamp: DateTime.now(),
                                           staff: value.name,
                                         ).toMap();
-
                                         await value.db
                                             .collection('classes')
                                             .doc(id)
@@ -196,14 +195,14 @@ class _ClassScreenState extends State<ClassScreen> {
                                       isEdit ? 'Update Class' : 'Register Class',
                                     ),
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.blueAccent,
+                                      backgroundColor: Color(0xFF00496d),
                                       foregroundColor: Colors.white,
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: 40,
                                         vertical: 15,
                                       ),
                                       textStyle:
-                                      const TextStyle(fontSize: 18),
+                                      const TextStyle(fontSize: 15),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(10),
                                       ),
@@ -211,32 +210,46 @@ class _ClassScreenState extends State<ClassScreen> {
                                     ),
                                   ),
                                   const SizedBox(width: 20),
-                                  ElevatedButton.icon(
+                                  // ElevatedButton.icon(
+                                  //   onPressed: () {
+                                  //     context.go(Routes.viewclass);
+                                  //   },
+                                  //   icon: const Icon(
+                                  //     Icons.list,
+                                  //     color: Colors.white,
+                                  //   ),
+                                  //   label: const Text(
+                                  //     'View Classes',
+                                  //     style: TextStyle(color: Colors.white),
+                                  //   ),
+                                  //   style: ElevatedButton.styleFrom(
+                                  //     backgroundColor: Colors.blueAccent,
+                                  //     foregroundColor: Colors.white,
+                                  //     padding: const EdgeInsets.symmetric(
+                                  //       horizontal: 40,
+                                  //       vertical: 15,
+                                  //     ),
+                                  //     textStyle:
+                                  //     const TextStyle(fontSize: 18),
+                                  //     shape: RoundedRectangleBorder(
+                                  //       borderRadius: BorderRadius.circular(10),
+                                  //     ),
+                                  //     elevation: 5,
+                                  //   ),
+                                  // ),
+                                  OutlinedButton.icon(
+                                    style: OutlinedButton.styleFrom(
+                                      side:
+                                      const BorderSide(color: Color(0xFF00496d)),
+                                      foregroundColor: Colors.black54,
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 20, vertical: 14),
+                                    ),
+                                    icon: const Icon(Icons.list),
+                                    label: const Text("View Classes"),
                                     onPressed: () {
                                       context.go(Routes.viewclass);
                                     },
-                                    icon: const Icon(
-                                      Icons.list,
-                                      color: Colors.white,
-                                    ),
-                                    label: const Text(
-                                      'View Classes',
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.blueAccent,
-                                      foregroundColor: Colors.white,
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 40,
-                                        vertical: 15,
-                                      ),
-                                      textStyle:
-                                      const TextStyle(fontSize: 18),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      elevation: 5,
-                                    ),
                                   ),
                                 ],
                               ),

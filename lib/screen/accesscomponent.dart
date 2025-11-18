@@ -339,7 +339,7 @@ class _AccessComponentState extends State<AccessComponent> {
 
   @override
   Widget build(BuildContext context) {
-    final inputFill = const Color(0xFF2C2C3C);
+    final inputFill = const Color(0xFFffffff);
 
     return ProgressHUD(
       child: Builder(
@@ -365,7 +365,7 @@ class _AccessComponentState extends State<AccessComponent> {
                   child: Align(
                     alignment: Alignment.topCenter,
                     child: Container(
-                      color: const Color(0xFF2D2F45),
+                      color: const Color(0xFFffffff),
                       margin: const EdgeInsets.all(20.0),
                       constraints: const BoxConstraints(maxWidth: 800),
                       child: Padding(
@@ -380,7 +380,7 @@ class _AccessComponentState extends State<AccessComponent> {
                                   "Component Name",
                                   inputFill,
                                 ),
-                                style: const TextStyle(color: Colors.white),
+                                style: const TextStyle(color: Colors.black54),
                                 validator: (value) =>
                                 value == null || value.trim().isEmpty
                                     ? 'Component name cannot be empty'
@@ -394,7 +394,7 @@ class _AccessComponentState extends State<AccessComponent> {
                                   "Total Mark",
                                   inputFill,
                                 ),
-                                style: const TextStyle(color: Colors.white),
+                                style: const TextStyle(color: Colors.black54),
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {
                                     return 'Total mark cannot be empty';
@@ -410,7 +410,7 @@ class _AccessComponentState extends State<AccessComponent> {
                               // Save Button
                               ElevatedButton.icon(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.blueAccent,
+                                  backgroundColor: Color(0xFF00496d),
                                   foregroundColor: Colors.white,
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 24, vertical: 14),
@@ -485,8 +485,8 @@ class _AccessComponentState extends State<AccessComponent> {
                               OutlinedButton.icon(
                                 style: OutlinedButton.styleFrom(
                                   side:
-                                  const BorderSide(color: Colors.blueAccent),
-                                  foregroundColor: Colors.white,
+                                  const BorderSide(color: Color(0xFF00496d)),
+                                  foregroundColor: Colors.black54,
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 20, vertical: 14),
                                 ),
@@ -512,7 +512,8 @@ class _AccessComponentState extends State<AccessComponent> {
   InputDecoration _inputDecoration(String label, Color fillColor) {
     return InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(color: Colors.white70),
+      labelStyle: const TextStyle(color: Colors.black54),
+
       border: OutlineInputBorder(
         borderSide: BorderSide(color: Colors.grey[700]!),
       ),
@@ -520,7 +521,7 @@ class _AccessComponentState extends State<AccessComponent> {
         borderSide: BorderSide(color: Colors.grey[700]!),
       ),
       focusedBorder: const OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.blueAccent),
+        borderSide: BorderSide(color: Color(0xFF2C2C3C)),
       ),
       filled: true,
       fillColor: fillColor,

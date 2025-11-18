@@ -24,8 +24,10 @@ class _RegstaffState extends State<Regstaff> {
   final _formKey = GlobalKey<FormState>();
 
   final List<String> _sex = ['Male', "Female"];
+  final List<String> _teaching = ['Teaching Staff', "Non Teaching Staff"];
   String? myRegion;
   String? _selectedSex;
+  String? _selectedTeaching;
   String? _selectedAccessLevel;
 
   bool _showStaffContainer = false;
@@ -158,6 +160,20 @@ class _RegstaffState extends State<Regstaff> {
                                             validator: (value) => value == null ? 'Please select sex' : null,
                                           ),
                                           const SizedBox(height: 20),
+                                          DropdownButtonFormField(
+                                            value: _selectedTeaching,
+                                              items: _teaching.map((cat){
+                                                return DropdownMenuItem(
+                                                  value: cat,
+                                                    child: Text(cat, style: TextStyle(color: Colors.black54),)
+                                                );
+                                              }).toList(),
+                                              onChanged: (value)=>setState(()=> _selectedTeaching = value),
+                                            dropdownColor: inputFill,
+                                            decoration: _inputDecoration("Staff Type", null, inputFill),
+                                            validator: (value) => value == null ? 'Please select Staff Type' : null,
+                                          ),
+                                          const SizedBox(height: 20),
 
                                           // Region
                                           DropdownButtonFormField<String>(
@@ -204,6 +220,7 @@ class _RegstaffState extends State<Regstaff> {
                                                         String nameTxt= nameController.text.trim();
                                                         String phoneTxt= phoneController.text.trim();
                                                         String sexTxt= _selectedSex ?? "";
+                                                        String teachTxt= _selectedTeaching ?? "";
                                                         String regionTxt= myRegion ?? "";
                                                         String emailTxt= emailController.text.trim().toString().toLowerCase();
                                                         String schoolId= value.schoolid ?? "";
@@ -228,7 +245,7 @@ class _RegstaffState extends State<Regstaff> {
                                                           progress.dismiss();
                                                           return;
                                                         }
-                                                        final staffdata=Staff(name: nameTxt, accessLevel: accessLevelTxt, phone: phoneTxt, email: emailTxt, sex: sexTxt, region: regionTxt, schoolId: schoolId, schoolname: schoolName, createdAt: createdAt).toMap();
+                                                        final staffdata=Staff(name: nameTxt, accessLevel: accessLevelTxt, phone: phoneTxt, email: emailTxt, sex: sexTxt, region: regionTxt, schoolId: schoolId, schoolname: schoolName, createdAt: createdAt, teaching: teachTxt).toMap();
 
                                                         await value.db.collection('staff').doc(_staffid).set(staffdata, SetOptions(merge: true));
 
