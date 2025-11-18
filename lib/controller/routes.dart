@@ -7,6 +7,7 @@ import 'package:ksoftsms/screen/sales.dart';
 
 import 'package:ksoftsms/screen/signup.dart';
 import 'package:ksoftsms/screen/stock_form.dart';
+import 'package:ksoftsms/screen/studentlist.dart';
 //import 'package:ksoftsms/screen/stock_statement.dart';
 import 'package:ksoftsms/screen/supplierForm.dart';
 import 'package:ksoftsms/views/account_chart_view.dart';
@@ -17,6 +18,7 @@ import 'package:ksoftsms/views/item_reg_view.dart';
 import 'package:ksoftsms/views/single_billing_view.dart';
 import 'package:ksoftsms/views/staff_view.dart';
 import 'package:ksoftsms/views/stock_view.dart';
+import 'package:ksoftsms/views/student_view.dart';
 import 'package:ksoftsms/views/supplier_view.dart';
 import 'package:ksoftsms/views/system_account_activity.dart';
 import '../components/academicyrmodel.dart';
@@ -352,5 +354,6 @@ final GoRouter router = GoRouter(
     GoRoute(path: Routes.singlebillingview, builder: (c, s) => SingleBillingView()),
     GoRoute(path: Routes.itemregview, builder: (c, s) => ItemRegView()),
     GoRoute(path: Routes.stockview, builder: (c, s) => StockView()),
+    GoRoute(path: Routes.viewstudentlist, builder: (c, s) => StudentListScreen()),
   ],
 );

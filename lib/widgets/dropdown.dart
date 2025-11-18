@@ -26,6 +26,7 @@ Widget buildDropdown({
       filled: true,
       fillColor: fillColor,
     ),
+    style: TextStyle(color: Colors.black),
     validator: (v) => v == null || v.isEmpty ? validatorMsg : null,
   );
 }

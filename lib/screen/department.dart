@@ -62,7 +62,7 @@ class _DepartmentState extends State<Department> {
                   child: Align(
                     alignment: Alignment.topCenter,
                     child: Container(
-                      color: const Color(0xFF2D2F45),
+                      color: const Color(0xFFffffff),
                       margin: const EdgeInsets.all(30.0),
                       constraints: const BoxConstraints(maxWidth: 800),
                       child: SingleChildScrollView(
@@ -78,7 +78,7 @@ class _DepartmentState extends State<Department> {
                                 decoration: InputDecoration(
                                   labelText: "Department Name",
                                   hintText: "Enter Department Name",
-                                  labelStyle: const TextStyle(color: Colors.white),
+                                  labelStyle: const TextStyle(color: Colors.black54),
                                   hintStyle: const TextStyle(color: Colors.grey),
                                   border: OutlineInputBorder(
                                     borderSide: BorderSide(
@@ -92,17 +92,17 @@ class _DepartmentState extends State<Department> {
                                   ),
                                   focusedBorder: const OutlineInputBorder(
                                     borderSide: BorderSide(
-                                      color: Colors.blueAccent,
+                                      color: Color(0xFF00496d),
                                     ),
                                   ),
                                   contentPadding: const EdgeInsets.symmetric(
                                     vertical: 10,
                                     horizontal: 12,
                                   ),
-                                  filled: true,
-                                  fillColor: inputFill,
+                                  filled: false,
+                                  //fillColor: inputFill,
                                 ),
-                                style: const TextStyle(fontSize: 16, color: Colors.white),
+                                style: const TextStyle(fontSize: 16, color: Colors.black),
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {
                                     return 'Department name cannot be empty';
@@ -160,13 +160,13 @@ class _DepartmentState extends State<Department> {
                                       isEdit ? 'Update Department' : 'Register Department',
                                     ),
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.blueAccent,
+                                      backgroundColor: Color(0xFF00496d),
                                       foregroundColor: Colors.white,
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: 40,
                                         vertical: 15,
                                       ),
-                                      textStyle: const TextStyle(fontSize: 18),
+                                      //textStyle: const TextStyle(fontSize: 18),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(10),
                                       ),
@@ -174,31 +174,45 @@ class _DepartmentState extends State<Department> {
                                     ),
                                   ),
                                   const SizedBox(width: 20),
-                                  ElevatedButton.icon(
+                                  // ElevatedButton.icon(
+                                  //   onPressed: () {
+                                  //     context.go(Routes.viewdepart);
+                                  //   },
+                                  //   icon: const Icon(
+                                  //     Icons.list,
+                                  //     color: Colors.white,
+                                  //   ),
+                                  //   label: const Text(
+                                  //     'View Departments',
+                                  //     style: TextStyle(color: Colors.white),
+                                  //   ),
+                                  //   style: ElevatedButton.styleFrom(
+                                  //     backgroundColor: Colors.blueAccent,
+                                  //     foregroundColor: Colors.white,
+                                  //     padding: const EdgeInsets.symmetric(
+                                  //       horizontal: 40,
+                                  //       vertical: 15,
+                                  //     ),
+                                  //     //textStyle: const TextStyle(fontSize: 18),
+                                  //     shape: RoundedRectangleBorder(
+                                  //       borderRadius: BorderRadius.circular(10),
+                                  //     ),
+                                  //     elevation: 5,
+                                  //   ),
+                                  // ),
+                                  OutlinedButton.icon(
+                                    style: OutlinedButton.styleFrom(
+                                      side:
+                                      const BorderSide(color: Color(0xFF00496d)),
+                                      foregroundColor: Colors.black54,
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 20, vertical: 14),
+                                    ),
+                                    icon: const Icon(Icons.list),
+                                    label: const Text("View Departments"),
                                     onPressed: () {
                                       context.go(Routes.viewdepart);
                                     },
-                                    icon: const Icon(
-                                      Icons.list,
-                                      color: Colors.white,
-                                    ),
-                                    label: const Text(
-                                      'View Departments',
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.blueAccent,
-                                      foregroundColor: Colors.white,
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 40,
-                                        vertical: 15,
-                                      ),
-                                      textStyle: const TextStyle(fontSize: 18),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      elevation: 5,
-                                    ),
                                   ),
                                 ],
                               ),
