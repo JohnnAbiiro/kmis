@@ -1724,12 +1724,9 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                                             onTap: () async {
                                               if (_formKey.currentState!.validate()) {
                                                 try {
-                                                  final email = _emailController
-                                                      .text.trim();
-                                                  final password = _passwordController
-                                                      .text.trim();
-                                                  final progress = ProgressHUD.of(
-                                                      context);
+                                                  final email = _emailController.text.trim();
+                                                  final password = _passwordController.text.trim();
+                                                  final progress = ProgressHUD.of(context);
                                                   progress?.show();
                                                   await value.login(
                                                       email, password, context);

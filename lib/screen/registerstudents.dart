@@ -84,8 +84,6 @@ class _RegisterStudentState extends State<RegisterStudent> {
       selectedStatus = data.status;
       selectedTerm = data.term;
       _uploadedImageUrl = data.photourl;
-
-      // parse DOB into dropdowns
       if (dob.text.isNotEmpty) {
         try {
           final parts = dob.text.split("-");
@@ -96,8 +94,6 @@ class _RegisterStudentState extends State<RegisterStudent> {
           }
         } catch (_) {}
       }
-
-      // populate multiple guardians/parents
       parentNames.clear();
       for (var p in data.parentname) {
         parentNames.add(TextEditingController(text: p));
@@ -132,7 +128,7 @@ class _RegisterStudentState extends State<RegisterStudent> {
 
   @override
   Widget build(BuildContext context) {
-    final inputFill = const Color(0xFF2C2C3C);
+    final inputFill = const Color(0xFFffffff);
     final isEdit = widget.studentData != null;
 
     return ProgressHUD(
@@ -159,27 +155,16 @@ class _RegisterStudentState extends State<RegisterStudent> {
               child: Align(
                 alignment: Alignment.topCenter,
                 child: Container(
-                  color: const Color(0xFF2D2F45),
+                  color: Colors.white,
                   margin: const EdgeInsets.all(30.0),
                   constraints: const BoxConstraints(maxWidth: 800),
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(20.0),
                     child: Form(
                       key: _formKey,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          /*
-                          SizedBox(
-                            child: _buildTextField(
-                              controller: studentId,
-                              label: "Student ID",
-                              hint: "Auto-generated or enter manually",
-                              validatorMsg: 'Student ID required',
-                              fillColor: inputFill,
-                            ),
-                          ),
-                          */
                           Switch(
                             value: showStudentId,
                             onChanged: (val) {
@@ -229,7 +214,7 @@ class _RegisterStudentState extends State<RegisterStudent> {
                                       .map((d) => DropdownMenuItem(
                                     value: d,
                                     child: Text(d.toString(),
-                                        style: const TextStyle(color: Colors.white)),
+                                        style: const TextStyle(color: Colors.black54)),
                                   ))
                                       .toList(),
                                   onChanged: (v) {
@@ -240,9 +225,10 @@ class _RegisterStudentState extends State<RegisterStudent> {
                                   },
                                   decoration: InputDecoration(
                                     labelText: "Day",
-                                    labelStyle: const TextStyle(color: Colors.white),
+                                    labelStyle: const TextStyle(color: Colors.black54),
+
                                     border: const OutlineInputBorder(),
-                                    filled: true,
+                                    filled: false,
                                     fillColor: inputFill,
                                   ),
                                   validator: (v) => v == null ? "Select day" : null,
@@ -259,7 +245,7 @@ class _RegisterStudentState extends State<RegisterStudent> {
                                       .map((m) => DropdownMenuItem(
                                     value: m,
                                     child: Text(m,
-                                        style: const TextStyle(color: Colors.white)),
+                                        style: const TextStyle(color: Colors.black54)),
                                   ))
                                       .toList(),
                                   onChanged: (v) {
@@ -270,9 +256,9 @@ class _RegisterStudentState extends State<RegisterStudent> {
                                   },
                                   decoration: InputDecoration(
                                     labelText: "Month",
-                                    labelStyle: const TextStyle(color: Colors.white),
+                                    labelStyle: const TextStyle(color: Colors.black54),
                                     border: const OutlineInputBorder(),
-                                    filled: true,
+                                    filled: false,
                                     fillColor: inputFill,
                                   ),
                                   validator: (v) => v == null ? "Select month" : null,
@@ -289,7 +275,7 @@ class _RegisterStudentState extends State<RegisterStudent> {
                                       .map((y) => DropdownMenuItem(
                                     value: y,
                                     child: Text(y.toString(),
-                                        style: const TextStyle(color: Colors.white)),
+                                        style: const TextStyle(color: Colors.black54)),
                                   ))
                                       .toList(),
                                   onChanged: (v) {
@@ -300,9 +286,9 @@ class _RegisterStudentState extends State<RegisterStudent> {
                                   },
                                   decoration: InputDecoration(
                                     labelText: "Year",
-                                    labelStyle: const TextStyle(color: Colors.white),
+                                    labelStyle: const TextStyle(color: Colors.black54),
                                     border: const OutlineInputBorder(),
-                                    filled: true,
+                                    filled: false,
                                     fillColor: inputFill,
                                   ),
                                   validator: (v) => v == null ? "Select year" : null,
@@ -378,9 +364,9 @@ class _RegisterStudentState extends State<RegisterStudent> {
                                 onPressed: () {
                                   setState(() => parentNames.add(TextEditingController()));
                                 },
-                                icon: const Icon(Icons.add, color: Colors.white),
+                                icon: const Icon(Icons.add, color: Colors.black54),
                                 label: const Text("Add another guardian",
-                                    style: TextStyle(color: Colors.white)),
+                                    style: TextStyle(color: Colors.black54)),
                               )
                             ],
                           ),
@@ -404,9 +390,9 @@ class _RegisterStudentState extends State<RegisterStudent> {
                                 onPressed: () {
                                   setState(() => guardianContacts.add(TextEditingController()));
                                 },
-                                icon: const Icon(Icons.add, color: Colors.white),
+                                icon: const Icon(Icons.add, color: Colors.black54),
                                 label: const Text("Add another phone",
-                                    style: TextStyle(color: Colors.white)),
+                                    style: TextStyle(color: Colors.black54)),
                               )
                             ],
                           ),
@@ -431,104 +417,125 @@ class _RegisterStudentState extends State<RegisterStudent> {
                           ),
                           const SizedBox(height: 20),
                           _buildImagePicker(value),
-                          const SizedBox(height: 20),
-                          ElevatedButton.icon(
-                            onPressed: () async {
-                              if (!_formKey.currentState!.validate()) return;
-                              final progress = ProgressHUD.of(context);
-                               progress?.show();
-                              final query = await value.db
-                                  .collection('idformats').where('schoolId', isEqualTo: value.schoolid)
-                                  .limit(1)
-                                  .get();
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ElevatedButton.icon(
+                                onPressed: () async {
+                                  if (!_formKey.currentState!.validate()) return;
+                                  final progress = ProgressHUD.of(context);
+                                  progress?.show();
+                                  final query = await value.db .collection('idformats').where('schoolId', isEqualTo: value.schoolid).limit(1).get();
+                                 if (query.docs.isEmpty) {
+                                    throw Exception("No ID format found for school ${value.schoolid}");
+                                  }
+                                  final formatRef = query.docs.first.reference;
+                                  final generatedId = await value.db.runTransaction((transaction) async {
+                                    final snapshot = await transaction.get(formatRef);
+                                    final data = snapshot.data() as Map<String, dynamic>;
+                                    final prefix = data['name'] as String;
+                                    final lastNumber = (data['lastnumber'] ?? 0) as int;
+                                    final newNumber = lastNumber + 1;
+                                    final newId = '$prefix${newNumber.toString().padLeft(4, '0')}';
+                                    transaction.update(formatRef, {"lastnumber": newNumber});
+                                    return newId;
+                                  });
+                                  final nextclass = await value.getnextclass(currentLevel: selectedLevel!);
+                                  final sid = showStudentId
+                                      ? studentId.text.trim() // use typed ID
+                                      : generatedId;
+                                  //final id = "${value.schoolid}_$generatedId";
+                                  final id = "${value.schoolid}_$sid".toUpperCase();
+                                  await value.uploadImage(sid);
+                                  final student = StudentModel(
+                                    id: widget.studentData?.id ?? id,
+                                    studentid: generatedId.toUpperCase(),
+                                    name: studentName.text.trim(),
+                                    sex: selectedSex ?? "",
+                                    school: value.currentschool,
+                                    region: selectedRegion ?? "",
+                                    guardiancontact: guardianContacts.map((c) => c.text.trim()).toList(),
+                                    parentname: parentNames.map((c) => c.text.trim()).toList(),
+                                    level: selectedLevel ?? "",
+                                    previousclass: nextclass['previous']??'',
+                                    nextclass: nextclass["next"] ?? "",
+                                    currentclass: selectedLevel ?? "",
+                                    term: value.term,
+                                    schoolId: value.schoolid,
+                                    dob: dob.text.trim(),
+                                    address: address.text.trim(),
+                                    email: email.text.trim().isEmpty ? null : email.text.trim(),
+                                    phone: phone.text.trim(),
+                                    timestamp: DateTime.now().toIso8601String(),
+                                    photourl: value.imageUrl.isNotEmpty
+                                        ? value.imageUrl
+                                        : _uploadedImageUrl ?? "",
+                                    status: selectedStatus ?? "active",
+                                    department: selecteddepart ?? "",
+                                    yeargroup: DateTime.now().year.toString(),
+                                    academicyr: value.year,
 
-                              if (query.docs.isEmpty) {
-                                throw Exception("No ID format found for school ${value.schoolid}");
-                              }
-                              final formatRef = query.docs.first.reference;
-                              final generatedId = await value.db.runTransaction((transaction) async {
-                                final snapshot = await transaction.get(formatRef);
-                                final data = snapshot.data() as Map<String, dynamic>;
-                                final prefix = data['name'] as String;
-                                final lastNumber = (data['lastnumber'] ?? 0) as int;
-                                final newNumber = lastNumber + 1;
-                                final newId = '$prefix${newNumber.toString().padLeft(4, '0')}';
-                                transaction.update(formatRef, {"lastnumber": newNumber});
-                                return newId;
-                              });
-                              final sid = showStudentId
-                                  ? studentId.text.trim() // use typed ID
-                                  : generatedId;
-                              //final id = "${value.schoolid}_$generatedId";
-                              final id = "${value.schoolid}_$sid";
-                              await value.uploadImage(sid);
-                              final student = StudentModel(
-                                id: widget.studentData?.id ?? id,
-                                studentid: generatedId,
-                                name: studentName.text.trim(),
-                                sex: selectedSex ?? "",
-                                school: value.currentschool,
-                                region: selectedRegion ?? "",
-                                guardiancontact: guardianContacts.map((c) => c.text.trim()).toList(),
-                                parentname: parentNames.map((c) => c.text.trim()).toList(),
-                                level: selectedLevel ?? "",
-                                term: value.term,
-                                schoolId: value.schoolid,
-                                dob: dob.text.trim(),
-                                address: address.text.trim(),
-                                email: email.text.trim().isEmpty ? null : email.text.trim(),
-                                phone: phone.text.trim(),
-                                timestamp: DateTime.now().toIso8601String(),
-                                photourl: value.imageUrl.isNotEmpty
-                                    ? value.imageUrl
-                                    : _uploadedImageUrl ?? "",
-                                status: selectedStatus ?? "active",
-                                department: selecteddepart ?? "",
-                                yeargroup: '2025',
-                              );
-                              await value.db.collection("students")
-                                  .doc(student.id)
-                                  .set(student.toMap(), SetOptions(merge: true));
-                              progress?.dismiss();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(isEdit
-                                      ? 'Student Updated Successfully'
-                                      : 'Student Registered Successfully'),
-                                  backgroundColor: Colors.green,
+                                  );
+                                  await value.db.collection("students")
+                                      .doc(student.id)
+                                      .set(student.toMap(), SetOptions(merge: true));
+                                  progress?.dismiss();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(isEdit
+                                          ? 'Student Updated Successfully'
+                                          : 'Student Registered Successfully'),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+
+                                  value.imagefile = null;
+
+                                  if (!isEdit) {
+                                    setState(() {
+                                      value.imageUrl = "";
+                                      _uploadedImageUrl = "";
+                                    });
+                                    studentName.clear();
+                                    studentId.clear();
+                                    dob.clear();
+                                    address.clear();
+                                    email.clear();
+                                    phone.clear();
+                                    parentNames.clear();
+                                    guardianContacts.clear();
+                                    parentNames.add(TextEditingController());
+                                    guardianContacts.add(TextEditingController());
+                                    selectedDay = null;
+                                    selectedMonth = null;
+                                    selectedYear = null;
+                                  }
+                                },
+                                icon: Icon(isEdit ? Icons.update : Icons.save),
+                                label: Text(isEdit ? 'Update Student' : 'Register Student'),
+                                style: ElevatedButton.styleFrom(
+                                    backgroundColor: Color(0xFF00496d),
+                                    foregroundColor: Colors.white
                                 ),
-                              );
-
-                              value.imagefile = null;
-
-                              if (!isEdit) {
-                                setState(() {
-                                  value.imageUrl = "";
-                                  _uploadedImageUrl = "";
-                                });
-                                studentName.clear();
-                                studentId.clear();
-                                dob.clear();
-                                address.clear();
-                                email.clear();
-                                phone.clear();
-                                parentNames.clear();
-                                guardianContacts.clear();
-                                parentNames.add(TextEditingController());
-                                guardianContacts.add(TextEditingController());
-                                selectedDay = null;
-                                selectedMonth = null;
-                                selectedYear = null;
-                              }
-                            },
-                            icon: Icon(isEdit ? Icons.update : Icons.save),
-                            label: Text(isEdit ? 'Update Student' : 'Register Student'),
-                          ),
-                          ElevatedButton.icon(
-                            onPressed: () => context.go(Routes.viewstudentlist),
-                            icon: const Icon(Icons.list),
-                            label: const Text("View students"),
-                          ),
+                              ),
+                              SizedBox(width: 16),
+                              OutlinedButton.icon(
+                                style: OutlinedButton.styleFrom(
+                                  side:
+                                  const BorderSide(color: Color(0xFF00496d)),
+                                  foregroundColor: Colors.black54,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 20, vertical: 14),
+                                ),
+                                icon: const Icon(Icons.list),
+                                label: const Text("View Students"),
+                                onPressed: () {
+                                  context.go(Routes.viewstudentlist);
+                                },
+                              ),
+                            ],
+                          )
                         ],
                       ),
                     ),
@@ -556,16 +563,16 @@ class _RegisterStudentState extends State<RegisterStudent> {
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        labelStyle: const TextStyle(color: Colors.white),
+        labelStyle: const TextStyle(color: Colors.black54),
         hintStyle: const TextStyle(color: Colors.grey),
         border: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
         enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
-        focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.blueAccent)),
+        focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: Color(0xFF00496d))),
         contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-        filled: true,
+        filled: false,
         fillColor: fillColor,
       ),
-      style: const TextStyle(fontSize: 16, color: Colors.white),
+      style: const TextStyle(fontSize: 16, color: Colors.black),
       validator: (value) {
         if (value == null || value.trim().isEmpty) return validatorMsg;
         return null;
@@ -588,7 +595,7 @@ class _RegisterStudentState extends State<RegisterStudent> {
                 ? Image.network(value.imagefile!.path, fit: BoxFit.cover)
                 : (_uploadedImageUrl != null && _uploadedImageUrl!.isNotEmpty
                 ? CachedNetworkImage(imageUrl: _uploadedImageUrl!, fit: BoxFit.cover)
-                : const Icon(Icons.person, size: 40, color: Colors.white54)))
+                : const Icon(Icons.person, size: 40, color: Colors.black54)))
                 : (value.imagefile != null
                 ? Image.file(File(value.imagefile!.path), fit: BoxFit.cover)
                 : (_uploadedImageUrl != null && _uploadedImageUrl!.isNotEmpty

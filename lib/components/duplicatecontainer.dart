@@ -81,9 +81,8 @@ class _DuplicateContainerState extends State<DuplicateContainer> {
                           stream: FirebaseFirestore.instance.collection('staff').snapshots(),
                           builder: (context, snapshot){
 
-                            final docs = snapshot.data!.docs;
-                            int teaching = docs.where((doc) => (doc['accessLevel']?.toString().toLowerCase() == 'teacher')).length;
-
+                            //final docs = snapshot.data!.docs;
+                            //int teaching = docs.where((doc) => (doc['accessLevel']?.toString().toLowerCase() == 'teacher')).length;
                             if (!snapshot.hasData) {
                               return Shimmer.fromColors(
                                 baseColor: const Color(0xFF7A6FF0).withOpacity(0.2),
@@ -169,9 +168,9 @@ class _DuplicateContainerState extends State<DuplicateContainer> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: const [
                               Text(
-                                "Teachers Attendance",
+                                "Staff Information",
                                 style: TextStyle(
-                                    fontSize: 10,
+                                    fontSize: 12,
                                     color: Color(0xFF2F3A4C)),
                               ),
                               Icon(Icons.more_vert, color: Colors.grey),

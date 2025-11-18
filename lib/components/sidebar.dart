@@ -52,7 +52,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                         radius: 70,
                         backgroundColor: Colors.white,
                         child: Image(
-                          image: AssetImage('assets/images/bookwormlogo.jpg'),
+                          image: AssetImage('assets/images/logo.png'),
                           width: 80,
                           height: 80,
                         ),
@@ -100,17 +100,17 @@ class _CustomDrawerState extends State<CustomDrawer> {
                               SizedBox(
                                 child: _drawerTile(
                                   icon: Icons.military_tech,
-                                  title: 'SCHOOL LIST',
+                                  title: 'Term',
                                   onTap: () =>
-                                      context.go(Routes.nextpage),
+                                      context.go(Routes.term),
                                 ),
                               ),
                               SizedBox(
                                 child: _drawerTile(
                                   icon: Icons.military_tech,
-                                  title: 'Term',
+                                  title: 'current term',
                                   onTap: () =>
-                                      context.go(Routes.term),
+                                      context.go(Routes.currenterm),
                                 ),
                               ),
                               SizedBox(
@@ -134,6 +134,30 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                   title: 'Component',
                                   onTap: () =>
                                       context.go(Routes.accesscomponent),
+                                ),
+                              ),
+                              SizedBox(
+                                child: _drawerTile(
+                                  icon: Icons.military_tech,
+                                  title: 'mass promotion',
+                                  onTap: () =>
+                                      context.go(Routes.masspromotion),
+                                ),
+                              ),
+                              SizedBox(
+                                child: _drawerTile(
+                                  icon: Icons.military_tech,
+                                  title: 'promotion setting',
+                                  onTap: () =>
+                                      context.go(Routes.promotionsetting),
+                                ),
+                              ),
+                              SizedBox(
+                                child: _drawerTile(
+                                  icon: Icons.military_tech,
+                                  title: 'Single promotion',
+                                  onTap: () =>
+                                      context.go(Routes.singlepromotion),
                                 ),
                               ),
                               SizedBox(
@@ -194,6 +218,20 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                   icon: Icons.military_tech,
                                   title: 'score config',
                                   onTap: () => context.go(Routes.scoreconfig),
+                                ),
+                              ),
+                              SizedBox(
+                                child: _drawerTile(
+                                  icon: Icons.military_tech,
+                                  title: 'Remarks',
+                                  onTap: () => context.go(Routes.remark),
+                                ),
+                              ),
+                              SizedBox(
+                                child: _drawerTile(
+                                  icon: Icons.military_tech,
+                                  title: 'Attendance',
+                                  onTap: () => context.go(Routes.attendance),
                                 ),
                               ),
                               _drawerTile(
@@ -270,7 +308,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                   title: 'View Teachers',
                                   onTap: () async {
                                     try {
-                                      context.go(Routes.viewstaff,
+                                      context.go(Routes.viewteachersetup,
                                       );
                                     } catch (e) {
                                       print(e);
@@ -284,7 +322,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                   title: 'Student set up',
                                   onTap: () async {
                                     try {
-                                      context.go(Routes.contestantsetup,
+                                      context.go(Routes.studentsetup,
                                       );
                                     } catch (e) {
                                       print(e);
@@ -334,7 +372,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                 title: 'View Staff',
                                 onTap: () async {
                                   try {
-                                    context.go(Routes.viewstaff);
+                                    context.go(Routes.staffview);
                                   } catch (e) {
                                     print(e);
                                   }
@@ -590,6 +628,38 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                   ),
                                 ),
                               ),
+                              SizedBox(
+                                child: _drawerTile(
+                                  icon: Icons.calendar_month,
+                                  title: 'Term total report',
+                                  onTap: () =>context.go(Routes.termtotal,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                child: _drawerTile(
+                                  icon: Icons.calendar_month,
+                                  title: 'Subject report',
+                                  onTap: () =>context.go(Routes.subjectreport,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                child: _drawerTile(
+                                  icon: Icons.calendar_month,
+                                  title: 'Student report',
+                                  onTap: () =>context.go(Routes.individualreport,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                child: _drawerTile(
+                                  icon: Icons.calendar_month,
+                                  title: 'Transcript',
+                                  onTap: () =>context.go(Routes.transcript,
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -600,7 +670,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                             icon: Icons.logout,
                             title: 'Logout',
                             onTap: () async {
-                            /// await value.logout(context);
+                             await value.logout(context);
                             },
                           ),
                         ),

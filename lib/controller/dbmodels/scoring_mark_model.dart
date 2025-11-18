@@ -5,6 +5,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class SubjectScoring {
   final String id;
   final String studentId;
+  final String? remarks;
+  final String? attendance;
+  final String? reopening;
+  final String? nextclass;
+  final String? nextfees;
   final String studentName;
   final String academicYear;
   final String term;
@@ -22,11 +27,9 @@ class SubjectScoring {
   final String yeargroup;
   final String staff;
   final String classes;
-  final String teacher;
-
-  /// subjectId -> full subject details (with scores, totals, flags)
+  final Map<String, dynamic> teacher;
+  final Map<String, dynamic> scores;
   final Map<String, dynamic> subjectData;
-
   final DateTime timestamp;
 
   SubjectScoring({
@@ -51,6 +54,12 @@ class SubjectScoring {
     required this.staff,
     required this.classes,
     required this.teacher,
+    required this.scores,
+    this.attendance,
+    this.remarks,
+    this.reopening,
+    this.nextclass,
+    this.nextfees,
     DateTime? timestamp,
   }) : timestamp = timestamp ?? DateTime.now();
 
@@ -58,11 +67,17 @@ class SubjectScoring {
   factory SubjectScoring.create({
     required String studentId,
     required String studentName,
+    required String attendance,
+    required String remarks,
+    required String reopening,
+    required String nextclass,
+    required String nextfees,
     required String academicYear,
     required String term,
     required String staff,
     required String classes,
-    required String teacher,
+    required Map<String, dynamic> teacher,
+    required Map<String, dynamic> scores,
     required String level,
     required String department,
     required String region,
@@ -92,9 +107,15 @@ class SubjectScoring {
       studentName: studentName,
       academicYear: academicYear,
       term: term,
+      remarks: remarks,
+      attendance: attendance,
       staff: staff,
+      reopening: reopening,
+      nextclass: nextclass,
+      nextfees: nextfees,
       classes: classes,
       teacher: teacher,
+      scores: initialScores,
       level: level,
       department: department,
       region: region,
@@ -108,15 +129,15 @@ class SubjectScoring {
       status: status,
       yeargroup: yeargroup,
       subjectData: {
-        subjectId: {
+      subjectId: {
           "subjectId": subjectId,
           "subjectName": subjectName,
-          "scores": initialScores,
           "staff": email,
           "CAtotal": "0",
           "examstotal": "0",
           "CA": "0",
           "Exams": "0",
+          "pos": "0",
           "rawCA": "0",
           "rawExams": "0",
           "caw":"0",
@@ -141,9 +162,15 @@ class SubjectScoring {
       "id": id,
       "academicYear": academicYear,
       "term": term,
+      "attendance": attendance,
+      "remarks": remarks,
+      "reopening": reopening,
+      "nextfees": nextfees,
+      "nextclass": nextclass,
       "staff": staff,
       "classes": classes,
       "teacher": teacher,
+      "scores": scores,
       "studentId": studentId,
       "studentName": studentName,
       "level": level,
@@ -186,7 +213,7 @@ class SubjectScoring {
       term: json["term"] ?? "",
       staff: json["staff"] ?? "",
       classes: json["classes"] ?? "",
-      teacher: json["teacher"] ?? "",
+      teacher: (json["teacher"] ?? {}) as Map<String, dynamic>,
       level: json["level"] ?? "",
       department: json["department"] ?? "",
       region: json["region"] ?? "",
@@ -197,10 +224,16 @@ class SubjectScoring {
       email: json["email"] ?? "",
       phone: json["phone"] ?? "",
       sex: json["sex"] ?? "",
+      attendance: json["attendance"] ?? "",
+      remarks: json["remarks"] ?? "",
+      reopening: json["reopening"] ?? "",
+      nextfees: json["nextfees"] ?? "",
+      nextclass: json["nextclass"] ?? "",
       status: json["status"] ?? "",
       yeargroup: json["yeargroup"] ?? "",
       subjectData: (json["subjectData"] ?? {}) as Map<String, dynamic>,
       timestamp: parsedTime,
+      scores: (json["scores"] ?? {}) as Map<String, dynamic>,
     );
   }
 }

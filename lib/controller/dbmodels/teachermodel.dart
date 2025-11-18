@@ -120,6 +120,7 @@ class TeacherSetup {
             "name": c.name,
             "department": c.department,
             "staff": c.staff,
+            "status":"no",
           }
       },
 

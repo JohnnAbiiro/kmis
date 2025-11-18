@@ -6,6 +6,7 @@ class SubjectModel {
   final String? schoolId;
   final String? code;
   final String? level;
+  final String? staff;
   final DateTime timestamp;
 
   SubjectModel({
@@ -13,6 +14,7 @@ class SubjectModel {
     required this.name,
     this.schoolId,
     this.code,
+    this.staff,
     this.level,
     DateTime? timestamp,
   }) : timestamp = timestamp ?? DateTime.now();
@@ -24,6 +26,7 @@ class SubjectModel {
       'name': name,
       'schoolId': schoolId,
       'code': code,
+      'staff': staff,
       'level': level,
       'timestamp': Timestamp.fromDate(timestamp),
     };
@@ -49,6 +52,7 @@ class SubjectModel {
       name: map['name'] ?? '',
       schoolId: map['schoolId'],
       code: map['code'],
+      staff: map['staff'],
       level: map['level'],
       timestamp: parsedTime,
     );

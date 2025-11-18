@@ -67,7 +67,7 @@ class _AccessListState extends State<AccessList> {
           final ComponentModel data =
           provider.accessComponents[index];
           return Card(
-            color: const Color(0xFF2D2F45),
+            color: const Color(0xFFffffff),
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12)),
             elevation: 2,
@@ -78,7 +78,7 @@ class _AccessListState extends State<AccessList> {
                 children: [
                   CircleAvatar(
                     backgroundColor:
-                    Colors.blueAccent.withOpacity(0.2),
+                    Color(0xFF00496d),
                     child: Text(
                       data.name.isNotEmpty
                           ? data.name[0].toUpperCase()
@@ -97,7 +97,7 @@ class _AccessListState extends State<AccessList> {
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 15,
-                            color: Colors.white,
+                            color: Colors.black,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -105,7 +105,7 @@ class _AccessListState extends State<AccessList> {
                         Text(
                           "Mark: ${data.totalMark}",
                           style: const TextStyle(
-                              color: Colors.white70, fontSize: 13),
+                              color: Colors.black, fontSize: 13),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ],
@@ -116,7 +116,7 @@ class _AccessListState extends State<AccessList> {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.edit,
-                            color: Colors.blueAccent, size: 20),
+                            color: Colors.amber, size: 20),
                         tooltip: "Edit",
                         onPressed: () {
                           context.go(

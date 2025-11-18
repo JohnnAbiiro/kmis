@@ -41,14 +41,7 @@ class _RegstaffState extends State<Regstaff> {
       context.read<Myprovider>().getfetchRegions();
       context.read<Myprovider>().staffcount();
     });
-    // // final data = widget.staffData;
-    // // if (data != null) {
-    // //   name.text = data.name ?? '';
-    // //   phone.text = data.phone ?? '';
-    // //   _selectedSex = data.sex;
-    // //   myRegion = data.region;
-    // //   _selectedAccessLevel = data.accessLevel;
-    // // }
+
   }
 
   @override
@@ -228,10 +221,29 @@ class _RegstaffState extends State<Regstaff> {
                                                           progress.dismiss();
                                                           return;
                                                         }
-                                                        final staffdata=Staff(name: nameTxt, accessLevel: accessLevelTxt, phone: phoneTxt, email: emailTxt, sex: sexTxt, region: regionTxt, schoolId: schoolId, schoolname: schoolName, createdAt: createdAt).toMap();
-
+                                                        final staffdata=Staff(
+                                                            name: nameTxt,
+                                                            accessLevel: accessLevelTxt,
+                                                            phone: phoneTxt,
+                                                            email: emailTxt,
+                                                            sex: sexTxt,
+                                                            region: regionTxt,
+                                                            schoolId: schoolId,
+                                                            schoolname: schoolName,
+                                                            id: _staffid,
+                                                            createdAt: createdAt).toMap();
+                                                        final password ="123456";
                                                         await value.db.collection('staff').doc(_staffid).set(staffdata, SetOptions(merge: true));
-
+                                                        await value.auth.createUserWithEmailAndPassword(email: emailTxt, password: password);
+                                                        await value.auth.currentUser!.sendEmailVerification();
+                                                        String message='Welcome to KologSoft MIS, $nameTxt. Your school ID is ${value.schoolid}. Please verify your email to complete the registration process.';
+                                                        await value.db.collection("smsQueue").add({
+                                                          'phone': phoneTxt,
+                                                          'message': message,
+                                                          'senderId': "KologSoft",
+                                                          'createdat': DateTime.now(),
+                                                          'status': 'pending',
+                                                        });
                                                         await Future.delayed(const Duration(seconds: 1));
                                                         progress.dismiss();
 
@@ -269,14 +281,13 @@ class _RegstaffState extends State<Regstaff> {
                               ),
 
                               if (_showStaffContainer)
-
                                 Container(
                                   width: 800,
                                   //height: 400,
                                   padding: const EdgeInsets.all(12),
                                   color: Colors.white,
                                   child: FutureBuilder<QuerySnapshot>(
-                                    future: FirebaseFirestore.instance.collection('staff').get(),
+                                    future: value.db.collection('staff').where('schoolId',isEqualTo:value.schoolid ).get(),
                                     builder: (context, snapshot) {
                                       if (snapshot.connectionState == ConnectionState.waiting) {
                                         return const Center(child: CircularProgressIndicator());

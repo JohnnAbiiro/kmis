@@ -197,7 +197,7 @@ class _RegisterSchoolState extends State<RegisterSchool> {
                               progress?.show();
 
                               String schoolNameTxt = schoolName.text.trim();
-                              String prefixTxt = prefix.text.trim().toLowerCase();
+                              String prefixTxt = prefix.text.trim().toUpperCase();
                               String addressTxt = address.text.trim();
                               String emailTxt = email.text.trim();
                               String phoneTxt = phone.text.trim();

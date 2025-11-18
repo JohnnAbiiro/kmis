@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dropdown_search/dropdown_search.dart'; // <-- add in pubspec.yaml
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../controller/dbmodels/iteRegModel.dart';
@@ -83,9 +83,9 @@ class _SalesState extends State<Sales> {
         filteredItems = allItems
             .where(
               (item) =>
-                  item.name.toLowerCase().contains(query.toLowerCase()) ||
-                  item.barcode.toLowerCase().contains(query.toLowerCase()),
-            )
+          item.name.toLowerCase().contains(query.toLowerCase()) ||
+              item.barcode.toLowerCase().contains(query.toLowerCase()),
+        )
             .toList();
       }
     });
@@ -93,7 +93,7 @@ class _SalesState extends State<Sales> {
 
   void addItemToStock(ItemRegModel item) {
     final existingIndex = selectedItems.indexWhere(
-      (sel) => sel['barcode'] == item.barcode && sel['name'] == item.name,
+          (sel) => sel['barcode'] == item.barcode && sel['name'] == item.name,
     );
     setState(() {
       if (existingIndex != -1) {
@@ -397,9 +397,9 @@ class _SalesState extends State<Sales> {
                                                     width: 20,
                                                     height: 20,
                                                     child:
-                                                        CircularProgressIndicator(
-                                                          strokeWidth: 2,
-                                                        ),
+                                                    CircularProgressIndicator(
+                                                      strokeWidth: 2,
+                                                    ),
                                                   ),
                                                 );
                                               }
@@ -412,8 +412,8 @@ class _SalesState extends State<Sales> {
 
                                               Color statusColor = hasStock
                                                   ? (isLowStock
-                                                        ? Colors.orange
-                                                        : Colors.green)
+                                                  ? Colors.orange
+                                                  : Colors.green)
                                                   : Colors.red;
 
                                               return ListTile(
@@ -446,9 +446,9 @@ class _SalesState extends State<Sales> {
                                                   decoration: BoxDecoration(
                                                     color: statusColor,
                                                     borderRadius:
-                                                        BorderRadius.circular(
-                                                          2,
-                                                        ),
+                                                    BorderRadius.circular(
+                                                      2,
+                                                    ),
                                                   ),
                                                 ),
                                                 trailing: IconButton(
@@ -460,20 +460,20 @@ class _SalesState extends State<Sales> {
                                                   ),
                                                   onPressed: hasStock
                                                       ? () =>
-                                                            addItemToStock(item)
+                                                      addItemToStock(item)
                                                       : () {
-                                                          ScaffoldMessenger.of(
-                                                            context,
-                                                          ).showSnackBar(
-                                                            SnackBar(
-                                                              content: Text(
-                                                                '${item.name} is out of stock',
-                                                              ),
-                                                              backgroundColor:
-                                                                  Colors.red,
-                                                            ),
-                                                          );
-                                                        },
+                                                    ScaffoldMessenger.of(
+                                                      context,
+                                                    ).showSnackBar(
+                                                      SnackBar(
+                                                        content: Text(
+                                                          '${item.name} is out of stock',
+                                                        ),
+                                                        backgroundColor:
+                                                        Colors.red,
+                                                      ),
+                                                    );
+                                                  },
                                                 ),
                                                 tileColor: hasStock
                                                     ? null
@@ -524,7 +524,7 @@ class _SalesState extends State<Sales> {
                                     setState(() {
                                       selectedLevel = val;
                                       selectedStudent =
-                                          null; // Reset student selection
+                                      null; // Reset student selection
                                       students = []; // Clear students list
                                     });
                                     if (val != null) {
@@ -538,7 +538,7 @@ class _SalesState extends State<Sales> {
                                 DropdownSearch<Map<String, dynamic>>(
                                   selectedItem: selectedStudent,
                                   items: (filter, infiniteScrollProps) =>
-                                      students,
+                                  students,
                                   enabled: selectedLevel != null,
                                   decoratorProps: DropDownDecoratorProps(
                                     decoration: InputDecoration(
@@ -560,18 +560,18 @@ class _SalesState extends State<Sales> {
                                     ),
                                     itemBuilder:
                                         (
-                                          context,
-                                          item,
-                                          isDisabled,
-                                          isSelected,
+                                        context,
+                                        item,
+                                        isDisabled,
+                                        isSelected,
                                         ) {
-                                          return ListTile(
-                                            title: Text(
-                                              item['displayText'] ?? '',
-                                            ),
-                                            selected: isSelected,
-                                          );
-                                        },
+                                      return ListTile(
+                                        title: Text(
+                                          item['displayText'] ?? '',
+                                        ),
+                                        selected: isSelected,
+                                      );
+                                    },
                                     showSelectedItems: true,
                                     fit: FlexFit.loose,
                                     constraints: const BoxConstraints(
@@ -585,9 +585,9 @@ class _SalesState extends State<Sales> {
                                           .toLowerCase()
                                           .contains(filter.toLowerCase()),
                                   itemAsString: (item) =>
-                                      item['displayText'] ?? '',
+                                  item['displayText'] ?? '',
                                   compareFn: (item1, item2) =>
-                                      item1['id'] == item2['id'],
+                                  item1['id'] == item2['id'],
                                 ),
                                 const SizedBox(height: 12),
                                 DropdownButtonFormField<String>(
@@ -616,93 +616,93 @@ class _SalesState extends State<Sales> {
                           ),
                         ),
                       if (selectedItems.isNotEmpty)
-                        // SizedBox(
-                        //   width: 600,
-                        //   child: Card(
-                        //     color: Colors.white,
-                        //     margin: const EdgeInsets.all(8),
-                        //     child: Column(
-                        //       children: [
-                        //         Container(
-                        //           padding: const EdgeInsets.all(8),
-                        //           color: Colors.deepPurple.shade100,
-                        //           child: const Center(
-                        //             child: Text(
-                        //               "Stocking List",
-                        //               style: TextStyle(
-                        //                 fontWeight: FontWeight.bold,
-                        //                 color: Colors.deepPurple,
-                        //               ),
-                        //             ),
-                        //           ),
-                        //         ),
-                        //         SizedBox(
-                        //           //height: MediaQuery.of(context).size.height * 0.3,
-                        //           child: ListView.builder(
-                        //             shrinkWrap: true,
-                        //             physics: NeverScrollableScrollPhysics(),
-                        //             itemCount: selectedItems.length,
-                        //             itemBuilder: (context, index) {
-                        //               final sel = selectedItems[index];
-                        //               final double cost = double.tryParse(sel['costPrice']?.toString() ?? '0') ?? 0;
-                        //               final int qty = sel['qty'] ?? 1;
-                        //               final double totalCost = cost * qty;
-                        //               return Column(
-                        //                 children: [
-                        //                   ListTile(
-                        //                     title: Text(sel['name']),
-                        //                     subtitle: Text(
-                        //                       "Barcode: ${sel['barcode']}\nUnit Cost: $cost\nQty: $qty\nTotal Cost: $totalCost",
-                        //                     ),
-                        //                     trailing: Row(
-                        //                       mainAxisSize: MainAxisSize.min,
-                        //                       children: [
-                        //                         IconButton(
-                        //                           icon: const Icon(Icons.remove_circle, color: Colors.red),
-                        //                           onPressed: () {
-                        //                             setState(() {
-                        //                               if (sel['qty'] > 1) sel['qty']--;
-                        //                             });
-                        //                           },
-                        //                         ),
-                        //                         Text(sel['qty'].toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
-                        //                         IconButton(
-                        //                           icon: const Icon(Icons.add_circle, color: Colors.green),
-                        //                           onPressed: () {
-                        //                             setState(() => sel['qty']++);
-                        //                           },
-                        //                         ),
-                        //                       ],
-                        //                     ),
-                        //                   ),
-                        //                   Divider(
-                        //                     color: Colors.deepPurple.shade100,
-                        //                     endIndent: 30,
-                        //                     indent: 30,
-                        //                   ),
-                        //                 ],
-                        //               );
-                        //             },
-                        //           ),
-                        //         ),
-                        //         Padding(
-                        //           padding: const EdgeInsets.all(8.0),
-                        //           child: ElevatedButton(
-                        //             style: ElevatedButton.styleFrom(
-                        //               backgroundColor: Colors.deepPurple,
-                        //               shape: RoundedRectangleBorder(
-                        //                 borderRadius: BorderRadius.circular(10),
-                        //               ),
-                        //               padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 14),
-                        //             ),
-                        //             onPressed: saveStockingList,
-                        //             child: const Text("Save", style: TextStyle(color: Colors.white)),
-                        //           ),
-                        //         ),
-                        //       ],
-                        //     ),
-                        //   ),
-                        // ),
+                      // SizedBox(
+                      //   width: 600,
+                      //   child: Card(
+                      //     color: Colors.white,
+                      //     margin: const EdgeInsets.all(8),
+                      //     child: Column(
+                      //       children: [
+                      //         Container(
+                      //           padding: const EdgeInsets.all(8),
+                      //           color: Colors.deepPurple.shade100,
+                      //           child: const Center(
+                      //             child: Text(
+                      //               "Stocking List",
+                      //               style: TextStyle(
+                      //                 fontWeight: FontWeight.bold,
+                      //                 color: Colors.deepPurple,
+                      //               ),
+                      //             ),
+                      //           ),
+                      //         ),
+                      //         SizedBox(
+                      //           //height: MediaQuery.of(context).size.height * 0.3,
+                      //           child: ListView.builder(
+                      //             shrinkWrap: true,
+                      //             physics: NeverScrollableScrollPhysics(),
+                      //             itemCount: selectedItems.length,
+                      //             itemBuilder: (context, index) {
+                      //               final sel = selectedItems[index];
+                      //               final double cost = double.tryParse(sel['costPrice']?.toString() ?? '0') ?? 0;
+                      //               final int qty = sel['qty'] ?? 1;
+                      //               final double totalCost = cost * qty;
+                      //               return Column(
+                      //                 children: [
+                      //                   ListTile(
+                      //                     title: Text(sel['name']),
+                      //                     subtitle: Text(
+                      //                       "Barcode: ${sel['barcode']}\nUnit Cost: $cost\nQty: $qty\nTotal Cost: $totalCost",
+                      //                     ),
+                      //                     trailing: Row(
+                      //                       mainAxisSize: MainAxisSize.min,
+                      //                       children: [
+                      //                         IconButton(
+                      //                           icon: const Icon(Icons.remove_circle, color: Colors.red),
+                      //                           onPressed: () {
+                      //                             setState(() {
+                      //                               if (sel['qty'] > 1) sel['qty']--;
+                      //                             });
+                      //                           },
+                      //                         ),
+                      //                         Text(sel['qty'].toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                      //                         IconButton(
+                      //                           icon: const Icon(Icons.add_circle, color: Colors.green),
+                      //                           onPressed: () {
+                      //                             setState(() => sel['qty']++);
+                      //                           },
+                      //                         ),
+                      //                       ],
+                      //                     ),
+                      //                   ),
+                      //                   Divider(
+                      //                     color: Colors.deepPurple.shade100,
+                      //                     endIndent: 30,
+                      //                     indent: 30,
+                      //                   ),
+                      //                 ],
+                      //               );
+                      //             },
+                      //           ),
+                      //         ),
+                      //         Padding(
+                      //           padding: const EdgeInsets.all(8.0),
+                      //           child: ElevatedButton(
+                      //             style: ElevatedButton.styleFrom(
+                      //               backgroundColor: Colors.deepPurple,
+                      //               shape: RoundedRectangleBorder(
+                      //                 borderRadius: BorderRadius.circular(10),
+                      //               ),
+                      //               padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 14),
+                      //             ),
+                      //             onPressed: saveStockingList,
+                      //             child: const Text("Save", style: TextStyle(color: Colors.white)),
+                      //           ),
+                      //         ),
+                      //       ],
+                      //     ),
+                      //   ),
+                      // ),
                         SizedBox(
                           width: 700,
                           child: Card(
@@ -719,9 +719,9 @@ class _SalesState extends State<Sales> {
                                       children: [
                                         DataTable(
                                           headingRowColor:
-                                              MaterialStateProperty.all(
-                                                Colors.deepPurple.shade100,
-                                              ),
+                                          MaterialStateProperty.all(
+                                            Colors.deepPurple.shade100,
+                                          ),
                                           columns: const [
                                             DataColumn(
                                               label: Text(
@@ -764,10 +764,10 @@ class _SalesState extends State<Sales> {
                                             final double cost =
                                                 double.tryParse(
                                                   sel['costPrice']
-                                                          ?.toString() ??
+                                                      ?.toString() ??
                                                       '0',
                                                 ) ??
-                                                0;
+                                                    0;
                                             final int qty = sel['qty'] ?? 1;
                                             final double totalCost = cost * qty;
                                             return DataRow(
@@ -817,7 +817,7 @@ class _SalesState extends State<Sales> {
                                                 DataCell(
                                                   Row(
                                                     mainAxisSize:
-                                                        MainAxisSize.min,
+                                                    MainAxisSize.min,
                                                     children: [
                                                       IconButton(
                                                         icon: const Icon(
@@ -840,7 +840,7 @@ class _SalesState extends State<Sales> {
                                                         ),
                                                         onPressed: () {
                                                           setState(
-                                                            () => sel['qty']++,
+                                                                () => sel['qty']++,
                                                           );
                                                         },
                                                       ),
@@ -856,16 +856,16 @@ class _SalesState extends State<Sales> {
                                           child: ElevatedButton(
                                             style: ElevatedButton.styleFrom(
                                               backgroundColor:
-                                                  Colors.deepPurple,
+                                              Colors.deepPurple,
                                               shape: RoundedRectangleBorder(
                                                 borderRadius:
-                                                    BorderRadius.circular(10),
+                                                BorderRadius.circular(10),
                                               ),
                                               padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 30,
-                                                    vertical: 14,
-                                                  ),
+                                              const EdgeInsets.symmetric(
+                                                horizontal: 30,
+                                                vertical: 14,
+                                              ),
                                             ),
                                             onPressed: saveStockingList,
                                             child: const Text(
@@ -903,17 +903,17 @@ class _SalesState extends State<Sales> {
                                           child: ListView.builder(
                                             shrinkWrap: true,
                                             physics:
-                                                NeverScrollableScrollPhysics(),
+                                            NeverScrollableScrollPhysics(),
                                             itemCount: selectedItems.length,
                                             itemBuilder: (context, index) {
                                               final sel = selectedItems[index];
                                               final double cost =
                                                   double.tryParse(
                                                     sel['costPrice']
-                                                            ?.toString() ??
+                                                        ?.toString() ??
                                                         '0',
                                                   ) ??
-                                                  0;
+                                                      0;
                                               final int qty = sel['qty'] ?? 1;
                                               final double totalCost =
                                                   cost * qty;
@@ -926,7 +926,7 @@ class _SalesState extends State<Sales> {
                                                     ),
                                                     trailing: Row(
                                                       mainAxisSize:
-                                                          MainAxisSize.min,
+                                                      MainAxisSize.min,
                                                       children: [
                                                         IconButton(
                                                           icon: const Icon(
@@ -944,11 +944,11 @@ class _SalesState extends State<Sales> {
                                                         Text(
                                                           sel['qty'].toString(),
                                                           style:
-                                                              const TextStyle(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                              ),
+                                                          const TextStyle(
+                                                            fontWeight:
+                                                            FontWeight
+                                                                .bold,
+                                                          ),
                                                         ),
                                                         IconButton(
                                                           icon: const Icon(
@@ -957,8 +957,8 @@ class _SalesState extends State<Sales> {
                                                           ),
                                                           onPressed: () {
                                                             setState(
-                                                              () =>
-                                                                  sel['qty']++,
+                                                                  () =>
+                                                              sel['qty']++,
                                                             );
                                                           },
                                                         ),
@@ -982,16 +982,16 @@ class _SalesState extends State<Sales> {
                                           child: ElevatedButton(
                                             style: ElevatedButton.styleFrom(
                                               backgroundColor:
-                                                  Colors.deepPurple,
+                                              Colors.deepPurple,
                                               shape: RoundedRectangleBorder(
                                                 borderRadius:
-                                                    BorderRadius.circular(10),
+                                                BorderRadius.circular(10),
                                               ),
                                               padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 30,
-                                                    vertical: 14,
-                                                  ),
+                                              const EdgeInsets.symmetric(
+                                                horizontal: 30,
+                                                vertical: 14,
+                                              ),
                                             ),
                                             onPressed: saveStockingList,
                                             child: const Text(

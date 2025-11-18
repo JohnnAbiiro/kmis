@@ -45,7 +45,7 @@ class _ViewSubjectPageState extends State<ViewSubjectPage> {
           }).toList();
 
           return Scaffold(
-            backgroundColor: const Color(0xFF2D2F45),
+            //backgroundColor: const Color(0xFF2D2F45),
             appBar: AppBar(
               backgroundColor: const Color(0xFF2D2F45),
               iconTheme: const IconThemeData(color: Colors.white),
@@ -109,6 +109,7 @@ class _ViewSubjectPageState extends State<ViewSubjectPage> {
                             MaterialStateProperty.resolveWith(
                                     (states) =>
                                 const Color(0xFF2D2F45)),
+                            border: TableBorder.all(color: Colors.grey.shade300),
                             columns: [
                               const DataColumn(
                                 label: Text("#",
@@ -153,19 +154,22 @@ class _ViewSubjectPageState extends State<ViewSubjectPage> {
                               final index = entry.key + 1;
                               final subj = entry.value;
                               return DataRow(
+                                color: MaterialStateProperty.resolveWith(
+                                        (states) =>
+                                    const Color(0xFFffffff)),
                                 cells: [
                                   DataCell(Text("$index",
                                       style: const TextStyle(
-                                          color: Colors.white70))),
+                                          color: Colors.black54))),
                                   DataCell(Text(subj.name,
                                       style: const TextStyle(
-                                          color: Colors.white70))),
+                                          color: Colors.black54))),
                                   DataCell(Text(subj.code ?? "-",
                                       style: const TextStyle(
-                                          color: Colors.white70))),
+                                          color: Colors.black54))),
                                   DataCell(Text(subj.level ?? "-",
                                       style: const TextStyle(
-                                          color: Colors.white70))),
+                                          color: Colors.black54))),
                                   DataCell(Row(
                                     children: [
                                       /// EDIT BUTTON

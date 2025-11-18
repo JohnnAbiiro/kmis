@@ -7,6 +7,7 @@ import 'package:ksoftsms/screen/sales.dart';
 
 import 'package:ksoftsms/screen/signup.dart';
 import 'package:ksoftsms/screen/stock_form.dart';
+import 'package:ksoftsms/screen/studentlist.dart';
 //import 'package:ksoftsms/screen/stock_statement.dart';
 import 'package:ksoftsms/screen/supplierForm.dart';
 import 'package:ksoftsms/views/account_chart_view.dart';
@@ -17,6 +18,7 @@ import 'package:ksoftsms/views/item_reg_view.dart';
 import 'package:ksoftsms/views/single_billing_view.dart';
 import 'package:ksoftsms/views/staff_view.dart';
 import 'package:ksoftsms/views/stock_view.dart';
+import 'package:ksoftsms/views/student_view.dart';
 import 'package:ksoftsms/views/supplier_view.dart';
 import 'package:ksoftsms/views/system_account_activity.dart';
 import '../components/academicyrmodel.dart';
@@ -26,8 +28,10 @@ import '../screen/academicyr.dart';
 import '../screen/acceslist.dart';
 import '../screen/accesscomponent.dart';
 import '../screen/accountChart.dart';
+import '../screen/attendance.dart';
 import '../screen/billing.dart';
 import '../screen/class.dart';
+import '../screen/currentacademicyrterm.dart';
 import '../screen/department.dart';
 
 import '../screen/employee_screen.dart';
@@ -36,30 +40,42 @@ import '../screen/feesSetup.dart';
 import '../screen/feespayment.dart';
 import '../screen/gradingsystem.dart';
 import '../screen/idformat.dart';
+import '../screen/individualcumreport.dart';
 import '../screen/judgeui.dart';
 
 import '../screen/levelreg.dart';
+import '../screen/masspromotion.dart';
 import '../screen/multipleschools.dart';
 import '../screen/paymentMethodsForm.dart';
 import '../screen/payroll_screen.dart';
+import '../screen/promotionsetting.dart';
 import '../screen/receipt.dart';
 import '../screen/regionreg.dart';
 import '../screen/registerschool.dart';
 import '../screen/registerstudents.dart';
 import '../screen/regstaff.dart';
+import '../screen/remarks.dart';
 import '../screen/scoreconfig.dart';
 import '../screen/scoringhome.dart';
 import '../screen/singleBilling.dart';
+import '../screen/singlepromotion.dart';
 import '../screen/staffhomepage.dart';
+import '../screen/studentsetup.dart';
 import '../screen/subject.dart';
 import '../screen/systemActivity.dart';
 import '../screen/teachersetup.dart';
 import '../screen/term.dart';
 import '../screen/terminalreport.dart';
 import '../screen/termlist.dart';
+import '../screen/termlycummulative.dart';
+import '../screen/termtotal.dart';
+import '../reportpdf/termtotal1.dart';
+import '../screen/transcript.dart';
 import '../screen/viewacademicyr.dart';
 import '../screen/viewclass.dart';
 import '../screen/viewdepartment.dart';
+import '../screen/viewidformats.dart';
+import '../screen/viewpromotionsetting.dart';
 import '../screen/viewschool.dart';
 import '../screen/viewsubject.dart';
 import '../screen/viewteachersetup.dart';
@@ -150,7 +166,7 @@ class Routes {
   static const viewvotes = "/viewvotes";
   static const bestcriteria = "/bestcriteria";
   static const judgelist = "/judgelist";
-  static const contestantsetup = "/contestantsetup";
+  static const studentsetup = "/studentsetup";
   static const regionlist = "/regionlist";
   static const regionupdate = "/regionupdate";
   static const viewscore = "/viewscore";
@@ -178,6 +194,18 @@ class Routes {
   static const feesetup = "/feesetup";
   static const singlebilling = "/singlebilling";
   static const itemcategory = "/itemcategory";
+  static const promotionsetting = "/promotionsetting";
+  static const viewpromotionsetting = "/viewpromotionsetting";
+  static const singlepromotion = "/singlepromotion";
+  static const attendance = "/attendance";
+  static const remark = "/remark";
+  static const subjectreport = "/subjectreport";
+  static const termtotal = "/termtotal";
+  static const termtotal1 = "/termtotal1";
+  static const individualreport = "/individualreport";
+  static const transcript = "/transcript";
+  static const currenterm = "/currenterm";
+  static const masspromotion = "/masspromotion";
   // Role → Allowed routes mapping
   static const roleAllowedRoutes = {
     "Judge": [
@@ -203,6 +231,9 @@ final GoRouter router = GoRouter(
     GoRoute(path: Routes.supplier, builder: (c, s) => SupplierForm()),
     GoRoute(path: Routes.expense, builder: (c, s) => ExpenseForm()),
     GoRoute(path: Routes.login, builder: (c, s) => SpacerSignUpPage()),
+    GoRoute(path: Routes.singlepromotion, builder: (c, s) => Singlepromotion()),
+    GoRoute(path: Routes.attendance, builder: (c, s) => AttendancePage()),
+    GoRoute(path: Routes.remark, builder: (c, s) => RemarksPage()),
     GoRoute(
       path: Routes.regstaff,
       builder: (context, state) {
@@ -227,7 +258,7 @@ final GoRouter router = GoRouter(
     ),
     GoRoute(path: Routes.dashboard, builder: (c, s) => DashboardLayout()),
     GoRoute(path: Routes.receipt, builder: (c, s) => SchoolReceipt()),
-    GoRoute(path: Routes.jscore, builder: (c, s) => JudgeGroundScreen()),
+
     GoRoute(
       path: Routes.term,
       builder: (context, state) {
@@ -335,14 +366,12 @@ final GoRouter router = GoRouter(
         return MarksEntryPage(args: args);
       },
     ),
-    GoRoute(
-      path: Routes.staffscoring,
-      builder: (c, s) {
-        final args = s.extra as Map<String, dynamic>?;
-        return StaffScoringPage(args: args);
-      },
-    ),
+
+
+    GoRoute(path: Routes.staffscoring, builder: (c, s) => StaffScoringPage()),
     GoRoute(path: Routes.staffview, builder: (c, s) => StaffView()),
+    GoRoute(path: Routes.promotionsetting, builder: (c, s) => PromotionScreen ()),
+    GoRoute(path: Routes.viewpromotionsetting, builder: (c, s) => ViewPromotionSettings ()),
     GoRoute(path: Routes.supplierview, builder: (c, s) => SupplierView()),
     GoRoute(path: Routes.expenseview, builder: (c, s) => ExpenseView()),
     GoRoute(path: Routes.feepaymentview, builder: (c, s) => FeePaymentView()),
@@ -352,5 +381,15 @@ final GoRouter router = GoRouter(
     GoRoute(path: Routes.singlebillingview, builder: (c, s) => SingleBillingView()),
     GoRoute(path: Routes.itemregview, builder: (c, s) => ItemRegView()),
     GoRoute(path: Routes.stockview, builder: (c, s) => StockView()),
+    GoRoute(path: Routes.viewstudentlist, builder: (c, s) => StudentListScreen()),
+    GoRoute(path: Routes.viewidformats, builder: (c, s) => ViewIdFormats()),
+    GoRoute(path: Routes.subjectreport, builder: (c, s) => Termcummulative()),
+    GoRoute(path: Routes.termtotal, builder: (c, s) => TermScoreSheet()),
+    GoRoute(path: Routes.termtotal1, builder: (c, s) => Termtotal1Sheet()),
+    GoRoute(path: Routes.individualreport, builder: (c, s) => StudentCummulativeReport()),
+    GoRoute(path: Routes.transcript, builder: (c, s) => TranscriptReport()),
+    GoRoute(path: Routes.currenterm, builder: (c, s) => Currenttermyr()),
+    GoRoute(path: Routes.masspromotion, builder: (c, s) => Masspromotion()),
+    GoRoute(path: Routes.studentsetup, builder: (c, s) => StudentSetupPage()),
   ],
 );

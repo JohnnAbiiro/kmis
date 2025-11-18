@@ -50,12 +50,14 @@ class LoginProvider extends ChangeNotifier {
   String currentschool = "";
   Staff? usermodel;
   String schoolid = "";
+  String staffid = "";
   String accesslevel = "";
   String phone = "";
   String name = "";
   String year = "";
   String academicyrid = "";
   String term = "";
+  String email = "";
   String errorMessage = "";
   int staffcount_in_school = 0;
   String schooldomain = "kologsoftsmiscom.com";
@@ -66,7 +68,8 @@ class LoginProvider extends ChangeNotifier {
   List<String> accountclass = [];
   List<FeeSetUpModel> fees = [];
   List<PaymentMethodModel> paymethodlist = [];
-   String receiptno="";
+  String receiptno="";
+  String status="";
   List<String> accountsubclass = [];
   String receiptName="";
   String receiptpaymentmethod="";
@@ -76,7 +79,63 @@ class LoginProvider extends ChangeNotifier {
   String receipt="";
   double receiptTotal=0;
 
-   login(String email, String password, BuildContext context) async {
+
+  //  login(String email, String password, BuildContext context) async {
+  //   try {
+  //     final loginhere = await auth.signInWithEmailAndPassword(
+  //       email: email,
+  //       password: password,
+  //     );
+  //
+  //     if (loginhere.user != null) {
+  //       final prefs = await SharedPreferences.getInstance();
+  //       await prefs.setString('useremail', email);
+  //       final detail = await db.collection("staff").where('email', isEqualTo: email).get();
+  //       int numberofdocs = detail.docs.length;
+  //       final userData = detail.docs.first.data();
+  //       usermodel = Staff.fromMap(userData, detail.docs.first.id);
+  //       String emailTxt = usermodel?.email ?? '';
+  //       String nameTxt = usermodel?.name ?? '';
+  //       String roleTxt = usermodel?.accessLevel ?? '';
+  //       String phoneTxt = usermodel?.phone ?? '';
+  //       String schoolTxt = usermodel?.schoolname ?? '';
+  //       String scchoolIdTxt = usermodel?.schoolId ?? '';
+  //
+  //       prefs.setString("school", schoolTxt);
+  //       prefs.setString("email", emailTxt);
+  //       prefs.setString("name", nameTxt);
+  //       prefs.setString("role", roleTxt);
+  //       prefs.setString("phone", phoneTxt);
+  //       prefs.setString("schoolid", scchoolIdTxt);
+  //       await fetchtermyear(scchoolIdTxt, prefs);
+  //       if (numberofdocs > 1) {
+  //         staffschools = detail.docs.map((doc) {
+  //           return Staff.fromMap(doc.data(), doc.id);
+  //         }).toList();
+  //         prefs.setStringList("staffschools", staffschools.map((e) => e.schoolId).toList());
+  //         prefs.setStringList("schoolnames", staffschools.map((e) => e.schoolname).toList());
+  //         await getdata();
+  //         context.go(Routes.nextpage);
+  //         notifyListeners();
+  //       }
+  //
+  //       else {
+  //         await getdata();
+  //         auth.currentUser!.updateDisplayName(nameTxt);
+  //         context.go(Routes.dashboard);
+  //         notifyListeners();
+  //       }
+  //
+  //       //useremail=email;
+  //       notifyListeners();
+  //     }
+  //   } catch (e) {
+  //     errorMessage=e.toString();
+  //
+  //     print(e);
+  //   }
+  // }
+  login(String email, String password, BuildContext context) async {
     try {
       final loginhere = await auth.signInWithEmailAndPassword(
         email: email,
@@ -86,56 +145,97 @@ class LoginProvider extends ChangeNotifier {
       if (loginhere.user != null) {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('useremail', email);
+
         final detail = await db.collection("staff").where('email', isEqualTo: email).get();
         int numberofdocs = detail.docs.length;
+
+        if (numberofdocs == 0) {
+          throw ("No staff data found for this email.");
+        }
+
         final userData = detail.docs.first.data();
         usermodel = Staff.fromMap(userData, detail.docs.first.id);
+
         String emailTxt = usermodel?.email ?? '';
         String nameTxt = usermodel?.name ?? '';
         String roleTxt = usermodel?.accessLevel ?? '';
         String phoneTxt = usermodel?.phone ?? '';
         String schoolTxt = usermodel?.schoolname ?? '';
-        String scchoolIdTxt = usermodel?.schoolId ?? '';
+        String schoolIdTxt = usermodel?.schoolId ?? '';
+        String IdTxt = usermodel?.id ?? '';
 
+        // Save to prefs
         prefs.setString("school", schoolTxt);
         prefs.setString("email", emailTxt);
         prefs.setString("name", nameTxt);
         prefs.setString("role", roleTxt);
         prefs.setString("phone", phoneTxt);
-        prefs.setString("schoolid", scchoolIdTxt);
-        await fetchtermyear(scchoolIdTxt, prefs);
+        prefs.setString("schoolid", schoolIdTxt);
+        prefs.setString("staffid", IdTxt);
+
+        try {
+
+          final schoolSnapshot =
+          await db.collection("schools").doc(schoolIdTxt).get();
+          if (schoolSnapshot.exists) {
+            final data = schoolSnapshot.data() as Map<String, dynamic>;
+            final String termTxt = data["term"]?.toString() ?? "";
+            final String yearTxt = data["academicyr"]?.toString() ?? "";
+            final String academicyridTxt = data["academicyrid"]?.toString() ?? "";
+
+            await prefs.setString("term", termTxt);
+            await prefs.setString("year", yearTxt);
+            await prefs.setString("academicyrid", academicyridTxt);
+            term = termTxt;
+            year = yearTxt;
+            academicyrid = academicyridTxt;
+            notifyListeners();
+          } else {
+            debugPrint("Firestore returned NO DOCUMENT for schoolId: $schoolIdTxt");
+          }
+
+        } catch (e) {
+          debugPrint("ERROR fetching academic term/year: $e");
+        }
+
         if (numberofdocs > 1) {
+          // Staff belongs to multiple schools
           staffschools = detail.docs.map((doc) {
             return Staff.fromMap(doc.data(), doc.id);
           }).toList();
-          prefs.setStringList("staffschools", staffschools.map((e) => e.schoolId).toList());
-          prefs.setStringList("schoolnames", staffschools.map((e) => e.schoolname).toList());
+          prefs.setStringList(
+              "staffschools", staffschools.map((e) => e.schoolId).toList());
+          prefs.setStringList(
+              "schoolnames", staffschools.map((e) => e.schoolname).toList());
+
           await getdata();
           context.go(Routes.nextpage);
-          notifyListeners();
-        }
-
-        else {
+        } else {
+          // Single school
           await getdata();
           auth.currentUser!.updateDisplayName(nameTxt);
-          context.go(Routes.dashboard);
-          notifyListeners();
+          if (roleTxt == 'teacher') {
+            context.go(Routes.staffhome);
+          } else {
+            context.go(Routes.dashboard);
+          }
         }
 
-        //useremail=email;
         notifyListeners();
       }
     } catch (e) {
-      errorMessage=e.toString();
-
+      errorMessage = e.toString();
       print(e);
     }
   }
+
    getdata() async {
     final prefs = await SharedPreferences.getInstance();
     schoolid = prefs.getString('schoolid') ?? '';
+    staffid = prefs.getString('staffid') ?? '';
     currentschool = prefs.getString('school') ?? '';
     phone = prefs.getString('phone') ?? '';
+    email = prefs.getString('email') ?? '';
     accesslevel = prefs.getString('role') ?? '';
     name = prefs.getString('name') ?? '';
     year = prefs.getString('year') ?? '';
@@ -144,7 +244,6 @@ class LoginProvider extends ChangeNotifier {
     staffSchoolIds = prefs.getStringList("staffschools") ?? [];
     schoolnames = prefs.getStringList("schoolnames") ?? [];
     receiptno=prefs.getString("receiptno")??"";
-   print(schoolid);
     notifyListeners();
   }
    setSchool(String school, String schoolid) async {
@@ -173,18 +272,16 @@ class LoginProvider extends ChangeNotifier {
 
   fetchStaff() async {
      try{
-       final snapshot = await db.collection('staff').get();
-       print(snapshot.docs);
-       stafflist = snapshot.docs.map((doc) {
+       final snapshot = await db.collection('staff').where('schoolId',isEqualTo: schoolid).get();
+    stafflist = snapshot.docs.map((doc) {
          return Staff.fromMap(doc.data(), doc.id);
        }).toList();
 
-     }catch(e){
-       //print(e);
+     }
+     catch(e){
+      print(e);
      }
     notifyListeners();
-   // return snapshot.docs.map((doc) => Staff.fromMap().toList();
-    
   }
   fetchSupplier()async{
      try{
@@ -315,23 +412,25 @@ class LoginProvider extends ChangeNotifier {
       return false;
     }
   }
-   Future<void> fetchtermyear(String schoolId, SharedPreferences prefs) async {
-    try {
-      final snapshot = await db.collection("schools").doc(schoolId).get();
-
-      if (snapshot.exists) {
-        final data = snapshot.data() as Map<String, dynamic>;
-        final String termTxt = data['term']?.toString() ?? "";
-        final String yearTxt = data['academicyr']?.toString() ?? "";
-        final String academicyridTxt = data['academicyrid']?.toString() ?? "";
-        await prefs.setString("term", termTxt);
-        await prefs.setString("year", yearTxt);
-        await prefs.setString("academicyrid", academicyridTxt);
-      }
-    } catch (e) {
-      debugPrint("Error fetching term/year: $e");
-    }
-  }
+   //  Future<void> fetchtermyear(String schoolId, SharedPreferences prefs) async {
+  //   try {
+  //     final snapshot = await db.collection("schools").doc(schoolId).get();
+  //
+  //     if (snapshot.exists) {
+  //       final data = snapshot.data() as Map<String, dynamic>;
+  //       //debugPrint("RAW SCHOOL DATA: $data");
+  //       final String termTxt = data['term']?.toString() ?? "";
+  //       final String yearTxt = data['academicyr']?.toString() ?? "";
+  //       final String academicyridTxt = data['academicyrid']?.toString() ?? "";
+  //       await prefs.setString("term", termTxt);
+  //       await prefs.setString("year", yearTxt);
+  //       await prefs.setString("academicyrid", academicyridTxt);
+  //
+  //     }
+  //   } catch (e) {
+  //     debugPrint("Error fetching term/year: $e");
+  //   }
+  // }
    void setAccounts(List<String> accounts) {
     accounts = accounts;
     notifyListeners();
@@ -396,7 +495,7 @@ class LoginProvider extends ChangeNotifier {
     searchResults=[];
     notifyListeners();
   }
-   Future<void> searchStudents(String query) async {
+    searchStudents(String query) async {
     try {
       if (query.isEmpty) {
         searchResults = [];
@@ -527,8 +626,39 @@ class LoginProvider extends ChangeNotifier {
     }
   }
 
+  logout(BuildContext context) async{
+    SharedPreferences pref=await SharedPreferences.getInstance();
+    final auth = FirebaseAuth.instance;
+    await auth.signOut();
 
+    await pref.remove('year');
+    await pref.remove('school');
+    await pref.remove('academicyrid') ;
+    await pref.remove('term') ;
+    await pref.remove('schoolnames');
+    await pref.remove('schoolid');
+    await pref.remove('name');
+    await pref.remove('email');
 
+    //await getdata();
+    // Navigate to login
+    context.go(Routes.login);
+    notifyListeners();
+  }
 
+  set termset(String value) {
+    term = value;
+    notifyListeners();
+  }
+
+  set academicYearset(String value) {
+    year = value;
+    notifyListeners();
+  }
+
+  set academicYearIdset(String value) {
+    academicyrid = value;
+    notifyListeners();
+  }
 
 }

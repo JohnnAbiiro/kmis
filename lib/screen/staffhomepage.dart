@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import '../components/staffsizebar.dart';
 import '../controller/myprovider.dart';
 import '../controller/routes.dart';
 import 'actionbuttons.dart';
@@ -26,15 +27,13 @@ class _StaffHomePageState extends State<StaffHomePage> {
           appBar: AppBar(
             title: Text(
               'Welcome ${provider.name} ~ ${provider.auth.currentUser?.email ?? "No user"}',
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.w600,),
             ),
-            backgroundColor: Colors.transparent,
+           // backgroundColor: Colors.transparent,
             elevation: 0,
             actions: actionButtons(provider, context),
           ),
+          drawer: CustomDrawer(),
           body: Container(
             width: double.infinity,
             height: double.infinity,
@@ -45,19 +44,32 @@ class _StaffHomePageState extends State<StaffHomePage> {
                 end: Alignment.bottomRight,
               ),
             ),
-            child: FutureBuilder<DocumentSnapshot>(
+            child: FutureBuilder<QuerySnapshot>(
               future: provider.db
                   .collection("teacherSetup")
-                  .doc("KS0002_${provider.academicyrid}_${provider.term}")
+                  .where('staffid', isEqualTo: provider.staffid)
+                  .where('schoolId', isEqualTo: provider.schoolid)
+                  .where('academicyear', isEqualTo: provider.year)
+                  .where('term', isEqualTo: provider.term)
                   .get(),
+
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   return _buildMessage("An error occurred. Please try again.");
                 }
-                if (!snapshot.hasData || !snapshot.data!.exists) {
+
+                if (!snapshot.hasData) {
+                  return _buildMessage("Loading...");
+                }
+
+                final docs = snapshot.data!.docs;
+
+                if (docs.isEmpty) {
                   return _buildMessage("No subjects/classes assigned yet.");
                 }
-                final data = snapshot.data!.data() as Map<String, dynamic>;
+
+                // Main teacher setup map
+                final data = docs.first.data() as Map<String, dynamic>;
 
                 final Map<String, dynamic> classesMap =
                 Map<String, dynamic>.from(data['classname'] ?? {});
@@ -69,15 +81,26 @@ class _StaffHomePageState extends State<StaffHomePage> {
                 }
 
                 final List<Map<String, dynamic>> assignedList = [];
+
                 for (final classEntry in classesMap.values) {
                   for (final subjectEntry in subjectsMap.values) {
-                    assignedList.add({
-                      "class": classEntry['name'],
-                      "subject": subjectEntry['name'],
-                      "subjectkey": subjectEntry['id'],
-                      "department": classEntry['department'],
-                    });
+                    // Only include REAL subject entries (those containing name & id)
+                    if (subjectEntry is Map<String, dynamic> &&
+                        subjectEntry.containsKey('name') &&
+                        subjectEntry.containsKey('id')) {
+
+                      assignedList.add({
+                        "class": classEntry['name'],
+                        "subject": subjectEntry['name'],
+                        "subjectkey": subjectEntry['id'],
+                        "department": classEntry['department'],
+                      });
+                    }
                   }
+                }
+
+                if (assignedList.isEmpty) {
+                  return _buildMessage("No valid subjects found.");
                 }
 
                 return Padding(
@@ -96,22 +119,15 @@ class _StaffHomePageState extends State<StaffHomePage> {
                     itemCount: assignedList.length,
                     itemBuilder: (context, index) {
                       final entry = assignedList[index];
-                      final color =
-                      Colors.primaries[index % Colors.primaries.length];
+                      final color = Colors.primaries[index % Colors.primaries.length];
 
                       return InkWell(
                         borderRadius: BorderRadius.circular(20),
                         splashColor: color.withOpacity(0.3),
-                        onTap: () {
-                          context.go(
-                            Routes.staffscoring,
-                            extra: {
-                              "subject": entry['subject'],
-                              "level": entry['class'],
-                              "department": entry['department'],
-                              "subjectkey": entry['subjectkey'],
-                            },
-                          );
+                        onTap: () async {
+                          await provider.clearSelectedEntry();
+                          await provider.setSelectedEntry(entry);
+                          context.go(Routes.staffscoring);
                         },
                         child: _buildClickableCard(
                           context,
