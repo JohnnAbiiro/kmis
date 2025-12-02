@@ -10,6 +10,10 @@ class SubjectScoring {
   final String? reopening;
   final String? nextclass;
   final String? nextfees;
+  final String? totalattend;
+  final String? yearlytotal;
+  final String? average;
+  final String? position;
   final String studentName;
   final String academicYear;
   final String term;
@@ -55,11 +59,15 @@ class SubjectScoring {
     required this.classes,
     required this.teacher,
     required this.scores,
-    this.attendance,
-    this.remarks,
-    this.reopening,
-    this.nextclass,
-    this.nextfees,
+    this.attendance ='',
+    this.remarks ='',
+    this.reopening ='',
+    this.nextclass='',
+    this.nextfees ='',
+    this.totalattend ='',
+    this.yearlytotal = '',
+    this.average= '',
+    this.position ='',
     DateTime? timestamp,
   }) : timestamp = timestamp ?? DateTime.now();
 
@@ -72,6 +80,10 @@ class SubjectScoring {
     required String reopening,
     required String nextclass,
     required String nextfees,
+    required String totalattend,
+    required String yearlytotal,
+    required String average,
+    required String position,
     required String academicYear,
     required String term,
     required String staff,
@@ -113,6 +125,10 @@ class SubjectScoring {
       reopening: reopening,
       nextclass: nextclass,
       nextfees: nextfees,
+      totalattend: totalattend,
+      yearlytotal: yearlytotal,
+      average: average,
+      position: position,
       classes: classes,
       teacher: teacher,
       scores: initialScores,
@@ -167,6 +183,10 @@ class SubjectScoring {
       "reopening": reopening,
       "nextfees": nextfees,
       "nextclass": nextclass,
+      "totalattend": totalattend,
+      "yearlytotal": yearlytotal,
+      "average": average,
+      "position": position,
       "staff": staff,
       "classes": classes,
       "teacher": teacher,
@@ -229,6 +249,10 @@ class SubjectScoring {
       reopening: json["reopening"] ?? "",
       nextfees: json["nextfees"] ?? "",
       nextclass: json["nextclass"] ?? "",
+      totalattend: json["totalattend"] ?? "",
+      yearlytotal: json["yearlytotal"] ?? "",
+      average: json["average"] ?? "",
+      position: json["position"] ?? "",
       status: json["status"] ?? "",
       yeargroup: json["yeargroup"] ?? "",
       subjectData: (json["subjectData"] ?? {}) as Map<String, dynamic>,

@@ -532,8 +532,7 @@ class _StudentSetupPageState extends State<StudentSetupPage> {
       
                     // SAVE BUTTON
                     ElevatedButton.icon(
-                      icon: values.savingSetup
-                          ? const SizedBox(
+                      icon: values.savingSetup ? const SizedBox(
                         width: 20,
                         height: 20,
                         child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),

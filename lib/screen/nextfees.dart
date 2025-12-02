@@ -4,17 +4,17 @@ import 'package:provider/provider.dart';
 import '../controller/myprovider.dart';
 import '../controller/routes.dart';
 
-class Reopening extends StatefulWidget {
-  const Reopening({super.key});
+class NextFees extends StatefulWidget {
+  const NextFees({super.key});
 
   @override
-  State<Reopening> createState() => _ReopeningState();
+  State<NextFees> createState() => _NextFeesState();
 }
 
-class _ReopeningState extends State<Reopening> {
+class _NextFeesState extends State<NextFees> {
   String selectedClass = "";
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController reopeningController = TextEditingController();
+  final TextEditingController feesController = TextEditingController();
   bool isSaving = false;
 
   @override
@@ -25,21 +25,6 @@ class _ReopeningState extends State<Reopening> {
     });
   }
 
-  Future<void> pickReopeningDate() async {
-    DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now().add(const Duration(days: 1)),
-      firstDate: DateTime.now().add(const Duration(days: 1)), // future only
-      lastDate: DateTime(2100),
-    );
-
-    if (picked != null) {
-      reopeningController.text =
-      "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
-      setState(() {});
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<Myprovider>();
@@ -47,7 +32,7 @@ class _ReopeningState extends State<Reopening> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Reopening"),
+        title: const Text("Next Fees Update"),
         backgroundColor: const Color(0xFF2D2F45),
         foregroundColor: Colors.white,
         leading: IconButton(
@@ -73,10 +58,12 @@ class _ReopeningState extends State<Reopening> {
                   border: OutlineInputBorder(),
                 ),
                 items: classes
-                    .map((c) => DropdownMenuItem(
-                  value: c.name,
-                  child: Text(c.name),
-                ))
+                    .map(
+                      (c) => DropdownMenuItem(
+                    value: c.name,
+                    child: Text(c.name),
+                  ),
+                )
                     .toList(),
                 value: selectedClass.isEmpty ? null : selectedClass,
                 onChanged: (value) {
@@ -90,42 +77,46 @@ class _ReopeningState extends State<Reopening> {
               const SizedBox(height: 20),
 
               /// --------------------------
-              /// SELECT DATE (Future Only)
+              /// FEES INPUT (NO DATE PICKER)
               /// --------------------------
               TextFormField(
-                controller: reopeningController,
-                readOnly: true,
-                onTap: () => pickReopeningDate(),
+                controller: feesController,
+                keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
-                  labelText: "Select Reopening Date",
+                  labelText: "Enter Next Fees",
                   border: OutlineInputBorder(),
-                  suffixIcon: Icon(Icons.calendar_month),
                 ),
-                validator: (v) =>
-                (v == null || v.trim().isEmpty) ? "Pick a date" : null,
+                validator: (v) {
+                  if (v == null || v.trim().isEmpty) {
+                    return "Enter amount";
+                  }
+                  if (double.tryParse(v) == null) {
+                    return "Enter a valid number";
+                  }
+                  return null;
+                },
               ),
 
               const SizedBox(height: 25),
 
+              /// --------------------------
+              /// SAVE BUTTON
+              /// --------------------------
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blueGrey,
                 ),
-                onPressed: isSaving
-                    ? null
-                    : () async {
+                onPressed: isSaving ? null : () async {
                   if (_formKey.currentState!.validate()) {
                     setState(() => isSaving = true);
-
                     try {
-                      await provider.reopening(
-                        reopeningController.text.trim(),
+                      await provider.nextfees(
+                        feesController.text.trim(),
                         selectedClass,
                       );
 
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text("Reopening updated")),
+                      const SnackBar( content: Text("Next Fees Updated")),
                       );
                     } catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(

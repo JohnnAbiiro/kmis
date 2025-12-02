@@ -39,6 +39,7 @@ import '../screen/entermarks.dart';
 import '../screen/feesSetup.dart';
 import '../screen/feespayment.dart';
 import '../screen/gradingsystem.dart';
+import '../screen/headremarks.dart';
 import '../screen/idformat.dart';
 import '../screen/individualcumreport.dart';
 import '../screen/judgeui.dart';
@@ -46,6 +47,7 @@ import '../screen/judgeui.dart';
 import '../screen/levelreg.dart';
 import '../screen/masspromotion.dart';
 import '../screen/multipleschools.dart';
+import '../screen/nextfees.dart';
 import '../screen/paymentMethodsForm.dart';
 import '../screen/payroll_screen.dart';
 import '../screen/promotionsetting.dart';
@@ -55,6 +57,7 @@ import '../screen/registerschool.dart';
 import '../screen/registerstudents.dart';
 import '../screen/regstaff.dart';
 import '../screen/remarks.dart';
+import '../screen/reopening.dart';
 import '../screen/scoreconfig.dart';
 import '../screen/scoringhome.dart';
 import '../screen/singleBilling.dart';
@@ -70,11 +73,13 @@ import '../screen/termlist.dart';
 import '../screen/termlycummulative.dart';
 import '../screen/termtotal.dart';
 import '../reportpdf/termtotal1.dart';
+import '../screen/totalattendance.dart';
 import '../screen/transcript.dart';
 import '../screen/viewacademicyr.dart';
 import '../screen/viewclass.dart';
 import '../screen/viewdepartment.dart';
 import '../screen/viewidformats.dart';
+import '../screen/viewmark.dart';
 import '../screen/viewpromotionsetting.dart';
 import '../screen/viewschool.dart';
 import '../screen/viewsubject.dart';
@@ -206,6 +211,10 @@ class Routes {
   static const transcript = "/transcript";
   static const currenterm = "/currenterm";
   static const masspromotion = "/masspromotion";
+  static const totalattend = "/totalattend";
+  static const nextfees = "/nextfees";
+  static const reopening = "/reopening";
+  static const headremarks = "/headremarks";
   // Role → Allowed routes mapping
   static const roleAllowedRoutes = {
     "Judge": [
@@ -319,7 +328,7 @@ final GoRouter router = GoRouter(
         return TeacherSetupPage(setupData: setupData);
       },
     ),
-    /*GoRoute(path: Routes.setupteacher, builder: (c, s) => TeacherSetupPage()),*/
+
     GoRoute(
       path: Routes.gradingsystem,
       builder: (c, s) => GradingSystemFormPage(),
@@ -358,15 +367,7 @@ final GoRouter router = GoRouter(
     GoRoute(path: Routes.feesetup, builder: (c, s) => FeesSetup()),
     GoRoute(path: Routes.singlebilling, builder: (c, s) => SingleBilling()),
     GoRoute(path: Routes.terminalreport, builder: (c, s) => ReportSheet()),
-
-    GoRoute(
-      path: Routes.entermark,
-      builder: (context, state) {
-        final args = state.extra as Map<String, dynamic>;
-        return MarksEntryPage(args: args);
-      },
-    ),
-
+    GoRoute(path: Routes.entermark, builder: (c, s) => MarksEntryPage()),
 
     GoRoute(path: Routes.staffscoring, builder: (c, s) => StaffScoringPage()),
     GoRoute(path: Routes.staffview, builder: (c, s) => StaffView()),
@@ -391,5 +392,10 @@ final GoRouter router = GoRouter(
     GoRoute(path: Routes.currenterm, builder: (c, s) => Currenttermyr()),
     GoRoute(path: Routes.masspromotion, builder: (c, s) => Masspromotion()),
     GoRoute(path: Routes.studentsetup, builder: (c, s) => StudentSetupPage()),
+    GoRoute(path: Routes.viewmarks,builder: (c,s)=> ViewScorePage()),
+    GoRoute(path: Routes.totalattend,builder: (c,s)=> Totalattend()),
+    GoRoute(path: Routes.nextfees,builder: (c,s)=> NextFees()),
+    GoRoute(path: Routes.reopening,builder: (c,s)=> Reopening()),
+    GoRoute(path: Routes.headremarks,builder: (c,s)=> HeadremarkPage()),
   ],
 );

@@ -14,14 +14,38 @@ class ViewScorePage extends StatefulWidget {
 class _ViewScorePageState extends State<ViewScorePage> {
   final TextEditingController _searchController = TextEditingController();
   String _searchText = "";
-
+  String level = "";
+  String subject = "";
+  String subjectkey = "";
+  String teacherid = "";
+  Map<String, dynamic>? entry;
+  bool isLoading = true;
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final provider = Provider.of<Myprovider>(context, listen: false);
      // provider.clearContestantDetails();
-    //  provider.fetchScoredMarks();
+      await provider.loadSelectedEntry();
+      final loaded = provider.selectedEntry;
+      if (loaded == null) {
+        setState(() => isLoading = false);
+        return;
+      }
+      provider.fetchScoredMarks();
+      entry = loaded;
+      subject = loaded['subject'];
+      level = loaded['class'];
+      subjectkey = loaded['subjectkey'];
+      teacherid = provider.staffid;
+      setState(() => isLoading = false);
+      //print("Fetching scoring marks for $subject - $level");
+      //
+      // await provider.fetchStaffScoringMarks(
+      //   className: level,
+      //   subjectKey: subjectkey,
+      // );
+     // provider.fetchScoredMarks(teacherid, level, subjectkey,);
     //  provider.fetchAccessComponents();
     });
     _searchController.addListener(() {
@@ -101,7 +125,7 @@ class _ViewScorePageState extends State<ViewScorePage> {
                     ),
                   ),
 
-                  /// 📋 MARKS LIST
+                  ///  MARKS LIST
                   Expanded(
                     child: Container(
                       width: maxWidth,
@@ -119,7 +143,16 @@ class _ViewScorePageState extends State<ViewScorePage> {
                           final mark = marks[idx];
                           final index = idx + 1;
                           final imageUrl = mark['photoUrl'] ?? '';
-                          final scores = mark['scores'] as Map<String, dynamic>? ?? {};
+                          final allScores = Map<String, dynamic>.from(mark['scores'] ?? {});
+                          final subjectKey = subjectkey;
+
+                          final subjectScores = Map<String, dynamic>.from(
+                            allScores[subjectKey] ?? {},
+                          );
+
+                          final ca = subjectScores['CA']?.toString() ?? '0';
+                          final exams = subjectScores['Exams']?.toString() ?? '0';
+                          final total = subjectScores['totalScore']?.toString() ?? '0';
 
                           return Card(
                             color: Colors.white10,
@@ -132,7 +165,7 @@ class _ViewScorePageState extends State<ViewScorePage> {
                                 radius: 20,
                                 backgroundImage: imageUrl.isNotEmpty
                                     ? NetworkImage(imageUrl)
-                                    : const AssetImage('assets/images/bookwormlogo.jpg')
+                                    : const AssetImage('assets/images/logo.png')
                                 as ImageProvider,
                               ),
                               title: Text(
@@ -147,7 +180,15 @@ class _ViewScorePageState extends State<ViewScorePage> {
                                     style: const TextStyle(color: Colors.white70),
                                   ),
                                   Text(
-                                    'Total Score: ${mark['totalscore'] ?? ''}',
+                                    'Total Score: $total',
+                                    style: const TextStyle(color: Colors.white70),
+                                  ),
+                                  Text(
+                                    'CA: $ca',
+                                    style: const TextStyle(color: Colors.white70),
+                                  ),
+                                  Text(
+                                    'Exams: $exams',
                                     style: const TextStyle(color: Colors.white70),
                                   ),
                                 ],
@@ -157,18 +198,19 @@ class _ViewScorePageState extends State<ViewScorePage> {
                                 style: const TextStyle(color: Colors.white),
                               ),
                               onTap: () async {
-                                provider.clearContestantDetails();
-
-                                await provider.setContestantDetails(
-                                  scoringid: mark['id'],
-                                  studentId: mark['studentId'],
-                                  studentName: mark['studentName'],
-                                  photoUrl: mark['photoUrl'],
-                                  pagekey: 'nokia3310',
-                                  scores: scores,
+                                await provider.clearstudentsdetail();
+                                await provider.studentsdetails(
+                                  mark['studentId'] ?? '',
+                                  mark['studentName'] ?? '',
+                                  mark['class'] ?? '',
+                                  mark['subject'] ?? '',
+                                  mark['photoUrl'] ?? '',
+                                  ca,
+                                  exams,
+                                 total,
+                                  subjectkey ?? '',
                                 );
-
-                                context.go(Routes.autoform2);
+                                context.go(Routes.entermark);
                               },
                             ),
                           );

@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_progress_hud/flutter_progress_hud.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../controller/myprovider.dart';
+import '../controller/routes.dart';
+
 class AttendancePage extends StatefulWidget {
   const AttendancePage({super.key});
 
@@ -10,9 +14,9 @@ class AttendancePage extends StatefulWidget {
 
 class _AttendancePageState extends State<AttendancePage> {
   String selectedClass = "";
-  final Map<String, String> attendanceMap = {};
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController attendanceController = TextEditingController();
+  final Map<String, TextEditingController> controllers = {};
+
   @override
   void initState() {
     super.initState();
@@ -24,127 +28,168 @@ class _AttendancePageState extends State<AttendancePage> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<Myprovider>();
-
     final classes = provider.classdata;
-    final List<Map<String, dynamic>>  students = provider.studentlistattend;
+    final students = provider.studentlistattend;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Attendance Manager"),
-        backgroundColor: const Color(0xFF2D2F45),
-        foregroundColor: Colors.white,
+    return ProgressHUD(
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text("Attendance Manager"),
+          backgroundColor: const Color(0xFF2D2F45),
+          foregroundColor: Colors.white,
+          leading:IconButton(
+         icon: const Icon(Icons.arrow_back),
+         onPressed: () {
+          context.go(Routes.dashboard);
+        },
       ),
+        ),
 
-      body: provider.loadclassdata
-          ? const Center(child: CircularProgressIndicator())
+        body: provider.loadclassdata ? const Center(child: CircularProgressIndicator())
           : Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              /// --------------------------
-              /// SELECT CLASS
-              /// --------------------------
-              DropdownButtonFormField<String>(
-                decoration: const InputDecoration(
-                  labelText: "Select Class",
-                  border: OutlineInputBorder(),
-                ),
-                items: classes
-                    .map(
-                      (c) => DropdownMenuItem(
+          padding: const EdgeInsets.all(12.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                DropdownButtonFormField<String>(
+                  decoration: const InputDecoration(
+                    labelText: "Select Class",
+                    border: OutlineInputBorder(),
+                  ),
+                  items: classes
+                      .map((c) => DropdownMenuItem(
                     value: c.name,
                     child: Text(c.name),
-                  ),
-                )
-                    .toList(),
-                value: selectedClass.isEmpty ? null : selectedClass,
-                onChanged: (value) {
-                  if (value == null) return;
+                  ))
+                      .toList(),
+                  value:
+                  selectedClass.isEmpty ? null : selectedClass,
+                  onChanged: (value) async {
+                    if (value == null) return;
 
-                  setState(() => selectedClass = value);
+                    setState(() => selectedClass = value);
 
-                  provider.fetchstudent(selectedClass);
-                },
-              ),
+                    await provider.fetchstudent(selectedClass);
 
-              const SizedBox(height: 16),
+                    /// Preload attendance values
+                    for (var s in provider.studentlistattend) {
+                      String id = s['id'];
+                      String attend = (s['attendance'] ?? "0").toString();
 
-              /// --------------------------
-              /// LIST OF STUDENTS
-              /// --------------------------
-              provider.loadStudentone
-                  ? const CircularProgressIndicator()
-                  : Expanded(
-                child: students.isEmpty
-                    ? const Center(
-                  child: Text(
-                    "No students found.",
-                    style:
-                    TextStyle(color: Colors.black54),
-                  ),
-                )
-                    : ListView.builder(
-                  itemCount: students.length,
-                  itemBuilder: (context, index) {
-                    final s = students[index];
+                      controllers[id] =
+                          TextEditingController(text: attend);
+                    }
 
-                    return Card(
-                      elevation: 1,
-                      child: ListTile(
-                        title: Text(s["studentName"]),
-                        subtitle: Text("ID: ${s['id']}"),
+                    setState(() {});
+                  },
+                ),
 
-                        /// TEXT FIELD FOR ATTENDANCE
+                const SizedBox(height: 16),
+
+                provider.loadStudentone
+                    ? const CircularProgressIndicator()
+                    : Expanded(
+                  child: students.isEmpty
+                      ? const Center(
+                    child: Text(
+                      "No students found.",
+                      style:
+                      TextStyle(color: Colors.black54),
+                    ),
+                  )
+                      : ListView.builder(
+                    itemCount: students.length,
+                    itemBuilder: (context, index) {
+                      final s = students[index];
+                      String id = s["id"];
+                      String name = s["studentName"];
+                      controllers[id] ??= TextEditingController(text: (s['attendance'] ?? "0").toString());
+
+                      return Card(
+                        child: ListTile(
+                          title: Text(name),
+                          subtitle: Text("ID: $id"),
+
                           trailing: Wrap(
                             children: [
                               SizedBox(
                                 width: 60,
                                 child: TextFormField(
-                                  controller: attendanceController,
-                                  keyboardType: TextInputType.number,
-                                  decoration: const InputDecoration(
+                                  controller:
+                                  controllers[id],
+                                  keyboardType:
+                                  TextInputType.number,
+                                  decoration:
+                                  const InputDecoration(
                                     hintText: "0",
-                                    border: OutlineInputBorder(),
-                                    contentPadding: EdgeInsets.all(8),
+                                    border:
+                                    OutlineInputBorder(),
+                                    contentPadding:
+                                    EdgeInsets.all(8),
                                   ),
                                   validator: (v) {
-                                    if (v == null || v.trim().isEmpty) return "";
-                                    if (int.tryParse(v) == null) return "";
+                                    if (v == null ||
+                                        v.isEmpty) {
+                                      return " ";
+                                    }
+                                    if (int.tryParse(v) ==
+                                        null) {
+                                      return " ";
+                                    }
                                     return null;
-                                  },
-                                  onChanged: (value) {
-                                    attendanceMap[s['id']] = value;
                                   },
                                 ),
                               ),
                               const SizedBox(width: 8),
                               ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.blueGrey,
+                                style:
+                                ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                  Colors.blueGrey,
                                 ),
-                                onPressed: () async{
-                                  if (_formKey.currentState!.validate()) {
-                                   String attend =attendanceController.text.toString();
-                                   String id =s['id'];
-                                   await provider.updateattendance(attend, id);
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text("Attendance Saved")),
+                                onPressed: () async {
+                                  if (_formKey.currentState!
+                                      .validate()) {
+                                    final progress =
+                                    ProgressHUD.of(
+                                        context);
+                                    progress?.show();
+
+                                    String attend =
+                                    controllers[id]!
+                                        .text
+                                        .trim();
+
+                                    await provider
+                                        .updateattendance(
+                                        attend, id);
+
+                                    progress?.dismiss();
+
+                                    ScaffoldMessenger.of(
+                                        context)
+                                        .showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                            "Attendance Updated"),
+                                        backgroundColor:
+                                        Colors.green,
+                                      ),
                                     );
                                   }
                                 },
                                 child: const Text("Save"),
                               ),
                             ],
-                          )
-                      ),
-                    );
-                  },
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ),
-
-            ],
+              ],
+            ),
           ),
         ),
       ),

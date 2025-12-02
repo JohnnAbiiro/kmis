@@ -26,6 +26,14 @@ class StudentModel {
   final String? currentclass;
   final String? previousclass;
   final String? promotiondate;
+  final String? remarks;
+  final String? attendance;
+  final String? reopening;
+  final String? nextfees;
+  final String? totalattend;
+  final String? yearlytotal;
+  final String? average;
+  final String? position;
 
   StudentModel({
     required this.id,
@@ -55,6 +63,14 @@ class StudentModel {
     this.currentclass,
     this.previousclass,
     this.promotiondate ="",
+    this.remarks ="",
+    this.attendance ="",
+    this.reopening="",
+    this.nextfees="",
+    this.totalattend="",
+    this.yearlytotal="",
+    this.average="",
+    this.position ="",
   });
 
   /// convert to map (all lowercase keys)
@@ -86,6 +102,14 @@ class StudentModel {
       'currentclass':currentclass,
       'previousclass':previousclass,
       'nextclass':nextclass,
+      'remarks':remarks,
+      'reopening':reopening,
+      'average':average,
+      'yearlytotal':yearlytotal,
+      'attendance':attendance,
+      'totalattend':totalattend,
+      'nextfees':nextfees,
+      'position':position,
       'promotiondate':promotiondate,
     };
   }
@@ -120,6 +144,14 @@ class StudentModel {
       previousclass: map['previousclass'] ?? '',
       nextclass: map['nextclass'] ?? '',
       promotiondate: map['promotiondate'] ?? '',
+      reopening: map['reopening'] ?? '',
+      remarks: map['remarks'] ?? '',
+      yearlytotal: map['yearlytotal'] ?? '',
+      attendance: map['attendance'] ?? '',
+      average: map['average'] ?? '',
+      totalattend: map['totalattend'] ?? '',
+      nextfees: map['nextfees'] ?? '',
+      position: map['position'] ?? '',
     );
   }
 }

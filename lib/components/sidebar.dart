@@ -228,21 +228,38 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                 ),
                               ),
                               SizedBox(
+                                child: _drawerTile(icon: Icons.macro_off_sharp,
+                                    title: "Total Attendance",
+                                    onTap:() => context.go(Routes.totalattend)),
+                              ),
+                              SizedBox(
                                 child: _drawerTile(
                                   icon: Icons.military_tech,
                                   title: 'Attendance',
                                   onTap: () => context.go(Routes.attendance),
                                 ),
                               ),
-                              _drawerTile(
-                                icon: Icons.cleaning_services_rounded,
-                                title: 'Clear Results',
-                                onTap: () => context.go(Routes.clearscores,),
+                              SizedBox(
+                                child: _drawerTile(
+                                  icon: Icons.military_tech,
+                                  title: 'Reopening',
+                                  onTap: () => context.go(Routes.reopening),
+                                ),
                               ),
-                              _drawerTile(
-                                icon: Icons.cleaning_services_rounded,
-                                title: 'Eviction',
-                                onTap: () =>context.go(Routes.marks,
+
+                              SizedBox(
+                                child: _drawerTile(
+                                  icon: Icons.cleaning_services_rounded,
+                                  title: 'Next fees',
+                                  onTap: () => context.go(Routes.nextfees,),
+                                ),
+                              ),
+                              SizedBox(
+                                child: _drawerTile(
+                                  icon: Icons.cleaning_services_rounded,
+                                  title: 'Head remarks',
+                                  onTap: () =>context.go(Routes.headremarks,
+                                  ),
                                 ),
                               ),
                             ],

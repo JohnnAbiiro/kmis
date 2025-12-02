@@ -622,11 +622,15 @@ class Myprovider extends LoginProvider {
             components: components,
             teacher: teacherInfo,
             scores: {},
-              attendance: '',
-              remarks: '',
-              reopening: '',
-              nextclass: '',
-              nextfees: ''
+            attendance: '',
+            remarks: '',
+            reopening: '',
+            nextclass: '',
+            nextfees: '',
+            totalattend: '',
+            yearlytotal: '',
+            average: '',
+            position: ''
           );
           scores[subject.id] = {
             "subjectId": subject.id,
@@ -787,6 +791,8 @@ class Myprovider extends LoginProvider {
 
 
         for (final subject in selectedSubjects) {
+          final subjectKey = subject.id;
+          final subjectName = subject.name;
           scoresMap[subject.id] = {
             "subjectId": subject.id,
             "subjectName": subject.name,
@@ -810,38 +816,41 @@ class Myprovider extends LoginProvider {
 
         final scoringRef = db.collection("subjectScoring").doc(scoringId);
 
-        final scoringData = {
-          "studentId": studentId,
-          "studentName": s.name ?? '',
-          "academicYear": year,
-          "term": term,
-          "class": s.level,
-          "level": s.level,
-          "department": s.department,
-          "region": s.region,
-          "schoolId": schoolid,
-          "school": s.school,
-          "photourl": s.photourl,
-          "dob": s.dob,
-          "email": s.email,
-          "phone": s.phone,
-          "sex": s.sex,
-          "status": s.status,
-          "subjects": subjectMap,
-          "teacher": teacherInfo,
-          //"components": selectedComponents.map((c) => c.toJson()).toList(),
-          "scores": scoresMap,
-          "attendance": "",
-          "remarks": "",
-          "reopening": "",
-          "nextclass": "",
-          "nextfees": "",
-          "totalattendance": "",
-          "pos": "",
-          "timestamp": DateTime.now(),
-          "average": "",
-          "yearly": "",
-        };
+        final scoringData = SubjectScoring.create(
+            studentId: studentId,
+            studentName: s.name ?? '',
+            attendance: '',
+            remarks: '',
+            reopening: '',
+            nextclass: '',
+            nextfees: '',
+            totalattend: '',
+            academicYear: year,
+            term: term,
+            staff: '',
+            classes: '',
+            teacher: teacherInfo,
+            scores: scoresMap,
+            level: s.level,
+            department: s.department,
+            region: s.region,
+            schoolId: s.schoolId,
+            school: s.school,
+            photoUrl: s.photourl,
+            dob: s.dob,
+            email: s.email!,
+            phone: s.phone,
+            sex: s.sex,
+            status: s.status,
+            yeargroup: s.yeargroup,
+            subjectId: '',
+            subjectName: '',
+            components: [],
+            yearlytotal: '',
+            average: '',
+            position: ''
+
+        );
 
         batch.set(scoringRef, scoringData, SetOptions(merge: true));
         writes++;
@@ -1386,7 +1395,6 @@ class Myprovider extends LoginProvider {
         }
       }
 
-
       scoreList.sort((a, b) => b["score"].compareTo(a["score"]));
 
       int rank = 1;
@@ -1444,8 +1452,7 @@ class Myprovider extends LoginProvider {
           .where('term', isEqualTo: term)
           .where('academicYear', isEqualTo: academyear)
           .get();
-      //  print("Generating reports for ${query.docs.length} students  in $level for $term term, $academyear");
-      if (query.docs.isEmpty) {
+     if (query.docs.isEmpty) {
         throw ("No report data found for this selection.");
       }
 
@@ -1476,13 +1483,14 @@ class Myprovider extends LoginProvider {
       int rank = 1;
       for (int i = 0; i < students.length; i++) {
         if (i > 0 && students[i]['totalScore'] != students[i - 1]['totalScore']) {
-          rank = i + 1; // move to next rank only when score is different
+          rank = i + 1;
         }
         students[i]['position'] = rank.toString();
       }
       final pdf = pw.Document();
 
       for (var data in students) {
+
         final studentName = data['studentName'] ?? "";
         final studentID = data['studentId'] ?? "";
         final studentClass = data['classes'] ?? level;
@@ -1490,10 +1498,10 @@ class Myprovider extends LoginProvider {
         final schoolName = data['school'] ?? "School";
         final openingDate = data['reopening'] ?? "";
         final promotedTo = data['nextclass'] ?? "";
-        final nextTermFees = data['nextfess'] ?? "";
-        final teacherRemarks = data['teacherRemarks'] ?? "";
+        final nextTermFees = data['nextfees'] ?? "";
+        final teacherRemarks = data['remark'] ?? "";
         final headTeacherRemarks = data['headremarks'] ?? "";
-        final attendance = data['attendance']?.toString() ?? "";
+        final attendance ="${data['attendance']?.toString() ?? ''} out of ${data['totalattend']?.toString() ?? ''}";
         final academicYearAverage = (data['totalScore'] as num).toStringAsFixed(2);
 
         final areaOfInterest = data['interest'] ?? "";
@@ -1589,7 +1597,7 @@ class Myprovider extends LoginProvider {
     loadIdFormats = false;
     notifyListeners();
   }
-  Map<String, dynamic>? selectedEntry;
+  Map<String, dynamic>? selectedEntry ={};
 
   Future<void> setSelectedEntry(Map<String, dynamic> entry) async {
     selectedEntry = entry;
@@ -1607,7 +1615,7 @@ class Myprovider extends LoginProvider {
       try {
         selectedEntry = jsonDecode(stored) as Map<String, dynamic>;
       } catch (e) {
-        selectedEntry = null; // corrupted data case
+        selectedEntry = null;
       }
     }
 
@@ -1627,7 +1635,6 @@ class Myprovider extends LoginProvider {
   Future<void> fetchPromotionSettings() async {
     loadingPromotion = true;
     notifyListeners();
-
     String id ="promotionsettig";
     final docId = "$schoolid-$id".toLowerCase();
 
@@ -1715,9 +1722,6 @@ class Myprovider extends LoginProvider {
         "date": DateTime.now().toIso8601String(),
       };
     }).toList();
-
-
-
     notifyListeners();
   }
   Future<List<Map<String, dynamic>>> getClassStudents(String className) async {
@@ -1774,9 +1778,7 @@ class Myprovider extends LoginProvider {
       loadStudentone = true;
       notifyListeners();
 
-      final snapshot = await db
-          .collection("subjectScoring")
-          .where("level", isEqualTo: level)
+      final snapshot = await db.collection("subjectScoring").where("level", isEqualTo: level)
           .where("academicYear", isEqualTo: year)
           .where("schoolId", isEqualTo: schoolid)
           .get();
@@ -1827,6 +1829,31 @@ class Myprovider extends LoginProvider {
       print("Error updating attendance: $e");
     }
   }
+  Future<void> bulkupdateattendance(String attend, String selectedclass) async {
+    try {
+      final snapshot = await db.collection('subjectScoring')
+          .where("academicYear", isEqualTo: year)
+          .where("term", isEqualTo: term)
+          .where("schoolId", isEqualTo: schoolid)
+          .where("level",isEqualTo: selectedclass).get();
+
+      if (snapshot.docs.isEmpty) {
+        throw("No records found to update.");
+
+      }
+
+      for (var doc in snapshot.docs) {
+        await doc.reference.set({
+          'totalattend': attend,
+          'updatedAt': Timestamp.now(),
+        }, SetOptions(merge: true));
+      }
+      print("Attendance updated for ${snapshot.docs.length} records");
+    } catch (e) {
+      print("Error updating attendance: $e");
+    }
+  }
+
   Future<void> updateremarks(String attend, String id) async {
     try {
       final docRef = db.collection('subjectScoring').doc(id);
@@ -1853,7 +1880,7 @@ class Myprovider extends LoginProvider {
       //   'updatedAt': Timestamp.now(),
       // });
       await docRef.set({
-        'remark': attend,
+        'headremarks': attend,
         'updatedAt': Timestamp.now(),
       }, SetOptions(merge: true));
       print("Remarks updated for $id");
@@ -1874,7 +1901,31 @@ class Myprovider extends LoginProvider {
       }
       for (var doc in querySnapshot.docs) {
         await doc.reference.set({
-          'reopening': reopen,
+          'reopening': reopen.toString(),
+          'updatedAt': Timestamp.now(),
+        }, SetOptions(merge: true));
+
+        print("Remarks updated for doc: ${doc.id}");
+      }
+
+    } catch (e) {
+      print("Error updating Remarks: $e");
+    }
+  }
+  Future<void> nextfees(String nextfees, String level) async {
+    try {
+      final querySnapshot = await db
+          .collection('subjectScoring')
+          .where('class', isEqualTo: level)
+          .where('academicYear', isEqualTo: year)
+          .where('term', isEqualTo: term).get();
+      if (querySnapshot.docs.isEmpty) {
+        print("No documents found for classs = $level");
+        return;
+      }
+      for (var doc in querySnapshot.docs) {
+        await doc.reference.set({
+          'nextfees': nextfees,
           'updatedAt': Timestamp.now(),
         }, SetOptions(merge: true));
 
@@ -2026,7 +2077,7 @@ class Myprovider extends LoginProvider {
     try {
       final snap = await db.collection("subjectScoring").get();
       if (snap.docs.isEmpty) {
-        throw("NO STUDENTS IN DATABASE!");
+        throw("NO STUDENTS FOUND!");
 
       }
       final filtered = snap.docs.where((doc) {
@@ -2171,6 +2222,7 @@ class Myprovider extends LoginProvider {
         final data = doc.data() as Map<String, dynamic>;
         final year = data["academicYear"]?.toString() ?? "";
         final term = data["term"]?.toString() ?? "";
+        final noinclass =data.length;
         final subjectsMap = Map<String, dynamic>.from(data["subjects"] ?? {});
         List<Map<String, dynamic>> subjects = [];
         subjectsMap.forEach((key, raw) {
@@ -2207,14 +2259,15 @@ class Myprovider extends LoginProvider {
           studentName: student,
           studentId: studentid,
           studentClass: '',
-          noInClass: data["noInClass"]?.toString() ?? "",
+          noInClass: noinclass.toString(),
+         // noInClass: data["noInClass"]?.toString() ?? "",
           reOpeningDate: data["reopening"] ?? "",
           promotedTo: data["nextclass"] ?? "",
-          nextTermFees: data["nextfess"] ?? "",
+          nextTermFees: data["nextfees"] ?? "",
           position: data["position"] ?? "",
           subjects: subjects,
           attendance: data["attendance"]?.toString() ?? "",
-          teacherRemarks: data["teacherRemarks"] ?? "",
+          teacherRemarks: data["remark"] ?? "",
           headTeacherRemarks: data["headremarks"] ?? "",
           academicYearAverage: totalScore.toStringAsFixed(2),
           areaOfInterest: data["interest"] ?? "",
@@ -2476,4 +2529,118 @@ class Myprovider extends LoginProvider {
   }
 
   List<Map<String, dynamic>> scoredList = [];
+  bool isLoadfetchingmark = false;
+  fetchScoredMarks() async {
+    try {
+      isLoadfetchingmark = true;
+      notifyListeners();
+      await getdata();
+      final query = db.collection('subjectScoring')
+          .where('term', isEqualTo: term)
+          .where('academicYear', isEqualTo: year)
+          .where('level', isEqualTo: selectedEntry?['class'])
+          .where('teacher.${selectedEntry?['subjectkey']}.tcherid', isEqualTo: staffid);
+
+      final snapshot = await query.get();
+
+      scoredList = snapshot.docs.map((doc) {
+        final data = doc.data();
+
+        // Extract subject-specific score section safely
+        final subjectKey = selectedEntry?['subjectkey'];
+        final subjectScores = (data['scores']?[subjectKey] as Map<String, dynamic>?) ?? {};
+
+        // Sort score fields alphabetically
+        final sortedScoresList = subjectScores.entries.toList()
+          ..sort((a, b) => a.key.compareTo(b.key));
+
+        final sortedScoresMap = Map.fromEntries(sortedScoresList);
+
+        return {
+          'id': doc.id,
+          'studentName': data['studentName'] ?? '',
+          'studentId': data['studentId'] ?? '',
+          'level': data['level'] ?? '',
+          'photoUrl': data['photourl'] ?? '',
+          'scores': sortedScoresMap,
+          'totalscore': subjectScores['totalScore']?.toString() ?? '0',
+        };
+      }).toList();
+
+    } catch (e) {
+      print("Error fetching scored marks: $e");
+    } finally {
+      isLoadfetchingmark = false;
+      notifyListeners();
+    }
+  }
+  String studentId = '';
+  String studentName = '';
+  String className = '';
+  String subject = '';
+  String photoUrl = '';
+  String ca = '';
+  String exam = '';
+  String total = '';
+  String subjectkey = '';
+  //String imageUrl = '';
+  loadStudentDetails() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    try {
+      studentId = prefs.getString('studentId') ?? '';
+      studentName = prefs.getString('studentName') ?? '';
+      className = prefs.getString('class') ?? '';
+      subject = prefs.getString('subject') ?? '';
+      imageUrl = prefs.getString('studentphoto') ?? '';
+      ca = prefs.getString('ca') ?? '';
+      exam = prefs.getString('exam') ?? '';
+      total = prefs.getString('total') ?? '';
+      subjectkey = prefs.getString('subjectkey') ?? '';
+      notifyListeners();
+    } catch (e) {
+      print("Error loading student details: $e");
+    }
+  }
+  clearstudentsdetail() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('scoringid');
+    await prefs.remove('studentId');
+    await prefs.remove('studentName');
+    await prefs.remove('studentphoto');
+    await prefs.remove('pagekey');
+    await prefs.remove('scores');
+
+    imageUrl = '';
+    notifyListeners();
+  }
+  studentsdetails(
+      String studentId,
+      String studentName,
+      String className,
+      String subject,
+      String photoUrl,
+      String ca,
+      String exam,
+      String total,
+      String subjectkey,
+      ) async {
+    final prefs = await SharedPreferences.getInstance();
+    try {
+      await prefs.setString('studentId', studentId);
+      await prefs.setString('studentName', studentName);
+      await prefs.setString('class', className);
+      await prefs.setString('subject', subject);
+      await prefs.setString('studentphoto', photoUrl);
+      await prefs.setString('ca', ca);
+      await prefs.setString('exam', exam);
+      await prefs.setString('total', total);
+      await prefs.setString('subjectkey', subjectkey);
+
+      imageUrl = photoUrl;
+      notifyListeners();
+    } catch (e) {
+      print("Error saving student details: $e");
+    }
+  }
 }

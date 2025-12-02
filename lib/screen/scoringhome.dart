@@ -31,15 +31,12 @@ class _StaffScoringPageState extends State<StaffScoringPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final provider = Provider.of<Myprovider>(context, listen: false);
       await provider.loadSelectedEntry();
+      await provider.loadStudentDetails();
       final loaded = provider.selectedEntry;
-     print("Loaded entry: $loaded");
       if (loaded == null) {
-       // print("No saved entry found");
         setState(() => isLoading = false);
         return;
       }
-
-
       entry = loaded;
       subject = loaded['subject'];
       level = loaded['class'];
@@ -47,7 +44,6 @@ class _StaffScoringPageState extends State<StaffScoringPage> {
       teacherid = provider.staffid;
       setState(() => isLoading = false);
       //print("Fetching scoring marks for $subject - $level");
-
       await provider.fetchStaffScoringMarks(
         className: level,
         subjectKey: subjectkey,
@@ -67,7 +63,6 @@ class _StaffScoringPageState extends State<StaffScoringPage> {
     _searchController.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.sizeOf(context).width;
@@ -103,7 +98,15 @@ class _StaffScoringPageState extends State<StaffScoringPage> {
                 context.go(Routes.staffhome);
               },
             ),
-            actions: actionButtons(value, context),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.grade, color: Colors.white),
+                tooltip: "View Marks",
+                onPressed: () {
+                 context.go(Routes.viewmarks);
+                },
+              ),
+            ],
           ),
           body: Padding(
             padding: const EdgeInsets.all(8.0),
@@ -131,7 +134,6 @@ class _StaffScoringPageState extends State<StaffScoringPage> {
                     ),
                   ),
 
-
                   Expanded(
                     child: Container(
                       width: maxWidth,
@@ -141,8 +143,6 @@ class _StaffScoringPageState extends State<StaffScoringPage> {
                         itemBuilder: (context, idx) {
                           final mark = filteredMarks[idx];
                           final index = value.marksList.indexOf(mark) + 1;
-                          final scores =
-                              mark['scores'] as Map<String, dynamic>? ?? {};
 
                           return Card(
                             color: Colors.white10,
@@ -189,19 +189,21 @@ class _StaffScoringPageState extends State<StaffScoringPage> {
                                   ),
                                 ],
                               ),
-                              onTap: () {
-                                context.go(
-                                  Routes.entermark,
-                                  extra: {
-                                    "studentId": mark['studentId'],
-                                    "studentName": mark['studentName'],
-                                    "class": mark['class'],
-                                    "subject": mark['subject'],
-                                    "photoUrl": mark['photoUrl'],
-                                    "scores": scores,
-                                    "subjectkey": subjectkey,
-                                  },
+                              onTap: () async {
+                                final provider = Provider.of<Myprovider>(context, listen: false);
+                                await provider.clearstudentsdetail();
+                                await provider.studentsdetails(
+                                  mark['studentId'] ?? '',
+                                  mark['studentName'] ?? '',
+                                  mark['class'] ?? '',
+                                  mark['subject'] ?? '',
+                                  mark['photoUrl'] ?? '',
+                                  mark['CA']?.toString() ?? '',
+                                  mark['Exams']?.toString() ?? '',
+                                  mark['totalScore']?.toString() ?? '',
+                                  subjectkey ?? '',
                                 );
+                                context.go(Routes.entermark);
                               },
                             ),
                           );

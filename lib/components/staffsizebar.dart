@@ -228,6 +228,11 @@ class _CustomDrawerState extends State<CustomDrawer> {
                               ),
                             ),
                             SizedBox(
+                              child: _drawerTile(icon: Icons.access_alarm_outlined,
+                                  title: "Total Attendance",
+                                  onTap: () => context.go(Routes.totalattend)),
+                            ),
+                            SizedBox(
                               child: _drawerTile(
                                 icon: Icons.military_tech,
                                 title: 'Attendance',

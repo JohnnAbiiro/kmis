@@ -9,8 +9,7 @@ import '../controller/myprovider.dart';
 import '../controller/routes.dart';
 
 class MarksEntryPage extends StatefulWidget {
-  final Map<String, dynamic> args;
-  const MarksEntryPage({super.key, required this.args});
+  const MarksEntryPage({super.key,});
 
   @override
   State<MarksEntryPage> createState() => _MarksEntryPageState();
@@ -21,13 +20,33 @@ class _MarksEntryPageState extends State<MarksEntryPage> {
   final TextEditingController caController = TextEditingController();
   final TextEditingController examsController = TextEditingController();
   final TextEditingController totalController = TextEditingController();
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<Myprovider>();
       provider.scoringconfig(provider.schoolid);
+      provider.loadStudentDetails();
+      if (provider.ca.isNotEmpty) {
+        caController.text = provider.ca;
+      }
+
+      if (provider.exam.isNotEmpty) {
+        examsController.text = provider.exam;
+      }
+
+      if (provider.total.isNotEmpty) {
+        totalController.text = provider.total;
+      }
+
+      // Auto calculate new total when loading existing marks
+      final config = provider.scoreConfigList.isNotEmpty
+          ? provider.scoreConfigList.first
+          : null;
+
+      _calculateTotal(config);
+
+      setState(() {});
     });
   }
 
@@ -63,15 +82,6 @@ class _MarksEntryPageState extends State<MarksEntryPage> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<Myprovider>(context, listen: false);
-
-    final studentId = widget.args['studentId'] ?? '';
-    final studentName = widget.args['studentName'] ?? '';
-    final classId = widget.args['class'] ?? '';
-    final photoUrl = widget.args['photoUrl'] ?? '';
-    final subject = widget.args['subject'] ?? '';
-    final subjectkey = widget.args['subjectkey'] ?? '';
-    final imageUrl = (photoUrl.isNotEmpty) ? photoUrl : (provider.imageUrl ?? '');
 
     const inputFill = Color(0xFF2C2C3C);
 
@@ -92,7 +102,7 @@ class _MarksEntryPageState extends State<MarksEntryPage> {
                 onPressed: () => context.go(Routes.staffscoring),
               ),
               title: Text(
-                "${value.name} ~ $studentId ~ ${value.year} ~ ${value.term} - $subject",
+                "${value.name} ~ ${value.studentId} ~ ${value.year} ~ ${value.term} - ${value.subject}",
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
               ),
             ),
@@ -107,21 +117,19 @@ class _MarksEntryPageState extends State<MarksEntryPage> {
                       children: [
                         CircleAvatar(
                           radius: 50,
-                          backgroundImage: (imageUrl.isNotEmpty)
-                              ? NetworkImage(imageUrl)
+                          backgroundImage: (value.imageUrl.isNotEmpty)
+                              ? NetworkImage(value.imageUrl)
                               : const AssetImage('assets/images/logo.png') as ImageProvider,
                         ),
                         const SizedBox(height: 10),
-                        Text(studentName,
+                        Text(value.studentName,
                             style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.teal)),
-                        Text("ID: $studentId", style: const TextStyle(color: Colors.white70)),
-                        Text("Class: $classId", style: const TextStyle(color: Colors.white70)),
-                        Text("Subject: $subject", style: const TextStyle(color: Colors.white70)),
+                        Text("ID: ${value.studentId}", style: const TextStyle(color: Colors.white70)),
+                        Text("Class: ${value.className}", style: const TextStyle(color: Colors.white70)),
+                        Text("Subject: ${value.subject}", style: const TextStyle(color: Colors.white70)),
                       ],
                     ),
                     const SizedBox(height: 20),
-
-                    // CA Field
                     TextFormField(
                       controller: caController,
                       style: const TextStyle(color: Colors.white),
@@ -145,7 +153,6 @@ class _MarksEntryPageState extends State<MarksEntryPage> {
                       onChanged: (_) => _calculateTotal(config),
                     ),
                     const SizedBox(height: 16),
-
                     // Exams Field
                     TextFormField(
                       controller: examsController,
@@ -205,9 +212,9 @@ class _MarksEntryPageState extends State<MarksEntryPage> {
 
                             try {
                               //Fetch grading system (default)
-                              final gradingSystem = await provider.fetchGradingSystem(
-                                provider.schoolid,
-                                department: classId,
+                              final gradingSystem = await value.fetchGradingSystem(
+                                value.schoolid,
+                                department: value.className,
                               );
 
                               String? grade;
@@ -229,9 +236,9 @@ class _MarksEntryPageState extends State<MarksEntryPage> {
                                 throw ("No grade/remark found for score $total");
                               }
 
-                              await provider.saveStudentMarks(
-                                studentId: studentId,
-                                subjectId: subjectkey,
+                              await value.saveStudentMarks(
+                                studentId: value.studentId,
+                                subjectId: value.subjectkey,
                                 ca: ca.toStringAsFixed(2),
                                 exams: exams.toStringAsFixed(2),
                                 grade: grade.toString(),
@@ -243,7 +250,7 @@ class _MarksEntryPageState extends State<MarksEntryPage> {
                                 examsw: examWeight.toString(),
                                 maxca: maxContinuous.toString(),
                                 maxexams: maxExam.toString(),
-                                subjectName: subject,
+                                subjectName: value.subject,
                                 schoolId: value.schoolid,
                                 teacherId: value.staffid,
                               );
@@ -273,7 +280,9 @@ class _MarksEntryPageState extends State<MarksEntryPage> {
                         },
 
                       icon: const Icon(Icons.save),
-                      label: const Text("Save Marks"),
+                      label: Text(
+                        (value.ca.isNotEmpty || value.exam.isNotEmpty) ? "Update Marks" : "Save Marks",
+                      ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blueAccent,
                         foregroundColor: Colors.white,

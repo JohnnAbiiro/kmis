@@ -334,16 +334,9 @@ class _TeacherSetupPageState extends State<TeacherSetupPage> {
                                 schoolId: value.schoolid,
                                 academicYear: value.academicyrid,
                                 term: value.term,
-                                subjects: value.subjectList
-                                    .where((s) =>
-                                    selectedSubjects.contains(s.id))
-                                    .toList(),
+                                subjects: value.subjectList .where((s) => selectedSubjects.contains(s.id)).toList(),
                                 components: selectedComponents,
-                                classes: value.classdata
-                                    .where((c) =>
-                                    selectedClasses.contains(c.name))
-                                    .toList(),
-                              );
+                                classes: value.classdata.where((c) => selectedClasses.contains(c.name)).toList(),);
 
                               _showMsg(context, "Setup saved", false);
                             } catch (e) {
