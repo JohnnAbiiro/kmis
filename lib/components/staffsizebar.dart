@@ -199,27 +199,9 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                 onTap: () => context.go(Routes.registerstudent,),
                               ),
                             ),
-                            SizedBox(
-                              child: _drawerTile(
-                                icon: Icons.military_tech,
-                                title: 'Region Registration',
-                                onTap: () => context.go(Routes.regionreg),
-                              ),
-                            ),
-                            SizedBox(
-                              child: _drawerTile(
-                                icon: Icons.military_tech,
-                                title: 'school',
-                                onTap: () => context.go(Routes.school),
-                              ),
-                            ),
-                            SizedBox(
-                              child: _drawerTile(
-                                icon: Icons.military_tech,
-                                title: 'score config',
-                                onTap: () => context.go(Routes.scoreconfig),
-                              ),
-                            ),
+
+
+
                             SizedBox(
                               child: _drawerTile(
                                 icon: Icons.military_tech,
@@ -239,17 +221,8 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                 onTap: () => context.go(Routes.attendance),
                               ),
                             ),
-                            _drawerTile(
-                              icon: Icons.cleaning_services_rounded,
-                              title: 'Clear Results',
-                              onTap: () => context.go(Routes.clearscores,),
-                            ),
-                            _drawerTile(
-                              icon: Icons.cleaning_services_rounded,
-                              title: 'Eviction',
-                              onTap: () =>context.go(Routes.marks,
-                              ),
-                            ),
+
+
                           ],
                         ),
                       ),

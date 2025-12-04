@@ -831,6 +831,7 @@ class Myprovider extends LoginProvider {
             classes: '',
             teacher: teacherInfo,
             scores: scoresMap,
+
             level: s.level,
             department: s.department,
             region: s.region,
@@ -1152,7 +1153,7 @@ class Myprovider extends LoginProvider {
      .where('term', isEqualTo: term)
      .where('class', isEqualTo: className)
      .where('schoolId', isEqualTo: schoolid).get();
-     //  marksList = snap.docs.map((doc) {
+      //  marksList = snap.docs.map((doc) {
      // final data = doc.data() as Map<String, dynamic>;
      // final id = doc.id;
      // final subjects = Map<String, dynamic>.from(data['subjects'] ?? {});
@@ -1219,7 +1220,6 @@ class Myprovider extends LoginProvider {
 
         final subjects = Map<String, dynamic>.from(data['subjects'] ?? {});
 
-        // If subject is missing, skip
         if (!subjects.containsKey(subjectKey)) return null;
 
         final subjectData = Map<String, dynamic>.from(subjects[subjectKey]);
@@ -1308,7 +1308,6 @@ class Myprovider extends LoginProvider {
       throw Exception("Error fetching grading system: $e");
     }
   }
-
 
   Future<void> saveStudentMarks({
     required String studentId,

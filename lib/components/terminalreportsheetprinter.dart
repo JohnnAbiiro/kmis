@@ -147,8 +147,8 @@ class ReportCardPrinter {
       'REMARKS',
     ];
 
-    final PdfColor primaryColor = PdfColor.fromInt(0xFF1E88E5);
-
+    //final PdfColor primaryColor = PdfColor.fromInt(0xFF1E88E5);
+    PdfColor primaryColor = PdfColor.fromInt(0xFFE0E0E0);
     return pw.Page(
       pageFormat: format,
       margin: const pw.EdgeInsets.all(20),
@@ -188,7 +188,7 @@ class ReportCardPrinter {
                           style: pw.TextStyle(
                             fontSize: 16,
                             fontWeight: pw.FontWeight.bold,
-                            color: PdfColors.white,
+                            color: PdfColors.black,
                           ),
                         ),
                         pw.SizedBox(height: 3),
@@ -334,11 +334,13 @@ class ReportCardPrinter {
                 ];
               }).toList(),
               headerStyle: pw.TextStyle(
-                color: PdfColors.white,
+               // color: PdfColors.white,
                 fontWeight: pw.FontWeight.bold,
                 fontSize: subjectFontSize,
               ),
-              headerDecoration: pw.BoxDecoration(color: primaryColor),
+              headerDecoration: pw.BoxDecoration(
+               //   color: primaryColor
+              ),
               cellAlignment: pw.Alignment.center,
               cellStyle: pw.TextStyle(fontSize: subjectFontSize),
               border: pw.TableBorder.all(width: 0.3, color: PdfColors.grey),
