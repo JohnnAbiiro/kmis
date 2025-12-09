@@ -1,24 +1,39 @@
 class StudentModel {
-  final String id;             // firestore doc id (unique)
-  final String studentid;      // human-readable id (generated)
+  final String id;
+  final String studentid;
   final String name;
   final String sex;
   final String school;
   final String region;
-  final List<String> guardiancontact; // multiple guardian phones
-  final List<String> parentname;      // multiple parent/guardian names
+  final List<String> guardiancontact;
+  final List<String> parentname;
   final String level;
   final String department;
   final String term;
   final String schoolId;
-  final String dob;            // date of birth as string
+  final String dob;
   final String address;
   final String? email;
-  final String phone;          // student phone number
-  final String timestamp;      // registration time as string
+  final String phone;
+  final String timestamp;
   final String photourl;
-  final String status;         // single string: active, dropped, completed, etc.
-  final String yeargroup;         // single string: active, dropped, completed, etc.
+  final String status;
+  final String yeargroup;
+  final String? academicyr;
+  final String? promotionstatus;
+  final String? promotioncycle;
+  final String? nextclass;
+  final String? currentclass;
+  final String? previousclass;
+  final String? promotiondate;
+  final String? remarks;
+  final String? attendance;
+  final String? reopening;
+  final String? nextfees;
+  final String? totalattend;
+  final String? yearlytotal;
+  final String? average;
+  final String? position;
 
   StudentModel({
     required this.id,
@@ -40,7 +55,22 @@ class StudentModel {
     required this.timestamp,
     required this.photourl,
     required this.yeargroup,
-    this.status = "active", // default
+    this.status = "active",
+    this.academicyr,
+    this.promotionstatus ="not",
+    this.promotioncycle ="0",
+    this.nextclass,
+    this.currentclass,
+    this.previousclass,
+    this.promotiondate ="",
+    this.remarks ="",
+    this.attendance ="",
+    this.reopening="",
+    this.nextfees="",
+    this.totalattend="",
+    this.yearlytotal="",
+    this.average="",
+    this.position ="",
   });
 
   /// convert to map (all lowercase keys)
@@ -64,8 +94,23 @@ class StudentModel {
       'phone': phone,
       'timestamp': timestamp,
       'photourl': photourl,
-      'status': status, // string, not list
-      'yeargroup': yeargroup, // string, not list
+      'status': status,
+      'yeargroup': yeargroup,
+      'academicyr':academicyr,
+      'promotionstatus':promotionstatus,
+      'promotioncycle':promotioncycle,
+      'currentclass':currentclass,
+      'previousclass':previousclass,
+      'nextclass':nextclass,
+      'remarks':remarks,
+      'reopening':reopening,
+      'average':average,
+      'yearlytotal':yearlytotal,
+      'attendance':attendance,
+      'totalattend':totalattend,
+      'nextfees':nextfees,
+      'position':position,
+      'promotiondate':promotiondate,
     };
   }
 
@@ -92,6 +137,21 @@ class StudentModel {
       photourl: map['photourl'] ?? '',
       yeargroup: map['yeargroup'] ?? '',
       status: map['status'] ?? 'active',
+      academicyr: map['academicyr'] ?? '',
+      promotioncycle: map['promotioncycle'] ?? '',
+      promotionstatus: map['promotionstatus'] ?? '',
+      currentclass: map['currentclass'] ?? '',
+      previousclass: map['previousclass'] ?? '',
+      nextclass: map['nextclass'] ?? '',
+      promotiondate: map['promotiondate'] ?? '',
+      reopening: map['reopening'] ?? '',
+      remarks: map['remarks'] ?? '',
+      yearlytotal: map['yearlytotal'] ?? '',
+      attendance: map['attendance'] ?? '',
+      average: map['average'] ?? '',
+      totalattend: map['totalattend'] ?? '',
+      nextfees: map['nextfees'] ?? '',
+      position: map['position'] ?? '',
     );
   }
 }

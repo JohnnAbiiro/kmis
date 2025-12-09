@@ -73,7 +73,7 @@ class _DashboardLayoutState extends State<DashboardLayout> {
             appBar: AppBar(
               iconTheme: IconThemeData(color: Colors.white),
               backgroundColor: const Color(0xFF00273a),
-              title: Text(schoolname.toUpperCase(), style: TextStyle(color: Colors.white)),
+              title: Text(schoolname.toUpperCase() , style: TextStyle(color: Colors.white)),
               actions: const [
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16),

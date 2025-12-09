@@ -1,5 +1,3 @@
-
-
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'dart:typed_data';
@@ -29,7 +27,7 @@ class ReportCardPrinter {
   final String attendance;
   final String teacherRemarks;
   final String headTeacherRemarks;
-  final String? academicYearAverage; // 🔹 optional
+  final String? academicYearAverage;
 
   ReportCardPrinter({
     required this.schoolName,
@@ -64,28 +62,39 @@ class ReportCardPrinter {
     return 0;
   }
 
-  /// 🔹 Find subject(s) with highest score
   String getTopSubject() {
     if (subjects.isEmpty) return "N/A";
-    final maxScore = subjects.map((s) => parseNum(s['totalScore'])).reduce((a, b) => a > b ? a : b);
-    final tops = subjects.where((s) => parseNum(s['totalScore']) == maxScore).map((s) => s['subject']).toList();
-    return tops.join(", ");
+    final maxScore = subjects
+        .map((s) => parseNum(s['totalScore']))
+        .reduce((a, b) => a > b ? a : b);
+
+    return subjects
+        .where((s) => parseNum(s['totalScore']) == maxScore)
+        .map((s) => s['subject'])
+        .join(", ");
   }
 
-  /// 🔹 Find subject(s) with lowest score
   String getWeakSubject() {
     if (subjects.isEmpty) return "N/A";
-    final minScore = subjects.map((s) => parseNum(s['totalScore'])).reduce((a, b) => a < b ? a : b);
-    final lows = subjects.where((s) => parseNum(s['totalScore']) == minScore).map((s) => s['subject']).toList();
-    return lows.join(", ");
+    final minScore = subjects
+        .map((s) => parseNum(s['totalScore']))
+        .reduce((a, b) => a < b ? a : b);
+
+    return subjects
+        .where((s) => parseNum(s['totalScore']) == minScore)
+        .map((s) => s['subject'])
+        .join(", ");
   }
 
-  /// 🔹 Find mid-range subject (interest area = between top and weak)
   String getInterestSubject() {
     if (subjects.isEmpty) return "N/A";
+
     final sorted = subjects.toList()
-      ..sort((a, b) => parseNum(b['totalScore']).compareTo(parseNum(a['totalScore'])));
+      ..sort((a, b) =>
+          parseNum(b['totalScore']).compareTo(parseNum(a['totalScore'])));
+
     if (sorted.length < 3) return sorted.first['subject'];
+
     return sorted[sorted.length ~/ 2]['subject'];
   }
 
@@ -95,6 +104,7 @@ class ReportCardPrinter {
     try {
       final logoBytesl = await rootBundle.load(logoAssetPathl);
       logoImagel = pw.MemoryImage(logoBytesl.buffer.asUint8List());
+
       final logoBytesr = await rootBundle.load(logoAssetPathr);
       logoImager = pw.MemoryImage(logoBytesr.buffer.asUint8List());
     } catch (_) {
@@ -104,21 +114,20 @@ class ReportCardPrinter {
 
     final totalScoreValue =
     subjects.fold<num>(0, (sum, s) => sum + parseNum(s['totalScore']));
+
     final avgScoreValue =
     subjects.isNotEmpty ? totalScoreValue / subjects.length : 0;
 
-    // 🔹 Dynamic areas if not provided
-    final computedStrength = areaOfStrength == null || areaOfStrength!.isEmpty
+    final computedStrength = (areaOfStrength?.isEmpty ?? true)
         ? getTopSubject()
         : areaOfStrength!;
-    final computedWeakness = weakness == null || weakness!.isEmpty
-        ? getWeakSubject()
-        : weakness!;
-    final computedInterest = areaOfInterest == null || areaOfInterest!.isEmpty
-        ? getInterestSubject()
-        : areaOfInterest!;
 
-    // 🔹 Font scaling
+    final computedWeakness =
+    (weakness?.isEmpty ?? true) ? getWeakSubject() : weakness!;
+
+    final computedInterest =
+    (areaOfInterest?.isEmpty ?? true) ? getInterestSubject() : areaOfInterest!;
+
     double subjectFontSize;
     if (subjects.length <= 6) {
       subjectFontSize = 12;
@@ -156,11 +165,10 @@ class ReportCardPrinter {
         return pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
-            // 🔹 Header
+            // HEADER
             pw.Container(
               width: double.infinity,
-              padding:
-              const pw.EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+              padding: const pw.EdgeInsets.symmetric(vertical: 16, horizontal: 12),
               decoration: pw.BoxDecoration(
                 color: primaryColor,
                 borderRadius: const pw.BorderRadius.only(
@@ -225,7 +233,7 @@ class ReportCardPrinter {
 
             pw.SizedBox(height: 12),
 
-            // 🔹 Student Info
+            // STUDENT INFO TABLE
             pw.Table(
               columnWidths: {
                 0: const pw.FlexColumnWidth(1.5),
@@ -234,92 +242,16 @@ class ReportCardPrinter {
                 3: const pw.FlexColumnWidth(2),
               },
               children: [
-                pw.TableRow(
-                  children: [
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.symmetric(vertical: 4, horizontal: 2),
-                      child: pw.Text("Class:", style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                    ),
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.symmetric(vertical: 4, horizontal: 2),
-                      child: pw.Text(studentClass),
-                    ),
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.symmetric(vertical: 4, horizontal: 2),
-                      child: pw.Text("No. in class:", style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                    ),
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.symmetric(vertical: 4, horizontal: 2),
-                      child: pw.Text(noInClass),
-                    ),
-                  ],
-                ),
-                pw.TableRow(
-                  children: [
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.symmetric(vertical: 4, horizontal: 2),
-                      child: pw.Text("Re-Opening:", style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                    ),
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.symmetric(vertical: 4, horizontal: 2),
-                      child: pw.Text(reOpeningDate),
-                    ),
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.symmetric(vertical: 4, horizontal: 2),
-                      child: pw.Text("Position:", style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                    ),
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.symmetric(vertical: 4, horizontal: 2),
-                      child: pw.Text(position),
-                    ),
-                  ],
-                ),
-                pw.TableRow(
-                  children: [
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.symmetric(vertical: 4, horizontal: 2),
-                      child: pw.Text("ID:", style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                    ),
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.symmetric(vertical: 4, horizontal: 2),
-                      child: pw.Text(studentId),
-                    ),
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.symmetric(vertical: 4, horizontal: 2),
-                      child: pw.Text("Promoted To:", style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                    ),
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.symmetric(vertical: 4, horizontal: 2),
-                      child: pw.Text(promotedTo),
-                    ),
-                  ],
-                ),
-                pw.TableRow(
-                  children: [
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.symmetric(vertical: 4, horizontal: 2),
-                      child: pw.Text("Name:", style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                    ),
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.symmetric(vertical: 4, horizontal: 2),
-                      child: pw.Text(studentName),
-                    ),
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.symmetric(vertical: 4, horizontal: 2),
-                      child: pw.Text("Next Term Fees:", style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                    ),
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.symmetric(vertical: 4, horizontal: 2),
-                      child: pw.Text(nextTermFees),
-                    ),
-                  ],
-                ),
+                _infoRow("Class:", studentClass, "No. in class:", noInClass),
+                _infoRow("Re-Opening:", reOpeningDate, "Position:", position),
+                _infoRow("ID:", studentId, "Promoted To:", promotedTo),
+                _infoRow("Name:", studentName, "Next Term Fees:", nextTermFees),
               ],
             ),
 
             pw.SizedBox(height: 10),
 
-            // 🔹 Subjects Table
+            // SUBJECT TABLE
             pw.Table.fromTextArray(
               headers: headers,
               data: subjects.map((s) {
@@ -346,7 +278,6 @@ class ReportCardPrinter {
 
             pw.SizedBox(height: 10),
 
-            // 🔹 Totals / Average
             pw.Row(
               mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
               children: [
@@ -362,12 +293,12 @@ class ReportCardPrinter {
               ],
             ),
 
-            pw.SizedBox(height: 10),
+            pw.SizedBox(height: 12),
 
-            // 🔹 Remarks Section
+            // REMARKS
             pw.Container(
               width: double.infinity,
-              padding: const pw.EdgeInsets.all(6),
+              padding: const pw.EdgeInsets.all(8),
               decoration: pw.BoxDecoration(
                 border: pw.Border.all(color: PdfColors.grey, width: 0.5),
                 borderRadius: pw.BorderRadius.circular(6),
@@ -383,10 +314,19 @@ class ReportCardPrinter {
                       style: pw.TextStyle(fontSize: remarksFontSize)),
                   pw.Text("Attendance: $attendance",
                       style: pw.TextStyle(fontSize: remarksFontSize)),
-                  pw.SizedBox(height: 4),
-                  pw.Text("Teacher's Remarks: $teacherRemarks",
+                  pw.SizedBox(height: 6),
+                  pw.Text("Teacher's Remarks:",
+                      style: pw.TextStyle(
+                          fontWeight: pw.FontWeight.bold,
+                          fontSize: remarksFontSize)),
+                  pw.Text(teacherRemarks,
                       style: pw.TextStyle(fontSize: remarksFontSize)),
-                  pw.Text("Head Teacher's Remarks: $headTeacherRemarks",
+                  pw.SizedBox(height: 6),
+                  pw.Text("Head Teacher's Remarks:",
+                      style: pw.TextStyle(
+                          fontWeight: pw.FontWeight.bold,
+                          fontSize: remarksFontSize)),
+                  pw.Text(headTeacherRemarks,
                       style: pw.TextStyle(fontSize: remarksFontSize)),
                 ],
               ),
@@ -394,6 +334,28 @@ class ReportCardPrinter {
           ],
         );
       },
+    );
+  }
+
+  pw.TableRow _infoRow(String leftLabel, String leftValue,
+      String rightLabel, String rightValue) {
+    return pw.TableRow(
+      children: [
+        pw.Padding(
+            padding: const pw.EdgeInsets.all(4),
+            child: pw.Text(leftLabel,
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold))),
+        pw.Padding(
+            padding: const pw.EdgeInsets.all(4),
+            child: pw.Text(leftValue)),
+        pw.Padding(
+            padding: const pw.EdgeInsets.all(4),
+            child: pw.Text(rightLabel,
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold))),
+        pw.Padding(
+            padding: const pw.EdgeInsets.all(4),
+            child: pw.Text(rightValue)),
+      ],
     );
   }
 }
