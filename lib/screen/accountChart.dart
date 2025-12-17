@@ -186,6 +186,7 @@ class _RevenueGridPageState extends State<AccountsChart> {
                                                       schoolId: value.schoolid,
                                                       accountType: _selectedAccountClass!,
                                                       subType: _selectedSubType!,
+                                                      id: '',
                                                     );
 
                                                     await value.db

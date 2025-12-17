@@ -59,7 +59,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                       ),
                       SizedBox(height: 10),
                       Text(
-                        schoolname,
+                        schoolname.toUpperCase(),
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,

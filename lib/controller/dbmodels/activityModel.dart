@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ActivityModel {
+  final String id;
   final String name;
   final String schoolId;
   final String drAccount;
@@ -13,6 +14,7 @@ class ActivityModel {
   final DateTime? dateCreated;
 
   ActivityModel({
+    required this.id,
     required this.name,
     required this.schoolId,
     required this.drAccount,
@@ -25,7 +27,7 @@ class ActivityModel {
     required this.dateCreated,
   });
 
-  factory ActivityModel.fromMap(Map<String, dynamic> map) {
+  factory ActivityModel.fromMap(Map<String, dynamic> map, String id) {
     return ActivityModel(
       crAccountSubClass: map['crAccountSubClass'] ?? '',
       drAccountSubClass: map['drAccountSubClass'] ?? '',
@@ -36,7 +38,7 @@ class ActivityModel {
       drAccount: map['drAccount'] ?? '',
       schoolId: map['schoolId'] ?? '',
       crAccount: map['crAccount']?.toString() ?? '0',
-      dateCreated: map['dateCreated'] != null ? (map['dateCreated'] as Timestamp).toDate() : null,
+      dateCreated: map['dateCreated'] != null ? (map['dateCreated'] as Timestamp).toDate() : null, id: '',
     );
   }
 
