@@ -4,6 +4,7 @@ class Staff {
   final String? id;
   final String name;
   final String accessLevel;
+  final String teaching;
   final String phone;
   final String email;
   final String sex;
@@ -17,6 +18,7 @@ class Staff {
     this.id,
     required this.name,
     required this.accessLevel,
+    required this.teaching,
     required this.phone,
     required this.email,
     required this.sex,
@@ -33,6 +35,7 @@ class Staff {
       "id": id ?? "",
       "name": name,
       "accessLevel": accessLevel,
+      "teaching": teaching,
       "phone": phone,
       "email": email,
       "sex": sex,
@@ -56,6 +59,7 @@ class Staff {
     addIfNotEmpty("id", id);
     addIfNotEmpty("name", name);
     addIfNotEmpty("accessLevel", accessLevel);
+    addIfNotEmpty("teaching", teaching);
     addIfNotEmpty("phone", phone);
     addIfNotEmpty("email", email);
     addIfNotEmpty("sex", sex);
@@ -72,6 +76,7 @@ class Staff {
       id: id,
       name: map["name"] ?? "",
       accessLevel: map["accessLevel"] ?? "",
+      teaching: map["teaching"] ?? "",
       phone: map["phone"] ?? "",
       email: map["email"] ?? "",
       sex: map["sex"] ?? "",
@@ -91,6 +96,7 @@ class Staff {
       'id': id,
       'name': name,
       'accessLevel': accessLevel,
+      'teaching': teaching,
       'phone': phone,
       'email': email,
       'sex': sex,

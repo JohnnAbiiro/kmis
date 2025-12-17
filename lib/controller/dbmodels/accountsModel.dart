@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CoaModel {
+  final String id;
   final String name;
   final String schoolId;
   final String accountType;
@@ -8,6 +9,7 @@ class CoaModel {
   final DateTime? dateCreated;
 
   CoaModel({
+    required this.id,
     required this.name,
     required this.schoolId,
     required this.accountType,
@@ -15,8 +17,9 @@ class CoaModel {
     this.dateCreated,
   });
 
-  factory CoaModel.fromMap(Map<String, dynamic> map) {
+  factory CoaModel.fromMap(Map<String, dynamic> map, String id) {
     return CoaModel(
+      id: id,
       name: map['name'] ?? '',
       subType: map['subType'] ?? '',
       schoolId: map['schoolId'] ?? '',

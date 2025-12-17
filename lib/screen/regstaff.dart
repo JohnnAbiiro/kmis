@@ -24,8 +24,10 @@ class _RegstaffState extends State<Regstaff> {
   final _formKey = GlobalKey<FormState>();
 
   final List<String> _sex = ['Male', "Female"];
+  final List<String> _teaching = ['Teaching Staff', "Non Teaching Staff"];
   String? myRegion;
   String? _selectedSex;
+  String? _selectedTeaching;
   String? _selectedAccessLevel;
 
   bool _showStaffContainer = false;
@@ -41,7 +43,14 @@ class _RegstaffState extends State<Regstaff> {
       context.read<Myprovider>().getfetchRegions();
       context.read<Myprovider>().staffcount();
     });
-
+    // // final data = widget.staffData;
+    // // if (data != null) {
+    // //   name.text = data.name ?? '';
+    // //   phone.text = data.phone ?? '';
+    // //   _selectedSex = data.sex;
+    // //   myRegion = data.region;
+    // //   _selectedAccessLevel = data.accessLevel;
+    // // }
   }
 
   @override
@@ -151,6 +160,20 @@ class _RegstaffState extends State<Regstaff> {
                                             validator: (value) => value == null ? 'Please select sex' : null,
                                           ),
                                           const SizedBox(height: 20),
+                                          DropdownButtonFormField(
+                                            value: _selectedTeaching,
+                                              items: _teaching.map((cat){
+                                                return DropdownMenuItem(
+                                                  value: cat,
+                                                    child: Text(cat, style: TextStyle(color: Colors.black54),)
+                                                );
+                                              }).toList(),
+                                              onChanged: (value)=>setState(()=> _selectedTeaching = value),
+                                            dropdownColor: inputFill,
+                                            decoration: _inputDecoration("Staff Type", null, inputFill),
+                                            validator: (value) => value == null ? 'Please select Staff Type' : null,
+                                          ),
+                                          const SizedBox(height: 20),
 
                                           // Region
                                           DropdownButtonFormField<String>(
@@ -197,6 +220,7 @@ class _RegstaffState extends State<Regstaff> {
                                                         String nameTxt= nameController.text.trim();
                                                         String phoneTxt= phoneController.text.trim();
                                                         String sexTxt= _selectedSex ?? "";
+                                                        String teachTxt= _selectedTeaching ?? "";
                                                         String regionTxt= myRegion ?? "";
                                                         String emailTxt= emailController.text.trim().toString().toLowerCase();
                                                         String schoolId= value.schoolid ?? "";
@@ -221,29 +245,10 @@ class _RegstaffState extends State<Regstaff> {
                                                           progress.dismiss();
                                                           return;
                                                         }
-                                                        final staffdata=Staff(
-                                                            name: nameTxt,
-                                                            accessLevel: accessLevelTxt,
-                                                            phone: phoneTxt,
-                                                            email: emailTxt,
-                                                            sex: sexTxt,
-                                                            region: regionTxt,
-                                                            schoolId: schoolId,
-                                                            schoolname: schoolName,
-                                                            id: _staffid,
-                                                            createdAt: createdAt).toMap();
-                                                        final password ="123456";
+                                                        final staffdata=Staff(name: nameTxt, accessLevel: accessLevelTxt, phone: phoneTxt, email: emailTxt, sex: sexTxt, region: regionTxt, schoolId: schoolId, schoolname: schoolName, createdAt: createdAt, teaching: teachTxt).toMap();
+
                                                         await value.db.collection('staff').doc(_staffid).set(staffdata, SetOptions(merge: true));
-                                                        await value.auth.createUserWithEmailAndPassword(email: emailTxt, password: password);
-                                                        await value.auth.currentUser!.sendEmailVerification();
-                                                        String message='Welcome to KologSoft MIS, $nameTxt. Your school ID is ${value.schoolid}. Please verify your email to complete the registration process.';
-                                                        await value.db.collection("smsQueue").add({
-                                                          'phone': phoneTxt,
-                                                          'message': message,
-                                                          'senderId': "KologSoft",
-                                                          'createdat': DateTime.now(),
-                                                          'status': 'pending',
-                                                        });
+
                                                         await Future.delayed(const Duration(seconds: 1));
                                                         progress.dismiss();
 
@@ -281,13 +286,14 @@ class _RegstaffState extends State<Regstaff> {
                               ),
 
                               if (_showStaffContainer)
+
                                 Container(
                                   width: 800,
                                   //height: 400,
                                   padding: const EdgeInsets.all(12),
                                   color: Colors.white,
                                   child: FutureBuilder<QuerySnapshot>(
-                                    future: value.db.collection('staff').where('schoolId',isEqualTo:value.schoolid ).get(),
+                                    future: FirebaseFirestore.instance.collection('staff').get(),
                                     builder: (context, snapshot) {
                                       if (snapshot.connectionState == ConnectionState.waiting) {
                                         return const Center(child: CircularProgressIndicator());
