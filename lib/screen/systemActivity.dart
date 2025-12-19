@@ -212,7 +212,7 @@ class _SystemActivityState extends State<SystemActivity> {
                                     onPressed: () {
                                       context.go(Routes.systemactivityview);
                                     },
-                                    icon: const Icon(Icons.list, color: Colors.white),
+                                    icon: const Icon(Icons.save, color: Colors.white),
                                     label: const Text("View Activity",
                                         style: TextStyle(color: Colors.white)),
                                   ),

@@ -84,8 +84,6 @@ class _RegisterStudentState extends State<RegisterStudent> {
       selectedStatus = data.status;
       selectedTerm = data.term;
       _uploadedImageUrl = data.photourl;
-
-      // parse DOB into dropdowns
       if (dob.text.isNotEmpty) {
         try {
           final parts = dob.text.split("-");
@@ -96,8 +94,6 @@ class _RegisterStudentState extends State<RegisterStudent> {
           }
         } catch (_) {}
       }
-
-      // populate multiple guardians/parents
       parentNames.clear();
       for (var p in data.parentname) {
         parentNames.add(TextEditingController(text: p));
@@ -169,17 +165,6 @@ class _RegisterStudentState extends State<RegisterStudent> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          /*
-                          SizedBox(
-                            child: _buildTextField(
-                              controller: studentId,
-                              label: "Student ID",
-                              hint: "Auto-generated or enter manually",
-                              validatorMsg: 'Student ID required',
-                              fillColor: inputFill,
-                            ),
-                          ),
-                          */
                           Switch(
                             value: showStudentId,
                             onChanged: (val) {
@@ -441,12 +426,8 @@ class _RegisterStudentState extends State<RegisterStudent> {
                                   if (!_formKey.currentState!.validate()) return;
                                   final progress = ProgressHUD.of(context);
                                   progress?.show();
-                                  final query = await value.db
-                                      .collection('idformats').where('schoolId', isEqualTo: value.schoolid)
-                                      .limit(1)
-                                      .get();
-
-                                  if (query.docs.isEmpty) {
+                                  final query = await value.db .collection('idformats').where('schoolId', isEqualTo: value.schoolid).limit(1).get();
+                                 if (query.docs.isEmpty) {
                                     throw Exception("No ID format found for school ${value.schoolid}");
                                   }
                                   final formatRef = query.docs.first.reference;
@@ -460,15 +441,16 @@ class _RegisterStudentState extends State<RegisterStudent> {
                                     transaction.update(formatRef, {"lastnumber": newNumber});
                                     return newId;
                                   });
+                                  final nextclass = await value.getnextclass(currentLevel: selectedLevel!);
                                   final sid = showStudentId
                                       ? studentId.text.trim() // use typed ID
                                       : generatedId;
                                   //final id = "${value.schoolid}_$generatedId";
-                                  final id = "${value.schoolid}_$sid";
+                                  final id = "${value.schoolid}_$sid".toUpperCase();
                                   await value.uploadImage(sid);
                                   final student = StudentModel(
                                     id: widget.studentData?.id ?? id,
-                                    studentid: generatedId,
+                                    studentid: generatedId.toUpperCase(),
                                     name: studentName.text.trim(),
                                     sex: selectedSex ?? "",
                                     school: value.currentschool,
@@ -476,6 +458,9 @@ class _RegisterStudentState extends State<RegisterStudent> {
                                     guardiancontact: guardianContacts.map((c) => c.text.trim()).toList(),
                                     parentname: parentNames.map((c) => c.text.trim()).toList(),
                                     level: selectedLevel ?? "",
+                                    previousclass: nextclass['previous']??'',
+                                    nextclass: nextclass["next"] ?? "",
+                                    currentclass: selectedLevel ?? "",
                                     term: value.term,
                                     schoolId: value.schoolid,
                                     dob: dob.text.trim(),
@@ -488,7 +473,9 @@ class _RegisterStudentState extends State<RegisterStudent> {
                                         : _uploadedImageUrl ?? "",
                                     status: selectedStatus ?? "active",
                                     department: selecteddepart ?? "",
-                                    yeargroup: '2025',
+                                    yeargroup: DateTime.now().year.toString(),
+                                    academicyr: value.year,
+
                                   );
                                   await value.db.collection("students")
                                       .doc(student.id)

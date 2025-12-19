@@ -14,7 +14,6 @@ class BillingView extends StatefulWidget {
 
 class _BillingViewState extends State<BillingView> {
 
-  @override
   void initState() {
     // TODO: implement initState
     super.initState();
@@ -22,140 +21,6 @@ class _BillingViewState extends State<BillingView> {
       context.read<Myprovider>().fetchBilled();
 
     });
-  }
-
-  void editBillingDialog(BuildContext context, billed){
-    final _formKey = GlobalKey<FormState>();
-    final value = context.read<Myprovider>();
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return StatefulBuilder(
-            builder: (context, modalSetState){
-              return Container(
-                margin: const EdgeInsets.all(12),
-                padding: const EdgeInsets.only(bottom: 16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(25),
-                  boxShadow: const [
-                    BoxShadow(
-                      blurRadius: 15,
-                      spreadRadius: 2,
-                      color: Colors.black26,
-                    )
-                  ],
-                ),
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.only(
-                    left: 20,
-                    right: 20,
-                    top: 10,
-                    bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-                  ),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-
-                        Container(
-                          width: 60,
-                          height: 6,
-                          margin: const EdgeInsets.only(bottom: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade300,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
-
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              color: Color(0xFF00496d)
-                          ),
-                          child: const Center(
-                            child: Text(
-                              "Edit Billing Details",
-                              style: TextStyle(
-                                color: Colors.white,
-                                //fontSize: 14,
-                                //fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 20),
-
-                        Row(
-                          children: [
-                            Expanded(
-                              child: OutlinedButton(
-                                onPressed: () => Navigator.pop(context),
-                                style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 14),
-                                  foregroundColor: Color(0xFF00496d),
-                                  side: const BorderSide(
-                                    color: Color(0xFF00496d),
-                                    width: 1.5,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                ),
-                                child: const Text("Cancel", style: TextStyle(color: Color(0xFF00496d)),),
-                              ),
-                            ),
-
-                            const SizedBox(width: 12),
-
-                            Expanded(
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 14),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                  backgroundColor: const Color(0xFF00496d),
-                                ),
-                                child: const Text("Update Billing", style: TextStyle(color: Colors.white),),
-                                onPressed: () async {
-                                  // if (!_formKey.currentState!.validate()) return;
-                                  //
-                                  // await FirebaseFirestore.instance
-                                  //     .collection('expense')
-                                  //     .doc(suppliers.id)
-                                  //     .update({
-                                  //   'supplier': _supplierController.text,
-                                  //   'expenseType': _expenseTypeController.text,
-                                  //   'expenseName': _expenseCategoryController.text,
-                                  //   'name': _expenseNameController.text,
-                                  //   'fees': _expenseAmountController.text,
-                                  //   'term': _expenseTermController.text,
-                                  // });
-
-                                  context.read<Myprovider>().fetchSingleBilled();
-                                  Navigator.pop(context);
-                                },
-                              ),
-                            )
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            }
-        );
-      },
-    );
   }
 
   @override
@@ -253,12 +118,7 @@ class _BillingViewState extends State<BillingView> {
                                                                   //=> deleteFeeBilling(doc.id),
                                                               ),
                                                               SizedBox(width: 8),
-                                                              InkWell(
-                                                                onTap: (){
-                                                                  editBillingDialog(context, doc);
-                                                                },
-                                                                  child: Icon(Icons.edit, color: Colors.orangeAccent, size: 20),
-                                                              ),
+                                                              Icon(Icons.edit, color: Colors.orangeAccent, size: 20,),
                                                             ],
                                                           )
                                                       ),

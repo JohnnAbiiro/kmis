@@ -83,7 +83,6 @@ class _DuplicateContainerState extends State<DuplicateContainer> {
 
                             //final docs = snapshot.data!.docs;
                             //int teaching = docs.where((doc) => (doc['accessLevel']?.toString().toLowerCase() == 'teacher')).length;
-                            //print(teaching);
                             if (!snapshot.hasData) {
                               return Shimmer.fromColors(
                                 baseColor: const Color(0xFF7A6FF0).withOpacity(0.2),

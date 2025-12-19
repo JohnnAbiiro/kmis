@@ -14,7 +14,6 @@ class SupplierView extends StatefulWidget {
 
 class _SupplierViewState extends State<SupplierView> {
 
-@override
   void initState() {
     // TODO: implement initState
     super.initState();
@@ -24,207 +23,57 @@ class _SupplierViewState extends State<SupplierView> {
     });
   }
 
+  Future<void> editStaffDialog(BuildContext context, String docId, Map<String, dynamic> data) async {
+    final nameController = TextEditingController(text: data['name']);
+    final contactController = TextEditingController(text: data['phone']);
 
-void editSupplierDialog (BuildContext context, supplier){
-    final _formKey = GlobalKey<FormState>();
-    //final value = context.read<Myprovider>();
-
-    final _supplierNameController = TextEditingController(text: supplier.name);
-    final _supplierPhoneController = TextEditingController(text: supplier.phone);
-
-    showModalBottomSheet(
+    await showDialog(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (context) {
-        return StatefulBuilder(
-            builder: (context, modalSetState){
-              return Container(
-                margin: const EdgeInsets.all(12),
-                padding: const EdgeInsets.only(bottom: 16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(25),
-                  boxShadow: const [
-                    BoxShadow(
-                      blurRadius: 15,
-                      spreadRadius: 2,
-                      color: Colors.black26,
-                    )
-                  ],
+        return AlertDialog(
+          title: const Text("Edit Supplier"),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(labelText: "Supplier Name"),
                 ),
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.only(
-                    left: 20,
-                    right: 20,
-                    top: 10,
-                    bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-                  ),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-
-                        Container(
-                          width: 60,
-                          height: 6,
-                          margin: const EdgeInsets.only(bottom: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade300,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
-
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              color: Color(0xFF00496d)
-                          ),
-                          child: const Center(
-                            child: Text(
-                              "Edit Supplier Details",
-                              style: TextStyle(
-                                color: Colors.white,
-                                //fontSize: 14,
-                                //fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 20),
-                        customField(
-                          controller: _supplierNameController,
-                          label: "Supplier Name",
-                          //icon: Icons.person,
-                          validator: (v) => v!.isEmpty ? "Name required" : null,
-                        ),
-
-                        const SizedBox(height: 12),
-
-                        customField(
-                          controller: _supplierPhoneController,
-                          label: "Expense Category",
-                          //icon: Icons.phone_android,
-                          validator: (v) => v!.isEmpty ? "Expense Category required" : null,
-                        ),
-
-                        const SizedBox(height: 12),
-
-                        Row(
-                          children: [
-                            Expanded(
-                              child: OutlinedButton(
-                                onPressed: () => Navigator.pop(context),
-                                style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 14),
-                                  foregroundColor: Color(0xFF00496d),
-                                  side: const BorderSide(
-                                    color: Color(0xFF00496d),
-                                    width: 1.5,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                ),
-                                child: const Text("Cancel", style: TextStyle(color: Color(0xFF00496d)),),
-                              ),
-                            ),
-
-                            const SizedBox(width: 12),
-
-                            Expanded(
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 14),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                  backgroundColor: const Color(0xFF00496d),
-                                ),
-                                child: const Text("Update Supplier", style: TextStyle(color: Colors.white)),
-                                onPressed: () async {
-                                  if (!_formKey.currentState!.validate()) return;
-
-                                  await FirebaseFirestore.instance
-                                      .collection('supplier')
-                                      .doc(supplier.id)
-                                      .update({
-                                    'name': _supplierNameController.text,
-                                    'phone': _supplierPhoneController.text,
-                                  });
-                                  context.read<Myprovider>().fetchSupplier();
-                                  Navigator.pop(context);
-                                },
-                              ),
-                            )
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
+                TextField(
+                  controller: contactController,
+                  decoration: const InputDecoration(labelText: "Phone"),
                 ),
-              );
-            }
+
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                await FirebaseFirestore.instance.collection('supplier').doc(docId).update({
+                  'name': nameController.text.trim(),
+                  'phone': contactController.text.trim(),
+                });
+
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Supplier updated successfully")),
+                );
+
+                setState(() {});
+              },
+              child: const Text("Update"),
+            ),
+          ],
         );
       },
     );
   }
-
-  // Future<void> editStaffDialog(BuildContext context, String docId, Map<String, dynamic> data) async {
-  //   final nameController = TextEditingController(text: data['name']);
-  //   final contactController = TextEditingController(text: data['phone']);
-  //
-  //   await showDialog(
-  //     context: context,
-  //     builder: (context) {
-  //       return AlertDialog(
-  //         title: const Text("Edit Supplier"),
-  //         content: SingleChildScrollView(
-  //           child: Column(
-  //             mainAxisSize: MainAxisSize.min,
-  //             children: [
-  //               TextField(
-  //                 controller: nameController,
-  //                 decoration: const InputDecoration(labelText: "Supplier Name"),
-  //               ),
-  //               TextField(
-  //                 controller: contactController,
-  //                 decoration: const InputDecoration(labelText: "Phone"),
-  //               ),
-  //
-  //             ],
-  //           ),
-  //         ),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () => Navigator.pop(context),
-  //             child: const Text("Cancel"),
-  //           ),
-  //           ElevatedButton(
-  //             onPressed: () async {
-  //               await FirebaseFirestore.instance.collection('supplier').doc(docId).update({
-  //                 'name': nameController.text.trim(),
-  //                 'phone': contactController.text.trim(),
-  //               });
-  //
-  //               Navigator.pop(context);
-  //               ScaffoldMessenger.of(context).showSnackBar(
-  //                 const SnackBar(content: Text("Supplier updated successfully")),
-  //               );
-  //
-  //               setState(() {});
-  //             },
-  //             child: const Text("Update"),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
   @override
   Widget build(BuildContext context) {
     return ProgressHUD(
@@ -284,6 +133,7 @@ void editSupplierDialog (BuildContext context, supplier){
                                         }
                                       }
 
+
                                       if (isWideScreen){
                                         return SingleChildScrollView(
                                           scrollDirection: Axis.horizontal,
@@ -301,10 +151,7 @@ void editSupplierDialog (BuildContext context, supplier){
                                                   DataColumn(label: Text('Action', style: TextStyle(color: Colors.white),)),
 
                                                 ],
-                                                rows: value.supplierlist.asMap().entries.map((entry){
-                                                  final index = entry.key;
-                                                  final doc = entry.value;
-                                                  print(index);
+                                                rows: value.supplierlist.map((doc){
                                                   //final data = doc.data() as Map<String, dynamic>;
                                                   return DataRow(cells: [
                                                     DataCell(Text(doc.name)),
@@ -316,18 +163,14 @@ void editSupplierDialog (BuildContext context, supplier){
                                                         children: [
                                                           InkWell(
                                                               child: Icon(Icons.delete_forever, color: Colors.red, size: 20,),
-                                                              onTap: () {
-                                                                value.deleteStaff(doc.toString(), index, context, 'supplier');
-                                                              }
+                                                              onTap: () {}
 
                                                             //=> deleteSupplier(doc.id),
                                                           ),
                                                           SizedBox(width: 8),
                                                           InkWell(
                                                               child: Icon(Icons.edit, color: Colors.orangeAccent, size: 20,),
-                                                              onTap: (){
-                                                                editSupplierDialog(context, doc);
-                                                              }
+                                                              onTap: (){}
                                                             //=> editStaffDialog(context, doc.id, data),
                                                           ),
                                                         ],
@@ -412,31 +255,4 @@ void editSupplierDialog (BuildContext context, supplier){
       ),
     );
   }
-
-InputDecoration inputStyle(String label) {
-  return InputDecoration(
-    labelText: label,
-    //prefixIcon: Icon(icon, color: const Color(0xFF00496d)),
-    filled: true,
-    fillColor: Colors.grey.shade100,
-    border: const OutlineInputBorder(),
-    contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-  );
-}
-
-Widget customField({
-  required TextEditingController controller,
-  required String label,
-  //required IconData icon,
-  TextInputType? keyboardType,
-  String? Function(String?)? validator,
-}) {
-  return TextFormField(
-    controller: controller,
-    keyboardType: keyboardType,
-    validator: validator,
-    decoration: inputStyle(label),
-  );
-}
-
 }

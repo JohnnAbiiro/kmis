@@ -14,7 +14,6 @@ class ItemRegView extends StatefulWidget {
 
 class _ItemRegViewState extends State<ItemRegView> {
 
-  @override
   void initState() {
     // TODO: implement initState
     super.initState();
@@ -24,231 +23,97 @@ class _ItemRegViewState extends State<ItemRegView> {
     });
   }
 
-  // Future<void> editStaffDialog(BuildContext context, String docId, Map<String, dynamic> data) async {
-  //   final nameController = TextEditingController(text: data['name']);
-  //   final barcodeController = TextEditingController(text: data['barcode']);
-  //   final sellingController = TextEditingController(text: data['costPrice']);
-  //   final costController = TextEditingController(text: data['sellingPrice']);
-  //   final openingController = TextEditingController(text: data['openningStock']);
-  //
-  //   String selectedCategory = data['category'] ?? '';
-  //
-  //   final categories = ['Books', 'Food', 'Pens', 'Best', 'Uniform'];
-  //
-  //   await showDialog(
-  //     context: context,
-  //     builder: (context) {
-  //       return AlertDialog(
-  //         title: const Text("Edit Item"),
-  //         content: SingleChildScrollView(
-  //           child: Column(
-  //             mainAxisSize: MainAxisSize.min,
-  //             children: [
-  //               TextField(
-  //                 controller: barcodeController,
-  //                 decoration: const InputDecoration(labelText: "Barcode"),
-  //               ),
-  //               TextField(
-  //                 controller: nameController,
-  //                 decoration: const InputDecoration(labelText: "name"),
-  //               ),
-  //               TextField(
-  //                 controller: sellingController,
-  //                 decoration: const InputDecoration(labelText: "Selling Price"),
-  //               ),
-  //
-  //               TextField(
-  //                 controller: costController,
-  //                 decoration: const InputDecoration(labelText: "Cost Price"),
-  //               ),
-  //
-  //
-  //               DropdownButtonFormField<String>(
-  //                 value: selectedCategory.isNotEmpty ? selectedCategory : null,
-  //                 decoration: const InputDecoration(labelText: "Category"),
-  //                 items: categories.map((region) {
-  //                   return DropdownMenuItem(
-  //                     value: region,
-  //                     child: Text(region),
-  //                   );
-  //                 }).toList(),
-  //                 onChanged: (value) {
-  //                   selectedCategory = value!;
-  //                 },
-  //               ),
-  //
-  //               TextField(
-  //                 controller: openingController,
-  //                 decoration: const InputDecoration(labelText: "Opening Stock"),
-  //               ),
-  //
-  //             ],
-  //           ),
-  //         ),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () => Navigator.pop(context),
-  //             child: const Text("Cancel"),
-  //           ),
-  //           ElevatedButton(
-  //             onPressed: () async {
-  //               await FirebaseFirestore.instance.collection('itemReg').doc(docId).update({
-  //                 'barcode': barcodeController.text.trim(),
-  //                 'name': nameController.text.trim(),
-  //                 'sellingPrice': sellingController.text.trim(),
-  //                 'costPrice': costController.text.trim(),
-  //                 'category': selectedCategory,
-  //                 'openningStock': openingController.text.trim()
-  //               });
-  //
-  //               Navigator.pop(context);
-  //               ScaffoldMessenger.of(context).showSnackBar(
-  //                 const SnackBar(content: Text("Item updated successfully")),
-  //               );
-  //
-  //               setState(() {});
-  //             },
-  //             child: const Text("Update"),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
-  void editItemRegDialog(BuildContext context, itemReg){
-    final _formKey = GlobalKey<FormState>();
-    final value = context.read<Myprovider>();
+  Future<void> editStaffDialog(BuildContext context, String docId, Map<String, dynamic> data) async {
+    final nameController = TextEditingController(text: data['name']);
+    final barcodeController = TextEditingController(text: data['barcode']);
+    final sellingController = TextEditingController(text: data['costPrice']);
+    final costController = TextEditingController(text: data['sellingPrice']);
+    final openingController = TextEditingController(text: data['openningStock']);
 
-    showModalBottomSheet(
+    String selectedCategory = data['category'] ?? '';
+
+    final categories = ['Books', 'Food', 'Pens', 'Best', 'Uniform'];
+
+    await showDialog(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (context) {
-        return StatefulBuilder(
-            builder: (context, modalSetState){
-              return Container(
-                margin: const EdgeInsets.all(12),
-                padding: const EdgeInsets.only(bottom: 16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(25),
-                  boxShadow: const [
-                    BoxShadow(
-                      blurRadius: 15,
-                      spreadRadius: 2,
-                      color: Colors.black26,
-                    )
-                  ],
+        return AlertDialog(
+          title: const Text("Edit Item"),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: barcodeController,
+                  decoration: const InputDecoration(labelText: "Barcode"),
                 ),
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.only(
-                    left: 20,
-                    right: 20,
-                    top: 10,
-                    bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-                  ),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-
-                        Container(
-                          width: 60,
-                          height: 6,
-                          margin: const EdgeInsets.only(bottom: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade300,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
-
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              color: Color(0xFF00496d)
-                          ),
-                          child: const Center(
-                            child: Text(
-                              "Edit Item Registration",
-                              style: TextStyle(
-                                color: Colors.white,
-                                //fontSize: 14,
-                                //fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 20),
-
-                        Row(
-                          children: [
-                            Expanded(
-                              child: OutlinedButton(
-                                onPressed: () => Navigator.pop(context),
-                                style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 14),
-                                  foregroundColor: Color(0xFF00496d),
-                                  side: const BorderSide(
-                                    color: Color(0xFF00496d),
-                                    width: 1.5,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                ),
-                                child: const Text("Cancel", style: TextStyle(color: Color(0xFF00496d)),),
-                              ),
-                            ),
-
-                            const SizedBox(width: 12),
-
-                            Expanded(
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 14),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                  backgroundColor: const Color(0xFF00496d),
-                                ),
-                                child: const Text("Update Item", style: TextStyle(color: Colors.white),),
-                                onPressed: () async {
-                                  // if (!_formKey.currentState!.validate()) return;
-                                  //
-                                  // await FirebaseFirestore.instance
-                                  //     .collection('expense')
-                                  //     .doc(suppliers.id)
-                                  //     .update({
-                                  //   'supplier': _supplierController.text,
-                                  //   'expenseType': _expenseTypeController.text,
-                                  //   'expenseName': _expenseCategoryController.text,
-                                  //   'name': _expenseNameController.text,
-                                  //   'fees': _expenseAmountController.text,
-                                  //   'term': _expenseTermController.text,
-                                  // });
-
-                                  context.read<Myprovider>().fetchItemRegList();
-                                  Navigator.pop(context);
-                                },
-                              ),
-                            )
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(labelText: "name"),
                 ),
-              );
-            }
+                TextField(
+                  controller: sellingController,
+                  decoration: const InputDecoration(labelText: "Selling Price"),
+                ),
+
+                TextField(
+                  controller: costController,
+                  decoration: const InputDecoration(labelText: "Cost Price"),
+                ),
+
+
+                DropdownButtonFormField<String>(
+                  value: selectedCategory.isNotEmpty ? selectedCategory : null,
+                  decoration: const InputDecoration(labelText: "Category"),
+                  items: categories.map((region) {
+                    return DropdownMenuItem(
+                      value: region,
+                      child: Text(region),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    selectedCategory = value!;
+                  },
+                ),
+
+                TextField(
+                  controller: openingController,
+                  decoration: const InputDecoration(labelText: "Opening Stock"),
+                ),
+
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                await FirebaseFirestore.instance.collection('itemReg').doc(docId).update({
+                  'barcode': barcodeController.text.trim(),
+                  'name': nameController.text.trim(),
+                  'sellingPrice': sellingController.text.trim(),
+                  'costPrice': costController.text.trim(),
+                  'category': selectedCategory,
+                  'openningStock': openingController.text.trim()
+                });
+
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Item updated successfully")),
+                );
+
+                setState(() {});
+              },
+              child: const Text("Update"),
+            ),
+          ],
         );
       },
     );
   }
-
   @override
   Widget build(BuildContext context) {
     return ProgressHUD(
@@ -348,9 +213,7 @@ class _ItemRegViewState extends State<ItemRegView> {
                                                               SizedBox(width: 8),
                                                               InkWell(
                                                                   child: Icon(Icons.edit, color: Colors.orangeAccent, size: 20,),
-                                                                onTap: (){
-                                                                    editItemRegDialog(context, doc);
-                                                                }
+                                                                onTap: (){}
                                                                 //=> editStaffDialog(context, doc.id, data),
                                                               ),
                                                             ],

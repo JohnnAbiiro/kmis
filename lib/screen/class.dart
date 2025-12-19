@@ -164,6 +164,7 @@ class _ClassScreenState extends State<ClassScreen> {
                                           timestamp: DateTime.now(),
                                           staff: value.name,
                                         ).toMap();
+
                                         await value.db
                                             .collection('classes')
                                             .doc(id)

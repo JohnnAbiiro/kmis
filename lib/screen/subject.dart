@@ -137,21 +137,21 @@ class _SubjectRegistrationState extends State<SubjectRegistration> {
                                     progress!.show();
                                    String subject = subjectController.text.trim().replaceAll(" ", "") .toLowerCase();
                                    String code = codeController.text.trim().replaceAll(" ", "") .toLowerCase();
-                                    final id = "${value.schoolid}_$subject$code";
+                                    final id = "${value.schoolid}_$subject$code".toLowerCase();
 
                                     final subjectData = SubjectModel(
                                       id:id,
                                       name: subjectController.text.trim(),
                                       code: codeController.text.trim(),
                                       level: selectedLevel ?? '',
+                                      staff: value.name,
                                       schoolId: value.schoolid,
                                       timestamp: DateTime.now(),
                                     ).toMap();
 
 
                                     await value.db
-                                        .collection("subjects")
-                                        .doc(id)
+                                        .collection("subjects").doc(id)
                                         .set(subjectData, SetOptions(merge: true));
 
                                     progress.dismiss();

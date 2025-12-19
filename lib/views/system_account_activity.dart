@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:ksoftsms/widgets/custom_input_field.dart';
 import 'package:provider/provider.dart';
 
 import '../controller/myprovider.dart';
@@ -15,7 +14,6 @@ class SystemAccountActivity extends StatefulWidget {
 
 class _SystemAccountActivityState extends State<SystemAccountActivity> {
 
-  @override
   void initState() {
     // TODO: implement initState
     super.initState();
@@ -23,142 +21,6 @@ class _SystemAccountActivityState extends State<SystemAccountActivity> {
       context.read<Myprovider>().fetchActivityList();
 
     });
-  }
-
-  void editAccountActivityDialog(BuildContext context, systemActivities){
-    final _formKey = GlobalKey<FormState>();
-
-    final activityNameController = TextEditingController(text: systemActivities.name);
-
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return StatefulBuilder(
-            builder: (context, modalSetState){
-              return Container(
-                margin: const EdgeInsets.all(12),
-                padding: const EdgeInsets.only(bottom: 16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(25),
-                  boxShadow: const [
-                    BoxShadow(
-                      blurRadius: 15,
-                      spreadRadius: 2,
-                      color: Colors.black26,
-                    )
-                  ],
-                ),
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.only(
-                    left: 20,
-                    right: 20,
-                    top: 10,
-                    bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-                  ),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 60,
-                          height: 6,
-                          margin: const EdgeInsets.only(bottom: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade300,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
-
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              color: Color(0xFF00496d)
-                          ),
-                          child: const Center(
-                            child: Text(
-                              "Edit System Activity Details",
-                              style: TextStyle(
-                                color: Colors.white,
-                                //fontSize: 14,
-                                //fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 20),
-                        customField(
-                          controller: activityNameController,
-                          label: "Account Name",
-                          validator: (v) => v!.isEmpty ? "Account Name is required" : null,
-                        ),
-                        SizedBox(height: 15),
-
-                        Row(
-                          children: [
-                            Expanded(
-                              child: OutlinedButton(
-                                onPressed: () => Navigator.pop(context),
-                                style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 14),
-                                  foregroundColor: Color(0xFF00496d),
-                                  side: const BorderSide(
-                                    color: Color(0xFF00496d),
-                                    width: 1.5,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                ),
-                                child: const Text("Cancel", style: TextStyle(color: Color(0xFF00496d)),),
-                              ),
-                            ),
-
-                            const SizedBox(width: 12),
-
-                            Expanded(
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 14),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                  backgroundColor: const Color(0xFF00496d),
-                                ),
-                                child: const Text("Update System Activity", style: TextStyle(color: Colors.white),),
-                                onPressed: () async {
-                                  if (!_formKey.currentState!.validate()) return;
-
-                                  await FirebaseFirestore.instance
-                                      .collection('systemActivity')
-                                      .doc(systemActivities.id)
-                                      .update({
-                                    'name': activityNameController.text,
-                                  });
-
-                                  context.read<Myprovider>().fetchActivityList();
-                                  Navigator.pop(context);
-                                },
-                              ),
-                            )
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            }
-        );
-      },
-    );
   }
 
   @override
@@ -260,12 +122,7 @@ class _SystemAccountActivityState extends State<SystemAccountActivity> {
                                                                   //=>deleteSystemActivity(doc.id)
                                                               ),
                                                               SizedBox(width: 8),
-                                                              InkWell(
-                                                                onTap: (){
-                                                                  editAccountActivityDialog(context, doc);
-                                                                },
-                                                                  child: Icon(Icons.edit, color: Colors.orangeAccent, size: 20),
-                                                              ),
+                                                              Icon(Icons.edit, color: Colors.orangeAccent, size: 20,),
                                                             ],
                                                           )
                                                       ),

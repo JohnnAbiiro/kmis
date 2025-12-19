@@ -1,23 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 class SupplierModel {
-  final String id;
+  final String? id;
   final String name;
   final String phone;
   final  String staff;
   final String schoolId;
   final DateTime? dateCreated;
   SupplierModel({
-    required this.id,
+    this.id,
     required this.name,
     required this.phone,
     required this.staff,
     required this.schoolId,
     required this.dateCreated,
   });
-  factory SupplierModel.fromMap(Map<String, dynamic> map, String id) {
+  factory SupplierModel.fromMap(Map<String, dynamic> map) {
     return SupplierModel(
-      id: id,
       name: map['name'] ?? '',
       staff: map['staff'] ?? '',
       phone: map['phone'] ?? '',
