@@ -28,6 +28,8 @@ import '../screen/academicyr.dart';
 import '../screen/acceslist.dart';
 import '../screen/accesscomponent.dart';
 import '../screen/accountChart.dart';
+import '../screen/assessment_entry_page.dart';
+import '../screen/assessmentcomponents.dart';
 import '../screen/attendance.dart';
 import '../screen/billing.dart';
 import '../screen/class.dart';
@@ -98,6 +100,7 @@ import 'myprovider.dart';
 class Routes {
   static const employee = "/employee";
   static const payroll = "/payroll";
+  static const assessmentcomponents = "/assessmentcomponents";
 
   static const registerstudent = "/registerstudent";
   static const idformat = "/idformat";
@@ -215,6 +218,8 @@ class Routes {
   static const nextfees = "/nextfees";
   static const reopening = "/reopening";
   static const headremarks = "/headremarks";
+  static const enterAssessmentMarks = "/enterAssessmentMarks";
+
   // Role → Allowed routes mapping
   static const roleAllowedRoutes = {
     "Judge": [
@@ -232,6 +237,7 @@ final GoRouter router = GoRouter(
   initialLocation: Routes.login,
 
   routes: [
+    GoRoute(path: Routes.enterAssessmentMarks, builder: (c, s) => AssessmentEntryPage()),
     GoRoute(path: Routes.sales, builder: (c, s) => Sales()),
     GoRoute(path: Routes.stock, builder: (c, s) => StockForm()),
     //GoRoute(path: Routes.stockStatement, builder: (c, s) => StockStatement()),
@@ -333,6 +339,7 @@ final GoRouter router = GoRouter(
       path: Routes.gradingsystem,
       builder: (c, s) => GradingSystemFormPage(),
     ),
+    GoRoute(path: Routes.assessmentcomponents, builder: (c, s) => AssessentComponents()),
     GoRoute(path: Routes.viewterm, builder: (c, s) => Viewterms()),
     GoRoute(path: Routes.viewdepart, builder: (c, s) => Viewdepartment()),
     GoRoute(path: Routes.viewclass, builder: (c, s) => Viewclass()),

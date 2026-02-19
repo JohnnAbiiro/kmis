@@ -203,12 +203,14 @@ class _ViewScorePageState extends State<ViewScorePage> {
                                   mark['studentId'] ?? '',
                                   mark['studentName'] ?? '',
                                   mark['class'] ?? '',
+                                  mark['department'] ?? '',
+                                  mark['hassubjectkey'] ?? '',
                                   mark['subject'] ?? '',
                                   mark['photoUrl'] ?? '',
-                                  ca,
-                                  exams,
                                  total,
                                   subjectkey ?? '',
+                                  level,
+
                                 );
                                 context.go(Routes.entermark);
                               },

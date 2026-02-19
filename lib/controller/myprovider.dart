@@ -63,19 +63,75 @@ class Myprovider extends LoginProvider {
   bool savemarks = false;
   bool loginform = true;
   bool regform = false;
+  bool hassubjectkey = false;
   bool loadacademicyear =false;
   XFile? imagefile;
   String imageUrl = "";
+  String department = "";
   List<TeacherSetup> teacherSetupList = [];
   bool isLoadingTeacherList = false;
   DocumentSnapshot? firstTeacherDocument;
   DocumentSnapshot? lastTeacherDocument;
   List<ScoremodelConfig> scoreConfigList = [];
   StudentModel? searchedStudentModel;
-
+  Map<String, dynamic>? selectedGradingSystem={};
   String capitalize(String text) {
     if (text.isEmpty) return text;
     return text[0].toUpperCase() + text.substring(1).toLowerCase();
+  }
+
+
+  loadSelectedGradingSystem({required String level}) async {
+    try {
+      final snapshot = await db
+          .collection('assessmentSystems')
+          .doc(level)
+          .get();
+
+      if (snapshot.exists) {
+        selectedGradingSystem =
+        snapshot.data() as Map<String, dynamic>;
+      } else {
+        selectedGradingSystem = null;
+        debugPrint("No grading system found for level: $level");
+      }
+
+      notifyListeners();
+    } catch (e) {
+      debugPrint("Error loading grading system: $e");
+    }
+  }
+
+
+
+  // Get existing marks
+  Future<Map<String, dynamic>?> getExistingMarks({
+    required String studentId,
+    required String assessmentType,
+  }) async {
+    final snapshot = await db.collection('studentMarks')
+        .where('studentId', isEqualTo: studentId)
+        .where('assessmentType', isEqualTo: assessmentType)
+        .limit(1)
+        .get();
+
+    if (snapshot.docs.isNotEmpty) {
+      return snapshot.docs.first.data();
+    }
+    return null;
+  }
+
+  // Save assessment marks
+  Future<void> saveAssessmentMarks(Map<String, dynamic> marksData) async {
+    await db.collection('studentMarks').add(marksData);
+  }
+
+  // Update student marks
+  Future<void> updateStudentMarks({
+    required String assessmentType,
+    required double marks,
+  }) async {
+    // Update the main marks record
   }
   Future<void> fetchtemCategory() async {
     try {
@@ -560,138 +616,129 @@ class Myprovider extends LoginProvider {
           print("assign: ${t.name} → Subject ${sub.name}");
         }
       }
-       // final teacherInfo = {
-      //   for (final t in teacherIds)
-      //     t.id ?? t.email: {
-      //       "tcherid": t.id ?? "",
-      //       "tchername": t.name,
-      //       "tcheremail": t.email,
-      //       "schoolId": t.schoolId,
-      //       "school": t.schoolname,
-      //     }
-      // };
-      final studentSnap = await db.collection("students")
-          .where("schoolId", isEqualTo: schoolId)
-          .where("level", whereIn: classNames).get();
 
-      for (final studentDoc in studentSnap.docs) {
-        final studentData = studentDoc.data() as Map<String, dynamic>;
-        if (studentData.isEmpty) {
-          debugPrint("student not found");
-          throw Exception("student not found");
-        }
-
-        if (!studentData.containsKey('name') || !studentData.containsKey('level') ||
-            studentData['level'] == null || (studentData['level'] as String).trim().isEmpty
-        ) {
-          debugPrint("document missing required fields");
-          throw Exception("document missing required fields");
-        }
-        final studentId = studentDoc.id;
-        final studentClass = studentData['level'] ?? '';
-
-        if (!classNames.contains(studentClass)) continue;
-        // subject scaffolding
-        final Map<String, dynamic> subjectMap = {};
-        final Map<String, String> scoredFlags = {};
-        final Map<String, dynamic> scores = {};
-        final Map<String, String> totalScores = {};
-
-        for (final subject in subjects) {
-          final scoring = SubjectScoring.create(
-            studentId: studentId,
-            studentName: studentData['name'] ?? '',
-            academicYear: year,
-            term: term,
-            staff: name,
-            classes: studentClass,
-            level: studentData['level'] ?? '',
-            department: studentData['department'] ?? '',
-            region: studentData['region'] ?? '',
-            schoolId: schoolId,
-            school: studentData['school'] ?? '',
-            photoUrl: studentData['photourl'] ?? '',
-            dob: studentData['dob'] ?? '',
-            email: studentData['email'] ?? '',
-            phone: studentData['phone'] ?? '',
-            sex: studentData['sex'] ?? '',
-            status: studentData['status'] ?? 'active',
-            yeargroup: studentData['yeargroup'] ?? '',
-            subjectId: subject.id,
-            subjectName: subject.name,
-            components: components,
-            teacher: teacherInfo,
-            scores: {},
-            attendance: '',
-            remarks: '',
-            reopening: '',
-            nextclass: '',
-            nextfees: '',
-            totalattend: '',
-            yearlytotal: '',
-            average: '',
-            position: ''
-          );
-          scores[subject.id] = {
-            "subjectId": subject.id,
-            "subjectName": subject.name,
-            "code": subject.code,
-            "CA": '0',
-            "convertedca": '0',
-            "convertedexams": '0',
-            "Exams": '0',
-            "totalScore": '0',
-            "scored": 'no',
-          };
-          subjectMap[subject.id] = {
-            "subjectId": subject.id,
-            "subjectName": subject.name,
-            "code": subject.code,
-            ...scoring.subjectData[subject.id],
-
-          };
-
-        }
-
-        final scoringId = "${studentId}_${academicyrid}_$term";
-        final scoringRef = db.collection("subjectScoring").doc(scoringId);
-        final scoringData = {
-          "studentId": studentId,
-          "studentName": studentData['name'] ?? '',
-          "academicYear": year,
-          "term": term,
-          "level": studentData['level'] ?? '',
-          "class": studentClass,
-          "department": studentData['department'] ?? '',
-          "region": studentData['region'] ?? '',
-          "schoolId": schoolId,
-          "school": studentData['school'] ?? '',
-          "photourl": studentData['photourl'] ?? '',
-          "dob": studentData['dob'] ?? '',
-          "email": studentData['email'] ?? '',
-          "phone": studentData['phone'] ?? '',
-          "sex": studentData['sex'] ?? '',
-          "status": studentData['status'] ?? 'active',
-          "yeargroup": studentData['yeargroup'] ?? '',
-          "subjects": subjectMap,
-          "teacher": teacherInfo,
-          "scores": scores,
-          ...scoredFlags,
-          ...totalScores,
-          "timestamp": DateTime.now(),
-        };
-
-        batch.set(scoringRef, scoringData, SetOptions(merge: true));
-        writes++;
-
-        if (writes >= _batchLimit) {
-          await batch.commit();
-          batch = db.batch();
-          writes = 0;
-        }
-      }
-
-      if (writes > 0) await batch.commit();
+      // final studentSnap = await db.collection("students")
+      //     .where("schoolId", isEqualTo: schoolId)
+      //     .where("level", whereIn: classNames).get();
+      //
+      // for (final studentDoc in studentSnap.docs) {
+      //   final studentData = studentDoc.data() as Map<String, dynamic>;
+      //   if (studentData.isEmpty) {
+      //     debugPrint("student not found");
+      //     throw Exception("student not found");
+      //   }
+      //
+      //   if (!studentData.containsKey('name') || !studentData.containsKey('level') ||
+      //       studentData['level'] == null || (studentData['level'] as String).trim().isEmpty
+      //   ) {
+      //     debugPrint("document missing required fields");
+      //     throw Exception("document missing required fields");
+      //   }
+      //   final studentId = studentDoc.id;
+      //   final studentClass = studentData['level'] ?? '';
+      //
+      //   if (!classNames.contains(studentClass)) continue;
+      //   // subject scaffolding
+      //   final Map<String, dynamic> subjectMap = {};
+      //   final Map<String, String> scoredFlags = {};
+      //   final Map<String, dynamic> scores = {};
+      //   final Map<String, String> totalScores = {};
+      //
+      //   for (final subject in subjects) {
+      //     final scoring = SubjectScoring.create(
+      //       studentId: studentId,
+      //       studentName: studentData['name'] ?? '',
+      //       academicYear: year,
+      //       term: term,
+      //       staff: name,
+      //       classes: studentClass,
+      //       level: studentData['level'] ?? '',
+      //       department: studentData['department'] ?? '',
+      //       region: studentData['region'] ?? '',
+      //       schoolId: schoolId,
+      //       school: studentData['school'] ?? '',
+      //       photoUrl: studentData['photourl'] ?? '',
+      //       dob: studentData['dob'] ?? '',
+      //       email: studentData['email'] ?? '',
+      //       phone: studentData['phone'] ?? '',
+      //       sex: studentData['sex'] ?? '',
+      //       status: studentData['status'] ?? 'active',
+      //       yeargroup: studentData['yeargroup'] ?? '',
+      //       subjectId: subject.id,
+      //       subjectName: subject.name,
+      //       components: components,
+      //       teacher: teacherInfo,
+      //       scores: {},
+      //       attendance: '',
+      //       remarks: '',
+      //       reopening: '',
+      //       nextclass: '',
+      //       nextfees: '',
+      //       totalattend: '',
+      //       yearlytotal: '',
+      //       average: '',
+      //       position: ''
+      //     );
+      //     scores[subject.id] = {
+      //       "subjectId": subject.id,
+      //       "subjectName": subject.name,
+      //       "code": subject.code,
+      //       "CA": '0',
+      //       "convertedca": '0',
+      //       "convertedexams": '0',
+      //       "Exams": '0',
+      //       "totalScore": '0',
+      //       "scored": 'no',
+      //     };
+      //     subjectMap[subject.id] = {
+      //       "subjectId": subject.id,
+      //       "subjectName": subject.name,
+      //       "code": subject.code,
+      //       ...scoring.subjectData[subject.id],
+      //
+      //     };
+      //
+      //   }
+      //
+      //   final scoringId = "${studentId}_${academicyrid}_$term";
+      //   final scoringRef = db.collection("subjectScoring").doc(scoringId);
+      //   final scoringData = {
+      //     "studentId": studentId,
+      //     "studentName": studentData['name'] ?? '',
+      //     "academicYear": year,
+      //     "term": term,
+      //     "level": studentData['level'] ?? '',
+      //     "class": studentClass,
+      //     "department": studentData['department'] ?? '',
+      //     "region": studentData['region'] ?? '',
+      //     "schoolId": schoolId,
+      //     "school": studentData['school'] ?? '',
+      //     "photourl": studentData['photourl'] ?? '',
+      //     "dob": studentData['dob'] ?? '',
+      //     "email": studentData['email'] ?? '',
+      //     "phone": studentData['phone'] ?? '',
+      //     "sex": studentData['sex'] ?? '',
+      //     "status": studentData['status'] ?? 'active',
+      //     "yeargroup": studentData['yeargroup'] ?? '',
+      //     "subjects": subjectMap,
+      //     "teacher": teacherInfo,
+      //     "scores": scores,
+      //     ...scoredFlags,
+      //     ...totalScores,
+      //     "timestamp": DateTime.now(),
+      //   };
+      //
+      //   batch.set(scoringRef, scoringData, SetOptions(merge: true));
+      //   writes++;
+      //
+      //   if (writes >= _batchLimit) {
+      //     await batch.commit();
+      //     batch = db.batch();
+      //     writes = 0;
+      //   }
+      // }
+      //
+      // if (writes > 0) await batch.commit();
 
       // ----------------------------
       // Save TeacherSetup
@@ -699,9 +746,10 @@ class Myprovider extends LoginProvider {
       batch = db.batch();
       writes = 0;
       for (final teacher in teacherIds) {
-        final teacherSetupId = "${teacher.id}_${academicYear}_$term";
+        final teacherSetupIds = "${teacher.id}_${academicYear}_$term";
+        final teacherSetupId=normalizeAndSanitize(teacherSetupIds);
         final classesMap = classes.map((s) => ClassModel(id: s.id,name: s.name, department: s.department,staff: s.staff,status: 'no')).toList();
-        final componentsMap = components.map((s) => ComponentModel(id: s.id,name: s.name, staff: s.staff, schoolId: s.schoolId, totalMark: s.totalMark, type: '',)).toList();
+        final componentsMap = components.map((s) => ComponentModel(id: s.id,name: s.name, staff: s.staff, schoolId: s.schoolId, totalMark: s.totalMark, type: '', level: '',)).toList();
         final subjectsList = subjects.map((s) => SubjectModel(id: s.id,name: s.name,)).toList();
 
         final teacherSetup = TeacherSetup(
@@ -739,6 +787,7 @@ class Myprovider extends LoginProvider {
       notifyListeners();
     }
   }
+
   Future<void> saveStudentSetupMulti({required List<StudentModel> students,required List<Staff> selectedTeachers, required List<SubjectModel> selectedSubjects, required List<ClassModel> selectedClasses,required List<ComponentModel> selectedComponents,required String academicYear, required String term, required String schoolId,}) async {
     if (students.isEmpty) throw Exception("No students selected.");
     if (selectedTeachers.isEmpty) throw Exception("No teachers selected.");
@@ -1142,140 +1191,40 @@ class Myprovider extends LoginProvider {
   bool isloadac =false;
   List<Map<String, dynamic>> marksList = [];
   bool isloadscore=false;
+
+
   Future<void> fetchStaffScoringMarks({required String className, required String subjectKey,}) async {
     await getdata();
     isloadscore = true;
     notifyListeners();
     try {
       final snap = await db
-     .collection('subjectScoring')
-     .where('academicYear', isEqualTo: year)
+     .collection('students')
+     .where('academicyr', isEqualTo: year)
      .where('term', isEqualTo: term)
-     .where('class', isEqualTo: className)
+     .where('currentclass', isEqualTo: className).where('status', isEqualTo: "active")
      .where('schoolId', isEqualTo: schoolid).get();
-      //  marksList = snap.docs.map((doc) {
-     // final data = doc.data() as Map<String, dynamic>;
-     // final id = doc.id;
-     // final subjects = Map<String, dynamic>.from(data['subjects'] ?? {});
-     // if (!subjects.containsKey(subjectKey)) {
-     //      return null;
-     //    }
-     // final subjectData = Map<String, dynamic>.from(subjects[subjectKey]);
-     //
-     // subjectData.forEach((k, v) => print("  $k : $v"));
-     // final rootTeachers = Map<String, dynamic>.from(data['teacher'] ?? {});
-     // Map<String, dynamic>? teacherData;
-     // if (rootTeachers.containsKey(staffid)) {
-     // teacherData = Map<String, dynamic>.from(rootTeachers[staffid]);
-     //
-     //    } else {
-     //      for (final t in rootTeachers.values) {
-     //        if (t is Map && t['tcherid'] == staffid) {
-     //          teacherData = Map<String, dynamic>.from(t);
-     //
-     //          break;
-     //        }
-     //      }
-     //    }
-     //
-     //    if (teacherData == null) {
-     //
-     //      return null;
-     //    }
-     //
-     //
-     //    teacherData.forEach((k, v) => print("  $k : $v"));
-     //    final scores = Map<String, dynamic>.from(data['scores'] ?? {});
-     //    final sortedScores = Map.fromEntries(
-     //      scores.entries.toList()..sort((a, b) => a.key.compareTo(b.key)),
-     //    );
-     //    return {
-     //      'id': id,
-     //      'studentName': data['studentName'] ?? '',
-     //      'studentId': data['studentId'] ?? '',
-     //      'class': data['class'] ?? '',
-     //      'photoUrl': data['photourl'] ?? '',
-     //
-     //      // scoring
-     //      'scores': sortedScores,
-     //
-     //      // pulled from subject map
-     //      'subject': subjectData['subjectName'] ?? '',
-     //      'subjectId': subjectData['subjectId'] ?? subjectKey,
-     //
-     //      // teacher info
-     //      'teacherId': teacherData['tcherid'] ?? '',
-     //      'teacherName': teacherData['tchername'] ?? '',
-     //      'teacherEmail': teacherData['tcheremail'] ?? '',
-     //
-     //      'term': data['term'] ?? '',
-     //      'academicYear': data['academicYear'] ?? '',
-     //      'department': data['department'] ?? '',
-     //      'level': data['level'] ?? '',
-     //    };
-     //  }).whereType<Map<String, dynamic>>().toList();
       marksList = snap.docs.map((doc) {
         final data = doc.data() as Map<String, dynamic>;
+
         final id = doc.id;
 
-        final subjects = Map<String, dynamic>.from(data['subjects'] ?? {});
-
-        if (!subjects.containsKey(subjectKey)) return null;
-
-        final subjectData = Map<String, dynamic>.from(subjects[subjectKey]);
-
-        // 🔥 ADD THIS FILTER HERE
-        final scored = subjectData['scored']?.toString().toLowerCase() ?? 'no';
-        if (scored != "no") {
-          // skip students already scored
-          return null;
-        }
-
-        // Teacher section
-        final rootTeachers = Map<String, dynamic>.from(data['teacher'] ?? {});
-        Map<String, dynamic>? teacherData;
-
-        if (rootTeachers.containsKey(staffid)) {
-          teacherData = Map<String, dynamic>.from(rootTeachers[staffid]);
-        } else {
-          for (final t in rootTeachers.values) {
-            if (t is Map && t['tcherid'] == staffid) {
-              teacherData = Map<String, dynamic>.from(t);
-              break;
-            }
-          }
-        }
-
-        // If teacher not found, skip
-        if (teacherData == null) return null;
-
-        final scores = Map<String, dynamic>.from(data['scores'] ?? {});
-        final sortedScores = Map.fromEntries(
-          scores.entries.toList()..sort((a, b) => a.key.compareTo(b.key)),
-        );
-
+        final List<String> assessmentData = (data['assessmentData'] as List<dynamic>?) ?.map((e) => e.toString()) .toList() ?? [];
+        final bool hasSubject = assessmentData.contains(subjectKey);
         return {
           'id': id,
-          'studentName': data['studentName'] ?? '',
-          'studentId': data['studentId'] ?? '',
-          'class': data['class'] ?? '',
+          'studentName': data['name'] ?? '',
+          'studentId': data['studentid'] ?? '',
+          'class': data['currentclass'] ?? '',
           'photoUrl': data['photourl'] ?? '',
-
-          'scores': sortedScores,
-
-          'subject': subjectData['subjectName'] ?? '',
-          'subjectId': subjectData['subjectId'] ?? subjectKey,
-
-          'teacherId': teacherData['tcherid'] ?? '',
-          'teacherName': teacherData['tchername'] ?? '',
-          'teacherEmail': teacherData['tcheremail'] ?? '',
-
           'term': data['term'] ?? '',
-          'academicYear': data['academicYear'] ?? '',
+          'academicYear': data['academicyr'] ?? '',
           'department': data['department'] ?? '',
           'level': data['level'] ?? '',
+          'assessmentData': assessmentData,
+          'hassubjectkey': hasSubject,
         };
-      }).whereType<Map<String, dynamic>>().toList();
+      }).toList();
     } catch (e) {
       print("$e");
 
@@ -2582,7 +2531,39 @@ class Myprovider extends LoginProvider {
   String exam = '';
   String total = '';
   String subjectkey = '';
+  String assessmentType = '';
   //String imageUrl = '';
+
+
+   saveAssessmentData(Map<String, dynamic> assessmentData) async {
+    try {
+      final String student = "$schoolid ${assessmentData['studentId']} $year $term";
+      final String studentId = normalizeAndSanitize(student);
+      final DocumentReference docRef =
+      db.collection('assessments').doc(studentId);
+      await docRef.set(assessmentData, SetOptions(merge: true));
+
+      print("Assessment saved successfully for student $studentId!");
+    } catch (e) {
+      print("Error saving assessment: $e");
+    }
+  }
+
+
+  updateStudentAssessmentData(String studentId, String subjectKey) async {
+    try {
+      final DocumentReference docRef = db.collection('students').doc(studentId);
+      await docRef.set({
+        'assessmentData': FieldValue.arrayUnion([subjectKey])
+      }, SetOptions(merge: true));
+
+      print("Assessment updated successfully for student $studentId! and key $subjectKey");
+    } catch (e) {
+      print("Error saving assessment: $e");
+    }
+  }
+
+
   loadStudentDetails() async {
     final prefs = await SharedPreferences.getInstance();
 
@@ -2596,19 +2577,34 @@ class Myprovider extends LoginProvider {
       exam = prefs.getString('exam') ?? '';
       total = prefs.getString('total') ?? '';
       subjectkey = prefs.getString('subjectkey') ?? '';
+      assessmentType = prefs.getString('assessmentType') ?? '';
       notifyListeners();
+      print("Student details loaded successfully.$assessmentType");
     } catch (e) {
       print("Error loading student details: $e");
     }
   }
+
   clearstudentsdetail() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('scoringid');
     await prefs.remove('studentId');
     await prefs.remove('studentName');
     await prefs.remove('studentphoto');
-    await prefs.remove('pagekey');
     await prefs.remove('scores');
+    await prefs.remove('assessmentType');
+    await prefs.remove('department');
+    await prefs.remove('hassubjectkey');
+
+    studentId='';
+    studentName = '';
+    className = '';
+    subject = '';
+    ca = '';
+    exam = '';
+    total = '';
+    subjectkey = '';
+    assessmentType = '';
 
     imageUrl = '';
     notifyListeners();
@@ -2617,29 +2613,31 @@ class Myprovider extends LoginProvider {
       String studentId,
       String studentName,
       String className,
+      String department,
+      bool   hassubjectkey,
       String subject,
       String photoUrl,
-      String ca,
-      String exam,
       String total,
       String subjectkey,
+      String assessmentType,
       ) async {
     final prefs = await SharedPreferences.getInstance();
     try {
       await prefs.setString('studentId', studentId);
       await prefs.setString('studentName', studentName);
       await prefs.setString('class', className);
+      await prefs.setString('department', department);
+      await prefs.setBool('hassubjectkey', hassubjectkey);
       await prefs.setString('subject', subject);
       await prefs.setString('studentphoto', photoUrl);
-      await prefs.setString('ca', ca);
-      await prefs.setString('exam', exam);
       await prefs.setString('total', total);
       await prefs.setString('subjectkey', subjectkey);
-
+      await prefs.setString('assessmentType', assessmentType);
       imageUrl = photoUrl;
       notifyListeners();
     } catch (e) {
       print("Error saving student details: $e");
     }
   }
+
 }

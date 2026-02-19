@@ -8,6 +8,7 @@ class ComponentModel {
   final String schoolId;
   final String totalMark;
   final String type;
+  final String level;
   final DateTime dateCreated;
 
   ComponentModel({
@@ -17,6 +18,7 @@ class ComponentModel {
     required this.schoolId,
     required this.totalMark,
     required this.type,
+    required this.level,
     DateTime? dateCreated,
   }) : dateCreated = dateCreated ?? DateTime.now();
 
@@ -26,6 +28,7 @@ class ComponentModel {
       name: map['name'] ?? '',
       staff: map['staff'] ?? '',
       type: map['type'] ?? '',
+      level: map['level'] ?? '',
       schoolId: map['schoolId'] ?? '',
       totalMark: map['totalmark']?.toString() ?? '0',
       dateCreated: map['dateCreated'] != null

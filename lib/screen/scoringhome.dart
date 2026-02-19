@@ -43,11 +43,7 @@ class _StaffScoringPageState extends State<StaffScoringPage> {
       subjectkey = loaded['subjectkey'];
       teacherid = provider.staffid;
       setState(() => isLoading = false);
-      //print("Fetching scoring marks for $subject - $level");
-      await provider.fetchStaffScoringMarks(
-        className: level,
-        subjectKey: subjectkey,
-      );
+      await provider.fetchStaffScoringMarks(className: level, subjectKey: subjectkey,);
     });
 
     _searchController.addListener(() {
@@ -85,7 +81,7 @@ class _StaffScoringPageState extends State<StaffScoringPage> {
             backgroundColor: const Color(0xFF2D2F45),
             foregroundColor: Colors.white,
             title: Text(
-              "${value.name} ~ ${value.auth.currentUser?.email ?? "No user"} ~ ${value.year} ~ ~ ${value.staffid} ~${value.term}",
+              "${value.className} ~ ${subject} ~ ${value.year} ~${value.term}",
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -169,42 +165,33 @@ class _StaffScoringPageState extends State<StaffScoringPage> {
                                     'ID: ${mark['studentId'] ?? ''}',
                                     style: const TextStyle(color: Colors.white70),
                                   ),
-                                  Text(
-                                    'Class: ${mark['class'] ?? ''}',
-                                    style: const TextStyle(color: Colors.white70),
+
+                                ],
+                              ),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  _assessmentButton(
+                                    context: context,
+                                    provider: value,
+                                    mark: mark,
+                                    label: "CA",
+                                    subject: subject,
+                                    subjectkey: subjectkey,
+                                    color: Colors.orange,
                                   ),
-                                  Wrap(
-                                    runSpacing: 10,
-                                    spacing: 10.0,
-                                    children: [
-                                      Text(
-                                        'Subject: ${mark['subject'] ?? ''}',
-                                        style: const TextStyle(color: Colors.white70),
-                                      ),
-                                      Text(
-                                        'Year: ${value.year}',
-                                        style: const TextStyle(color: Colors.white70),
-                                      ),
-                                    ],
+                                  const SizedBox(width: 6),
+                                  _assessmentButton(
+                                    context: context,
+                                    provider: value,
+                                    mark: mark,
+                                    label: "Exams",
+                                    color: Colors.green,
+                                    subject:subject,
+                                    subjectkey: subjectkey,
                                   ),
                                 ],
                               ),
-                              onTap: () async {
-                                final provider = Provider.of<Myprovider>(context, listen: false);
-                                await provider.clearstudentsdetail();
-                                await provider.studentsdetails(
-                                  mark['studentId'] ?? '',
-                                  mark['studentName'] ?? '',
-                                  mark['class'] ?? '',
-                                  mark['subject'] ?? '',
-                                  mark['photoUrl'] ?? '',
-                                  mark['CA']?.toString() ?? '',
-                                  mark['Exams']?.toString() ?? '',
-                                  mark['totalScore']?.toString() ?? '',
-                                  subjectkey ?? '',
-                                );
-                                context.go(Routes.entermark);
-                              },
                             ),
                           );
                         },
@@ -219,4 +206,49 @@ class _StaffScoringPageState extends State<StaffScoringPage> {
       },
     );
   }
+  Widget _assessmentButton({
+    required BuildContext context,
+    required Myprovider provider,
+    required Map<String, dynamic> mark,
+    required String label,
+    required Color color,
+    required String subject,
+    required String subjectkey,
+  }) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(6),
+        ),
+      ),
+      onPressed: () async {
+
+        await provider.clearstudentsdetail();
+        await provider.studentsdetails(
+          mark['studentId'] ?? '',
+          mark['studentName'] ?? '',
+          mark['class'] ?? '',
+          mark['department'] ?? '',
+          mark['hassubjectkey'] ?? '',
+          subject,
+          mark['photoUrl'] ?? '',
+          mark['totalScore']?.toString() ?? '',
+          subjectkey,
+          label,
+        );
+        context.go(Routes.enterAssessmentMarks,);
+      },
+      child: Text(
+        label,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
 }

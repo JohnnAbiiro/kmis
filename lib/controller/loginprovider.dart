@@ -79,7 +79,66 @@ class LoginProvider extends ChangeNotifier {
   String receipt="";
   double receiptTotal=0;
 
+  String normalizeAndSanitize(dynamic value) {
+    if (value == null) return "n_a";
 
+    String result = value.toString().trim();
+
+    if (result.isEmpty) return "n_a";
+
+    result = result
+        .replaceAll('/', '_')
+        .replaceAll(' ', '_')
+        .replaceAll(RegExp(r'[^a-zA-Z0-9_\-]'), '_');
+
+    result = result.toLowerCase();
+
+    return result.isNotEmpty ? result : "n_a";
+  }
+
+  List<Map<String, dynamic>> assignedList = [];
+
+  fetchTeacherSetup(String staffKeys) async {
+    try {
+      final snapshot = await db.collection("teacherSetup").doc(staffKeys).get();
+
+      if (!snapshot.exists || snapshot.data() == null) {
+        assignedList = [];
+        notifyListeners();
+        return;
+      }
+
+      final data = snapshot.data() as Map<String, dynamic>;
+      final classesMap = Map<String, dynamic>.from(data['classname'] ?? {});
+      final subjectsMap = Map<String, dynamic>.from(data['subjects'] ?? {});
+
+      if (classesMap.isEmpty || subjectsMap.isEmpty) {
+        assignedList = [];
+        notifyListeners();
+        return;
+      }
+
+      assignedList = [
+        for (final classEntry in classesMap.values)
+          for (final subjectEntry in subjectsMap.values)
+            if (subjectEntry is Map<String, dynamic> &&
+                subjectEntry.containsKey('name') &&
+                subjectEntry.containsKey('id'))
+              {
+                "class": classEntry['name'],
+                "subject": subjectEntry['name'],
+                "subjectkey": subjectEntry['id'],
+                "department": classEntry['department'],
+              }
+      ];
+
+      notifyListeners();
+    } catch (e) {
+      debugPrint("Error fetching teacher setup: $e");
+      assignedList = [];
+      notifyListeners();
+    }
+  }
   //  login(String email, String password, BuildContext context) async {
   //   try {
   //     final loginhere = await auth.signInWithEmailAndPassword(
@@ -186,6 +245,7 @@ class LoginProvider extends ChangeNotifier {
             await prefs.setString("term", termTxt);
             await prefs.setString("year", yearTxt);
             await prefs.setString("academicyrid", academicyridTxt);
+            await prefs.setString("staffkey", academicyridTxt);
             term = termTxt;
             year = yearTxt;
             academicyrid = academicyridTxt;
@@ -643,7 +703,7 @@ class LoginProvider extends ChangeNotifier {
     await pref.remove('schoolid');
     await pref.remove('name');
     await pref.remove('email');
-
+    assignedList=[];
     //await getdata();
     // Navigate to login
     context.go(Routes.login);

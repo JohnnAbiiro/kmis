@@ -269,7 +269,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                           child: _drawerTile(
                             icon: Icons.vpn_key,
                             title: 'Assess Components',
-                            onTap: () =>context.go(Routes.accesscomponent,
+                            onTap: () =>context.go(Routes.assessmentcomponents,
                             ),
                           ),
                         ),
@@ -718,3 +718,6 @@ Widget _drawerTile({
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
   );
 }
+
+
+

@@ -10,6 +10,7 @@ import 'package:ksoftsms/pushNotification.dart';
 import 'package:provider/provider.dart';
 import 'package:ksoftsms/controller/myprovider.dart';
 import 'package:ksoftsms/controller/routes.dart';
+import 'controller/dbmodels/app_Provider.dart';
 import 'controller/statsprovider.dart';
 import 'firebase_options.dart';
 
@@ -29,6 +30,7 @@ void main() async {
         ChangeNotifierProvider(create: (context) => AccountProvider()),
         ChangeNotifierProvider(create: (context) => PayrollProvider()),
         ChangeNotifierProvider(create: (context) => EmployeeProvider()),
+        ChangeNotifierProvider(create: (context) => AppProvider()),
       ],
       child: MyApp(),
     ));
