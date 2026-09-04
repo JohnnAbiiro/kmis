@@ -1,11 +1,20 @@
 
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import '../components/appColors.dart';
 import '../controller/myprovider.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
+import '../controller/routes.dart';
+import 'dart:typed_data';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 class LedgerReportPage extends StatefulWidget {
 const LedgerReportPage({super.key});
 
@@ -34,6 +43,83 @@ String? _error;
 
 DateTime _startDate = DateTime.now();
 DateTime _endDate = DateTime.now();
+Widget _exportButton({
+  required IconData icon,
+  required String label,
+  required VoidCallback onPressed,
+}) {
+  return OutlinedButton.icon(
+    onPressed: onPressed,
+    icon: Icon(
+      icon,
+      size: 15,
+    ),
+    label: Text(label),
+    style: OutlinedButton.styleFrom(
+      foregroundColor: const Color(0xFF315CF6),
+      side: const BorderSide(
+        color: Color(0xFFD0D5DD),
+      ),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10,
+        vertical: 8,
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      textStyle: const TextStyle(
+        fontSize: 10,
+        fontWeight: FontWeight.w700,
+      ),
+    ),
+  );
+}
+
+
+Future<void> _exportFullReport() async {
+  if (_accountSummaries.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('There is no data to export.'),
+      ),
+    );
+    return;
+  }
+
+  final bytes =
+  await LedgerPdfService.buildLedgerReportPdf(
+    accounts: _accountSummaries,
+    startDate: _startDate,
+    endDate: _endDate,
+  );
+
+  await Printing.layoutPdf(
+    onLayout: (_) async => bytes,
+  );
+}
+
+Future<void> _printFullReport() async {
+  if (_accountSummaries.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('There is no data to print.'),
+      ),
+    );
+    return;
+  }
+
+  final bytes =
+  await LedgerPdfService.buildLedgerReportPdf(
+    accounts: _accountSummaries,
+    startDate: _startDate,
+    endDate: _endDate,
+  );
+
+  await Printing.layoutPdf(
+    onLayout: (_) async => bytes,
+    name: 'Ledger Report',
+  );
+}
 
 
 @override
@@ -193,71 +279,6 @@ _applyFilters();
     // Rebuild account totals based on the filtered results.
     _rebuildReport();
   }
-
-
-// void _applyFilters() {
-// final query =
-// _searchController.text.trim().toLowerCase();
-//
-// List<LedgerTransaction> results;
-//
-// if (query.isEmpty) {
-// results = List.from(_allTransactions);
-// } else {
-// results = _allTransactions.where((transaction) {
-// return transaction.debitAccount
-//     .toLowerCase()
-//     .contains(query) ||
-//     transaction.creditAccount
-//         .toLowerCase()
-//         .contains(query) ||
-// transaction.debitAccountClass
-//     .toLowerCase()
-//     .contains(query) ||
-//     transaction.creditAccountClass
-//         .toLowerCase()
-//         .contains(query) ||
-//
-// transaction.studentName
-//     .toLowerCase()
-//     .contains(query) ||
-// transaction.studentId
-//     .toLowerCase()
-//     .contains(query) ||
-// transaction.feeName
-//     .toLowerCase()
-//     .contains(query) ||
-// transaction.activityType
-//     .toLowerCase()
-//     .contains(query) ||
-// transaction.staff
-//     .toLowerCase()
-//     .contains(query) ||
-// transaction.transactionId
-//     .toLowerCase()
-//     .contains(query) ||
-// transaction.billedId
-//     .toLowerCase()
-//     .contains(query) ||
-// transaction.note
-//     .toLowerCase()
-//     .contains(query);
-// }).toList();
-// }
-//
-// if (!mounted) return;
-//
-// setState(() {
-// _filteredTransactions = results;
-// });
-//
-// _rebuildReport();
-// }
-
-// =============================================================
-// REBUILD REPORT
-// =============================================================
-
 void _rebuildReport() {
 final accounts =
 <String, LedgerAccountSummary>{};
@@ -364,45 +385,6 @@ _accountSummaries = summaries;
 });
 }
 
-// =============================================================
-// DATE SELECTION
-// =============================================================
-
-Future<void> _selectDate() async {
-final picked = await showDatePicker(
-context: context,
-initialDate: _selectedDate,
-firstDate: DateTime(2000),
-lastDate: DateTime.now(),
-helpText: 'Select ledger report date',
-builder: (context, child) {
-return Theme(
-data: Theme.of(context).copyWith(
-colorScheme: const ColorScheme.light(
-primary: Color(0xFF315CF6),
-onPrimary: Colors.white,
-surface: Colors.white,
-onSurface: Color(0xFF101828),
-),
-),
-child: child!,
-);
-},
-);
-
-if (picked == null) return;
-
-setState(() {
-_selectedDate = picked;
-});
-
-_rebuildReport();
-}
-
-// =============================================================
-// QUICK DATE
-// =============================================================
-
 void _setToday() {
 setState(() {
 _selectedDate = DateTime.now();
@@ -424,9 +406,6 @@ _selectedDate = yesterday;
 _rebuildReport();
 }
 
-// =============================================================
-// TOTALS
-// =============================================================
 
 double get _totalOpening {
 return _accountSummaries.fold(
@@ -492,7 +471,7 @@ _searchController.clear();
 @override
 Widget build(BuildContext context) {
 return Scaffold(
-backgroundColor: const Color(0xFFF7F8FC),
+backgroundColor: Constants.scaffoldcolor,
 appBar: _buildAppBar(),
 body: _loading
 ? const _LoadingView()
@@ -511,18 +490,19 @@ onRetry: _loadLedger,
 
 PreferredSizeWidget _buildAppBar() {
 return AppBar(
-backgroundColor: Colors.white,
+backgroundColor:Constants.appbarcolor,
 surfaceTintColor: Colors.white,
 elevation: 0,
 toolbarHeight: 72,
 leading: IconButton(
+  color: Constants.whitetext,
 tooltip: 'Back',
 onPressed: () {
-Navigator.of(context).maybePop();
-},
+      context.go(Routes.dashboard);
+          },
 icon: const Icon(
 Icons.arrow_back_rounded,
-color: Color(0xFF344054),
+color: Constants.whitetext,
 ),
 ),
 title: Row(
@@ -562,20 +542,12 @@ children: [
 Text(
 'Ledger Report',
 style: TextStyle(
-color: Color(0xFF101828),
+color: Constants.whitetext,
 fontSize: 16,
 fontWeight: FontWeight.w800,
 ),
 ),
 SizedBox(height: 3),
-Text(
-'Account balances & financial movements',
-style: TextStyle(
-color: Color(0xFF98A2B3),
-fontSize: 10.5,
-fontWeight: FontWeight.w500,
-),
-),
 ],
 ),
 ],
@@ -645,58 +617,14 @@ onRefresh: _loadLedger,
 child: ListView(
 padding: const EdgeInsets.all(16),
 children: [
-//_buildHeaderSection(),
 const SizedBox(height: 16),
 _buildMobileFilters(),
-const SizedBox(height: 16),
-_buildMobileSummary(),
-const SizedBox(height: 22),
 _buildMobileAccounts(),
 ],
 ),
 );
 }
 
-// =============================================================
-// HEADER
-// =============================================================
-
-// Widget _buildHeaderSection() {
-// return Row(
-// crossAxisAlignment:
-// CrossAxisAlignment.end,
-// children: [
-// Expanded(
-// child: Column(
-// crossAxisAlignment:
-// CrossAxisAlignment.start,
-// children: [
-// const Text(
-// 'Financial Overview',
-// style: TextStyle(
-// fontSize: 21,
-// fontWeight: FontWeight.w800,
-// color: Color(0xFF101828),
-// letterSpacing: -.4,
-// ),
-// ),
-// const SizedBox(height: 5),
-// Text(
-// 'Account activity for ${DateFormat('EEEE, dd MMMM yyyy').format(_selectedDate)}',
-// style: const TextStyle(
-// fontSize: 12,
-// color: Color(0xFF667085),
-// fontWeight: FontWeight.w500,
-// ),
-// ),
-// ],
-// ),
-// ),
-// if (MediaQuery.of(context).size.width >= 700)
-// _buildAccountCount(),
-// ],
-// );
-// }
 
 Widget _buildAccountCount() {
 return Container(
@@ -1150,213 +1078,6 @@ fontWeight: FontWeight.w600,
 );
 }
 
-// =============================================================
-// SUMMARY CARDS
-// =============================================================
-
-// Widget _buildSummaryCards(double width) {
-// final cards = [
-// _SummaryData(
-// title: 'Opening Balance',
-// value: _totalOpening,
-// icon: Icons.account_balance_wallet_outlined,
-// ),
-// _SummaryData(
-// title: 'Total Debit',
-// value: _totalDebit,
-// icon: Icons.arrow_upward_rounded,
-// ),
-// _SummaryData(
-// title: 'Total Credit',
-// value: _totalCredit,
-// icon: Icons.arrow_downward_rounded,
-// ),
-// _SummaryData(
-// title: 'Closing Balance',
-// value: _totalClosing,
-// icon: Icons.account_balance_rounded,
-// ),
-// ];
-//
-// return GridView.builder(
-// shrinkWrap: true,
-// physics:
-// const NeverScrollableScrollPhysics(),
-// itemCount: cards.length,
-// gridDelegate:
-// SliverGridDelegateWithFixedCrossAxisCount(
-// crossAxisCount: width >= 1200 ? 4 : 2,
-// mainAxisSpacing: 12,
-// crossAxisSpacing: 12,
-// mainAxisExtent: 112,
-// ),
-// itemBuilder: (context, index) {
-// return _buildSummaryCard(cards[index]);
-// },
-// );
-// }
-
-Widget _buildSummaryCard(
-_SummaryData data,
-) {
-return Container(
-padding: const EdgeInsets.all(17),
-decoration: BoxDecoration(
-color: Colors.white,
-borderRadius:
-BorderRadius.circular(15),
-border: Border.all(
-color: const Color(0xFFE4E7EC),
-),
-),
-child: Row(
-children: [
-Container(
-width: 42,
-height: 42,
-decoration: BoxDecoration(
-color: const Color(0xFFEFF2FF),
-borderRadius:
-BorderRadius.circular(11),
-),
-child: Icon(
-data.icon,
-color: const Color(0xFF315CF6),
-size: 20,
-),
-),
-const SizedBox(width: 12),
-Expanded(
-child: Column(
-mainAxisAlignment:
-MainAxisAlignment.center,
-crossAxisAlignment:
-CrossAxisAlignment.start,
-children: [
-Text(
-data.title,
-maxLines: 1,
-overflow:
-TextOverflow.ellipsis,
-style: const TextStyle(
-fontSize: 10,
-color: Color(0xFF667085),
-fontWeight: FontWeight.w600,
-),
-),
-const SizedBox(height: 5),
-Text(
-money(data.value),
-maxLines: 1,
-overflow:
-TextOverflow.ellipsis,
-style: const TextStyle(
-fontSize: 16,
-color: Color(0xFF101828),
-fontWeight: FontWeight.w800,
-letterSpacing: -.3,
-),
-),
-],
-),
-),
-],
-),
-);
-}
-
-// =============================================================
-// MOBILE SUMMARY
-// =============================================================
-
-Widget _buildMobileSummary() {
-return Column(
-children: [
-Row(
-children: [
-Expanded(
-child: _buildMobileSummaryCard(
-'Opening',
-_totalOpening,
-),
-),
-const SizedBox(width: 10),
-Expanded(
-child: _buildMobileSummaryCard(
-'Closing',
-_totalClosing,
-),
-),
-],
-),
-const SizedBox(height: 10),
-Row(
-children: [
-Expanded(
-child: _buildMobileSummaryCard(
-'Debit',
-_totalDebit,
-),
-),
-const SizedBox(width: 10),
-Expanded(
-child: _buildMobileSummaryCard(
-'Credit',
-_totalCredit,
-),
-),
-],
-),
-],
-);
-}
-
-Widget _buildMobileSummaryCard(
-String title,
-double value,
-) {
-return Container(
-padding: const EdgeInsets.all(14),
-decoration: BoxDecoration(
-color: Colors.white,
-borderRadius:
-BorderRadius.circular(13),
-border: Border.all(
-color: const Color(0xFFE4E7EC),
-),
-),
-child: Column(
-crossAxisAlignment:
-CrossAxisAlignment.start,
-children: [
-Text(
-title,
-style: const TextStyle(
-fontSize: 9.5,
-color: Color(0xFF667085),
-fontWeight: FontWeight.w600,
-),
-),
-const SizedBox(height: 5),
-FittedBox(
-alignment: Alignment.centerLeft,
-child: Text(
-money(value),
-style: const TextStyle(
-fontSize: 15,
-color: Color(0xFF101828),
-fontWeight: FontWeight.w800,
-),
-),
-),
-],
-),
-);
-}
-
-// =============================================================
-// DESKTOP ACCOUNT TABLE
-// =============================================================
 
 Widget _buildDesktopAccountTable() {
 if (_accountSummaries.isEmpty) {
@@ -1368,7 +1089,7 @@ return Center(
   ConstrainedBox(
   constraints: const BoxConstraints(
     minWidth: 0,
-    maxWidth: 900,
+    maxWidth: 950,
   ),child:
   Container(
 decoration: BoxDecoration(
@@ -1381,56 +1102,103 @@ color: const Color(0xFFE4E7EC),
 ),
 child:Column(
 children: [
-Padding(
-padding: const EdgeInsets.fromLTRB(
-20,
-18,
-20,
-14,
-),
-child: Row(
-children: [
-const Expanded(
-child: Column(
-crossAxisAlignment:
-CrossAxisAlignment.start,
-children: [
-Text(
-'Ledger Accounts',
-style: TextStyle(
-fontSize: 14,
-fontWeight:
-FontWeight.w800,
-color:
-Color(0xFF101828),
-),
-),
-SizedBox(height: 3),
-Text(
-'Click an account to view transaction details',
-style: TextStyle(
-fontSize: 10,
-color:
-Color(0xFF98A2B3),
-),
-),
-],
-),
-),
-Text(
-'${_accountSummaries.length} accounts',
-style: const TextStyle(
-fontSize: 10.5,
-fontWeight:
-FontWeight.w700,
-color:
-Color(0xFF667085),
-),
-),
-],
-),
-),
-const Divider(
+  Container(
+    padding: const EdgeInsets.fromLTRB(20, 18, 20, 14),
+    decoration: BoxDecoration(
+      color: const Color(0xFFF4F7FF),
+      border: Border(
+        bottom: BorderSide(
+          color: const Color(0xFFE0E7FF),
+          width: 1,
+        ),
+      ),
+    ),
+    child: Row(
+      children: [
+        Container(
+          width: 38,
+          height: 38,
+          decoration: BoxDecoration(
+            color: const Color(0xFFE0E7FF),
+            borderRadius: BorderRadius.circular(11),
+          ),
+          child: const Icon(
+            Icons.account_balance_wallet_rounded,
+            size: 19,
+            color: Color(0xFF4F46E5),
+          ),
+        ),
+
+        const SizedBox(width: 12),
+
+        const Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Ledger Accounts',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                  color: Constants.bgDark,
+                ),
+              ),
+              SizedBox(height: 3),
+              Text(
+                'Click an account to view transaction details',
+                style: TextStyle(
+                  fontSize: 10,
+                  color: Color(0xFF667085),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 6,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: Constants.tableheader,
+                ),
+              ),
+              child: Text(
+                '${_accountSummaries.length} accounts',
+                style: const TextStyle(
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF475467),
+                ),
+              ),
+            ),
+
+            const SizedBox(width: 8),
+
+            _exportButton(
+              icon: Icons.print_outlined,
+              label: 'Print',
+              onPressed: _printFullReport,
+            ),
+
+            const SizedBox(width: 6),
+
+            _exportButton(
+              icon: Icons.picture_as_pdf_outlined,
+              label: 'PDF',
+              onPressed: _exportFullReport,
+            ),
+          ],
+        )      ],
+    ),
+  ),const Divider(
 height: 1,
 color: Color(0xFFE4E7EC),
 ),
@@ -1448,14 +1216,13 @@ headingRowHeight: 46,
 dataRowMinHeight: 40,
 dataRowMaxHeight: 45,
 columnSpacing: 30,
-horizontalMargin: 20,
+horizontalMargin: 45,
 headingTextStyle:
 const TextStyle(
-fontSize: 9.5,
+fontSize: 12,
 fontWeight:
 FontWeight.w800,
-color:
-Color(0xFF667085),
+color: Color(0xFF667085),
 ),
 columns: const [
 DataColumn(
@@ -1470,6 +1237,7 @@ numeric: true,
 ),
 DataColumn(
 label: Text('DEBIT'),
+//(GH₵)
 numeric: true,
 ),
 DataColumn(
@@ -1899,10 +1667,9 @@ a.createdAt,
 );
 
 return Scaffold(
-backgroundColor:
-const Color(0xFFF7F8FC),
+backgroundColor:Constants.scaffoldcolor,
 appBar: AppBar(
-backgroundColor: Colors.white,
+backgroundColor: Constants.appbarcolor,
 surfaceTintColor: Colors.white,
 elevation: 0,
 toolbarHeight: 70,
@@ -3199,10 +2966,6 @@ value
 0;
 }
 
-// =============================================================
-// GET MOVEMENT FOR THIS ACCOUNT
-// =============================================================
-
 double accountDebit(String account) {
 if (debitAccount == account) {
 return debitValue;
@@ -3220,10 +2983,6 @@ return 0;
 }
 }
 
-
-/// ===============================================================
-/// ACCOUNT SUMMARY
-/// ===============================================================
 
 class LedgerAccountSummary {
 final String account;
@@ -3250,9 +3009,6 @@ List<LedgerTransaction>? transactions,
 }) : transactions =
 transactions ?? [];
 
-// -------------------------------------------------------------
-// OPENING BALANCE
-// -------------------------------------------------------------
 
 double get openingBalance {
 if (_isDebitNormal) {
@@ -3262,9 +3018,6 @@ return openingDebit - openingCredit;
 return openingCredit - openingDebit;
 }
 
-// -------------------------------------------------------------
-// CLOSING BALANCE
-// -------------------------------------------------------------
 
 double get closingBalance {
 if (_isDebitNormal) {
@@ -3277,10 +3030,6 @@ return openingBalance +
 credit -
 debit;
 }
-
-// -------------------------------------------------------------
-// ACCOUNT TYPE
-// -------------------------------------------------------------
 
 bool get _isDebitNormal {
 final normalized =
@@ -3298,10 +3047,6 @@ normalized == 'cost of goods sold';
 }
 
 
-/// ===============================================================
-/// SUMMARY DATA
-/// ===============================================================
-
 class _SummaryData {
 final String title;
 final double value;
@@ -3315,9 +3060,6 @@ required this.icon,
 }
 
 
-/// ===============================================================
-/// LOADING
-/// ===============================================================
 
 class _LoadingView extends StatelessWidget {
 const _LoadingView();
@@ -3356,11 +3098,6 @@ fontWeight: FontWeight.w600,
 );
 }
 }
-
-
-/// ===============================================================
-/// ERROR
-/// ===============================================================
 
 class _ErrorView extends StatelessWidget {
 final String error;
@@ -3478,11 +3215,6 @@ BorderRadius.circular(
 }
 }
 
-
-/// ===============================================================
-/// EMPTY
-/// ===============================================================
-
 class _EmptyView extends StatelessWidget {
 const _EmptyView();
 
@@ -3542,15 +3274,742 @@ color: Color(0xFF98A2B3),
 }
 }
 
-
-/// ===============================================================
-/// MONEY FORMATTER
-/// ===============================================================
-
 String money(double value) {
 final formatter =
 NumberFormat('#,##0.00');
 
-return 'GH₵ ${formatter.format(value)}';
+return '${formatter.format(value)}';
 }
+
+class LedgerPdfService {
+  static const PdfColor primary =
+  PdfColor.fromInt(0xFF315CF6);
+
+  static const PdfColor dark =
+  PdfColor.fromInt(0xFF101828);
+
+  static const PdfColor grey =
+  PdfColor.fromInt(0xFF667085);
+
+  static const PdfColor light =
+  PdfColor.fromInt(0xFFF4F7FF);
+
+  static String amount(double value) {
+    final formatter = NumberFormat('#,##0.00');
+    return formatter.format(value);
+  }
+
+  static Future<Uint8List> buildLedgerReportPdf({
+    required List<LedgerAccountSummary> accounts,
+    required DateTime startDate,
+    required DateTime endDate,
+  }) async {
+    final pdf = pw.Document();
+
+    final totalOpening = accounts.fold<double>(
+      0,
+          (sum, account) => sum + account.openingBalance,
+    );
+
+    final totalDebit = accounts.fold<double>(
+      0,
+          (sum, account) => sum + account.debit,
+    );
+
+    final totalCredit = accounts.fold<double>(
+      0,
+          (sum, account) => sum + account.credit,
+    );
+
+    final totalClosing = accounts.fold<double>(
+      0,
+          (sum, account) => sum + account.closingBalance,
+    );
+
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4.landscape,
+        margin: const pw.EdgeInsets.all(28),
+
+        header: (context) => _reportHeader(
+          'Ledger Report',
+          '${DateFormat('dd MMM yyyy').format(startDate)} - '
+              '${DateFormat('dd MMM yyyy').format(endDate)}',
+        ),
+
+        footer: (context) => _footer(context),
+
+        build: (context) => [
+          pw.SizedBox(height: 15),
+
+          pw.Container(
+            padding: const pw.EdgeInsets.all(14),
+            decoration: pw.BoxDecoration(
+              color: light,
+              borderRadius:
+              pw.BorderRadius.circular(8),
+            ),
+            child: pw.Row(
+              mainAxisAlignment:
+              pw.MainAxisAlignment.spaceBetween,
+              children: [
+                _summaryBox(
+                  'Accounts',
+                  '${accounts.length}',
+                ),
+                _summaryBox(
+                  'Opening',
+                  amount(totalOpening),
+                ),
+                _summaryBox(
+                  'Debit',
+                  amount(totalDebit),
+                ),
+                _summaryBox(
+                  'Credit',
+                  amount(totalCredit),
+                ),
+                _summaryBox(
+                  'Closing',
+                  amount(totalClosing),
+                ),
+              ],
+            ),
+          ),
+
+          pw.SizedBox(height: 20),
+
+          pw.Text(
+            'Ledger Accounts',
+            style: pw.TextStyle(
+              fontSize: 14,
+              fontWeight: pw.FontWeight.bold,
+              color: dark,
+            ),
+          ),
+
+          pw.SizedBox(height: 10),
+
+          pw.TableHelper.fromTextArray(
+            headers: [
+              'ACCOUNT',
+              'CLASS',
+              'SUB CLASS',
+              'OPENING',
+              'DEBIT',
+              'CREDIT',
+              'BALANCE',
+            ],
+
+            headerStyle: pw.TextStyle(
+              fontSize: 8,
+              fontWeight: pw.FontWeight.bold,
+              color: PdfColors.white,
+            ),
+
+            headerDecoration:
+            const pw.BoxDecoration(
+              color: primary,
+            ),
+
+            cellStyle: const pw.TextStyle(
+              fontSize: 8,
+              color: dark,
+            ),
+
+            cellPadding:
+            const pw.EdgeInsets.symmetric(
+              horizontal: 6,
+              vertical: 6,
+            ),
+
+            rowDecoration: pw.BoxDecoration(
+              border: pw.Border(
+                bottom: pw.BorderSide(
+                  color: PdfColors.grey300,
+                  width: .5,
+                ),
+              ),
+            ),
+
+            data: accounts.map((account) {
+              return [
+                account.account,
+                account.accountClass,
+                account.subClass,
+                amount(account.openingBalance),
+                amount(account.debit),
+                amount(account.credit),
+                amount(account.closingBalance),
+              ];
+            }).toList(),
+          ),
+
+          pw.SizedBox(height: 18),
+
+          pw.Container(
+            padding:
+            const pw.EdgeInsets.all(10),
+            decoration: pw.BoxDecoration(
+              color: PdfColors.grey100,
+              borderRadius:
+              pw.BorderRadius.circular(6),
+            ),
+            child: pw.Row(
+              mainAxisAlignment:
+              pw.MainAxisAlignment.end,
+              children: [
+                pw.Text(
+                  'Total Closing Balance: ',
+                  style: pw.TextStyle(
+                    fontSize: 10,
+                    fontWeight:
+                    pw.FontWeight.bold,
+                    color: grey,
+                  ),
+                ),
+                pw.Text(
+                  amount(totalClosing),
+                  style: pw.TextStyle(
+                    fontSize: 11,
+                    fontWeight:
+                    pw.FontWeight.bold,
+                    color: dark,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+
+    return pdf.save();
+  }
+
+  static Future<Uint8List> buildAccountPdf({
+    required LedgerAccountSummary account,
+    required DateTime selectedDate,
+    required List<LedgerTransaction> transactions,
+  }) async {
+    final pdf = pw.Document();
+
+    transactions = List<LedgerTransaction>.from(
+      transactions,
+    );
+
+    transactions.sort(
+          (a, b) => a.createdAt.compareTo(b.createdAt),
+    );
+
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4.landscape,
+        margin: const pw.EdgeInsets.all(28),
+
+        header: (context) => _reportHeader(
+          account.account,
+          '${account.accountClass} • ${account.subClass}',
+        ),
+
+        footer: (context) => _footer(context),
+
+        build: (context) => [
+          pw.SizedBox(height: 15),
+
+          pw.Container(
+            padding: const pw.EdgeInsets.all(14),
+            decoration: pw.BoxDecoration(
+              color: light,
+              borderRadius:
+              pw.BorderRadius.circular(8),
+            ),
+            child: pw.Row(
+              mainAxisAlignment:
+              pw.MainAxisAlignment.spaceBetween,
+              children: [
+                _summaryBox(
+                  'Opening Balance',
+                  amount(account.openingBalance),
+                ),
+                _summaryBox(
+                  'Debit',
+                  amount(account.debit),
+                ),
+                _summaryBox(
+                  'Credit',
+                  amount(account.credit),
+                ),
+                _summaryBox(
+                  'Closing Balance',
+                  amount(account.closingBalance),
+                ),
+              ],
+            ),
+          ),
+
+          pw.SizedBox(height: 20),
+
+          pw.Text(
+            'Transactions',
+            style: pw.TextStyle(
+              fontSize: 14,
+              fontWeight: pw.FontWeight.bold,
+              color: dark,
+            ),
+          ),
+
+          pw.SizedBox(height: 10),
+
+          if (transactions.isEmpty)
+            pw.Padding(
+              padding:
+              const pw.EdgeInsets.all(20),
+              child: pw.Text(
+                'No transactions for this date.',
+                style: const pw.TextStyle(
+                  fontSize: 9,
+                  color: grey,
+                ),
+              ),
+            )
+          else
+            pw.TableHelper.fromTextArray(
+              headers: [
+                'DATE',
+                'ACTIVITY',
+                'DESCRIPTION',
+                'DEBIT',
+                'CREDIT',
+                'STAFF',
+              ],
+
+              headerStyle: pw.TextStyle(
+                fontSize: 8,
+                fontWeight: pw.FontWeight.bold,
+                color: PdfColors.white,
+              ),
+
+              headerDecoration:
+              const pw.BoxDecoration(
+                color: primary,
+              ),
+
+              cellStyle: const pw.TextStyle(
+                fontSize: 7.5,
+                color: dark,
+              ),
+
+              cellPadding:
+              const pw.EdgeInsets.symmetric(
+                horizontal: 5,
+                vertical: 5,
+              ),
+
+              data: transactions.map((transaction) {
+                return [
+                  DateFormat(
+                    'dd/MM/yyyy HH:mm',
+                  ).format(
+                    transaction.createdAt,
+                  ),
+
+                  transaction.activityType,
+
+                  _description(transaction),
+
+                  amount(
+                    transaction.accountDebit(
+                      account.account,
+                    ),
+                  ),
+
+                  amount(
+                    transaction.accountCredit(
+                      account.account,
+                    ),
+                  ),
+
+                  transaction.staff,
+                ];
+              }).toList(),
+            ),
+        ],
+      ),
+    );
+
+    return pdf.save();
+  }
+
+  static Future<Uint8List> buildTransactionPdf({
+    required LedgerAccountSummary account,
+    required LedgerTransaction transaction,
+  }) async {
+    final pdf = pw.Document();
+
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4,
+        margin: const pw.EdgeInsets.all(32),
+
+        header: (context) => _reportHeader(
+          'Transaction Details',
+          transaction.activityType,
+        ),
+
+        footer: (context) => _footer(context),
+
+        build: (context) => [
+          _section(
+            'Transaction',
+            [
+              _row(
+                'Activity',
+                transaction.activityType,
+              ),
+              _row(
+                'Date',
+                DateFormat(
+                  'dd MMMM yyyy • HH:mm',
+                ).format(
+                  transaction.createdAt,
+                ),
+              ),
+              _row(
+                'Transaction ID',
+                transaction.transactionId,
+              ),
+            ],
+          ),
+
+          pw.SizedBox(height: 14),
+
+          _section(
+            'Account Movement',
+            [
+              _row(
+                'Account',
+                account.account,
+              ),
+              _row(
+                'Account Class',
+                account.accountClass,
+              ),
+              _row(
+                'Sub Class',
+                account.subClass,
+              ),
+              _row(
+                'Debit',
+                amount(
+                  transaction.accountDebit(
+                    account.account,
+                  ),
+                ),
+              ),
+              _row(
+                'Credit',
+                amount(
+                  transaction.accountCredit(
+                    account.account,
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          if (transaction.studentName.isNotEmpty ||
+              transaction.studentId.isNotEmpty) ...[
+            pw.SizedBox(height: 14),
+
+            _section(
+              'Student',
+              [
+                _row(
+                  'Name',
+                  transaction.studentName,
+                ),
+                _row(
+                  'Student ID',
+                  transaction.studentId,
+                ),
+                _row(
+                  'Level',
+                  transaction.level,
+                ),
+                _row(
+                  'Year Group',
+                  transaction.yeargroup,
+                ),
+                _row(
+                  'Term',
+                  transaction.term,
+                ),
+              ],
+            ),
+          ],
+
+          pw.SizedBox(height: 14),
+
+          _section(
+            'Additional Information',
+            [
+              _row(
+                'Fee',
+                transaction.feeName,
+              ),
+              _row(
+                'Staff',
+                transaction.staff,
+              ),
+              _row(
+                'Note',
+                transaction.note,
+              ),
+              _row(
+                'Billing ID',
+                transaction.billedId,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+
+    return pdf.save();
+  }
+
+  static pw.Widget _reportHeader(
+      String title,
+      String subtitle,
+      ) {
+    return pw.Container(
+      padding:
+      const pw.EdgeInsets.only(bottom: 10),
+      decoration: pw.BoxDecoration(
+        border: pw.Border(
+          bottom: pw.BorderSide(
+            color: primary,
+            width: 1.5,
+          ),
+        ),
+      ),
+      child: pw.Row(
+        children: [
+          pw.Container(
+            width: 32,
+            height: 32,
+            decoration: pw.BoxDecoration(
+              color: primary,
+              borderRadius:
+              pw.BorderRadius.circular(6),
+            ),
+            child: pw.Center(
+              child: pw.Text(
+                'L',
+                style: pw.TextStyle(
+                  color: PdfColors.white,
+                  fontSize: 16,
+                  fontWeight:
+                  pw.FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+
+          pw.SizedBox(width: 10),
+
+          pw.Column(
+            crossAxisAlignment:
+            pw.CrossAxisAlignment.start,
+            children: [
+              pw.Text(
+                title,
+                style: pw.TextStyle(
+                  fontSize: 16,
+                  fontWeight:
+                  pw.FontWeight.bold,
+                  color: dark,
+                ),
+              ),
+              pw.SizedBox(height: 2),
+              pw.Text(
+                subtitle,
+                style: const pw.TextStyle(
+                  fontSize: 8,
+                  color: grey,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  static pw.Widget _summaryBox(
+      String title,
+      String value,
+      ) {
+    return pw.Column(
+      crossAxisAlignment:
+      pw.CrossAxisAlignment.start,
+      children: [
+        pw.Text(
+          title,
+          style: const pw.TextStyle(
+            fontSize: 7,
+            color: grey,
+          ),
+        ),
+        pw.SizedBox(height: 3),
+        pw.Text(
+          value,
+          style: pw.TextStyle(
+            fontSize: 10,
+            fontWeight: pw.FontWeight.bold,
+            color: dark,
+          ),
+        ),
+      ],
+    );
+  }
+
+  static pw.Widget _section(
+      String title,
+      List<pw.Widget> children,
+      ) {
+    return pw.Container(
+      width: double.infinity,
+      padding:
+      const pw.EdgeInsets.all(14),
+      decoration: pw.BoxDecoration(
+        color: PdfColors.grey100,
+        borderRadius:
+        pw.BorderRadius.circular(8),
+        border: pw.Border.all(
+          color: PdfColors.grey300,
+        ),
+      ),
+      child: pw.Column(
+        crossAxisAlignment:
+        pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text(
+            title,
+            style: pw.TextStyle(
+              fontSize: 10,
+              fontWeight:
+              pw.FontWeight.bold,
+              color: grey,
+            ),
+          ),
+          pw.SizedBox(height: 8),
+          ...children,
+        ],
+      ),
+    );
+  }
+
+  static pw.Widget _row(
+      String label,
+      String value,
+      ) {
+    return pw.Padding(
+      padding:
+      const pw.EdgeInsets.only(bottom: 6),
+      child: pw.Row(
+        crossAxisAlignment:
+        pw.CrossAxisAlignment.start,
+        children: [
+          pw.SizedBox(
+            width: 100,
+            child: pw.Text(
+              label,
+              style: const pw.TextStyle(
+                fontSize: 8,
+                color: grey,
+              ),
+            ),
+          ),
+          pw.Expanded(
+            child: pw.Text(
+              value.isEmpty ? '-' : value,
+              style: pw.TextStyle(
+                fontSize: 8,
+                fontWeight:
+                pw.FontWeight.bold,
+                color: dark,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static pw.Widget _footer(
+      pw.Context context,
+      ) {
+    return pw.Container(
+      padding:
+      const pw.EdgeInsets.only(top: 8),
+      decoration: pw.BoxDecoration(
+        border: pw.Border(
+          top: pw.BorderSide(
+            color: PdfColors.grey300,
+          ),
+        ),
+      ),
+      child: pw.Row(
+        mainAxisAlignment:
+        pw.MainAxisAlignment.spaceBetween,
+        children: [
+          pw.Text(
+            'Ledger Report',
+            style: const pw.TextStyle(
+              fontSize: 7,
+              color: grey,
+            ),
+          ),
+          pw.Text(
+            'Page ${context.pageNumber} of ${context.pagesCount}',
+            style: const pw.TextStyle(
+              fontSize: 7,
+              color: grey,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static String _description(
+      LedgerTransaction transaction,
+      ) {
+    final parts = <String>[];
+
+    if (transaction.studentName.isNotEmpty) {
+      parts.add(
+        'Student: ${transaction.studentName}',
+      );
+    }
+
+    if (transaction.feeName.isNotEmpty) {
+      parts.add(
+        'Fee: ${transaction.feeName}',
+      );
+    }
+
+    if (transaction.note.isNotEmpty) {
+      parts.add(transaction.note);
+    }
+
+    return parts.isEmpty
+        ? '-'
+        : parts.join(' • ');
+  }
+}
+
+
 
