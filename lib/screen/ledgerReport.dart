@@ -3342,40 +3342,40 @@ class LedgerPdfService {
         build: (context) => [
           pw.SizedBox(height: 15),
 
-          pw.Container(
-            padding: const pw.EdgeInsets.all(14),
-            decoration: pw.BoxDecoration(
-              color: light,
-              borderRadius:
-              pw.BorderRadius.circular(8),
-            ),
-            child: pw.Row(
-              mainAxisAlignment:
-              pw.MainAxisAlignment.spaceBetween,
-              children: [
-                _summaryBox(
-                  'Accounts',
-                  '${accounts.length}',
-                ),
-                _summaryBox(
-                  'Opening',
-                  amount(totalOpening),
-                ),
-                _summaryBox(
-                  'Debit',
-                  amount(totalDebit),
-                ),
-                _summaryBox(
-                  'Credit',
-                  amount(totalCredit),
-                ),
-                _summaryBox(
-                  'Closing',
-                  amount(totalClosing),
-                ),
-              ],
-            ),
-          ),
+          // pw.Container(
+          //   padding: const pw.EdgeInsets.all(14),
+          //   decoration: pw.BoxDecoration(
+          //     color: light,
+          //     borderRadius:
+          //     pw.BorderRadius.circular(8),
+          //   ),
+          //   child: pw.Row(
+          //     mainAxisAlignment:
+          //     pw.MainAxisAlignment.spaceBetween,
+          //     children: [
+          //       _summaryBox(
+          //         'Accounts',
+          //         '${accounts.length}',
+          //       ),
+          //       _summaryBox(
+          //         'Opening',
+          //         amount(totalOpening),
+          //       ),
+          //       _summaryBox(
+          //         'Debit',
+          //         amount(totalDebit),
+          //       ),
+          //       _summaryBox(
+          //         'Credit',
+          //         amount(totalCredit),
+          //       ),
+          //       _summaryBox(
+          //         'Closing',
+          //         amount(totalClosing),
+          //       ),
+          //     ],
+          //   ),
+          // ),
 
           pw.SizedBox(height: 20),
 
