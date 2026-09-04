@@ -61,6 +61,7 @@ dependencies:
   firebase_messaging: ^15.2.10
   dropdown_search: ^6.0.2
   open_file: ^3.5.10
+  syncfusion_flutter_datepicker: ^30.2.7
 
 
 dev_dependencies:

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../controller/myprovider.dart';
-
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 class LedgerReportPage extends StatefulWidget {
 const LedgerReportPage({super.key});
@@ -31,6 +31,10 @@ DateTime _selectedDate = DateTime.now();
 bool _loading = true;
 
 String? _error;
+
+DateTime _startDate = DateTime.now();
+DateTime _endDate = DateTime.now();
+
 
 @override
 void initState() {
@@ -118,64 +122,137 @@ void _onSearchChanged() {
 _applyFilters();
 }
 
-void _applyFilters() {
-final query =
-_searchController.text.trim().toLowerCase();
+  void _applyFilters() {
+    final query = _searchController.text.trim().toLowerCase();
 
-List<LedgerTransaction> results;
+    final results = _allTransactions.where((transaction) {
+      // ─────────────────────────────────────────────
+      // 1. DATE RANGE FILTER
+      // ─────────────────────────────────────────────
+      final date = transaction.createdAt;
 
-if (query.isEmpty) {
-results = List.from(_allTransactions);
-} else {
-results = _allTransactions.where((transaction) {
-return transaction.debitAccount
-    .toLowerCase()
-    .contains(query) ||
-    transaction.creditAccount
-        .toLowerCase()
-        .contains(query) ||
-transaction.debitAccountClass
-    .toLowerCase()
-    .contains(query) ||
-    transaction.creditAccountClass
-        .toLowerCase()
-        .contains(query) ||
+      final matchesDate =
+          !date.isBefore(_startDate) &&
+              !date.isAfter(_endDate);
 
-transaction.studentName
-    .toLowerCase()
-    .contains(query) ||
-transaction.studentId
-    .toLowerCase()
-    .contains(query) ||
-transaction.feeName
-    .toLowerCase()
-    .contains(query) ||
-transaction.activityType
-    .toLowerCase()
-    .contains(query) ||
-transaction.staff
-    .toLowerCase()
-    .contains(query) ||
-transaction.transactionId
-    .toLowerCase()
-    .contains(query) ||
-transaction.billedId
-    .toLowerCase()
-    .contains(query) ||
-transaction.note
-    .toLowerCase()
-    .contains(query);
-}).toList();
-}
+      if (!matchesDate) {
+        return false;
+      }
 
-if (!mounted) return;
+      // ─────────────────────────────────────────────
+      // 2. SEARCH FILTER
+      // ─────────────────────────────────────────────
+      if (query.isEmpty) {
+        return true;
+      }
 
-setState(() {
-_filteredTransactions = results;
-});
+      return transaction.debitAccount
+          .toLowerCase()
+          .contains(query) ||
+          transaction.creditAccount
+              .toLowerCase()
+              .contains(query) ||
+          transaction.debitAccountClass
+              .toLowerCase()
+              .contains(query) ||
+          transaction.creditAccountClass
+              .toLowerCase()
+              .contains(query) ||
+          transaction.studentName
+              .toLowerCase()
+              .contains(query) ||
+          transaction.studentId
+              .toLowerCase()
+              .contains(query) ||
+          transaction.feeName
+              .toLowerCase()
+              .contains(query) ||
+          transaction.activityType
+              .toLowerCase()
+              .contains(query) ||
+          transaction.staff
+              .toLowerCase()
+              .contains(query) ||
+          transaction.transactionId
+              .toLowerCase()
+              .contains(query) ||
+          transaction.billedId
+              .toLowerCase()
+              .contains(query) ||
+          transaction.note
+              .toLowerCase()
+              .contains(query);
+    }).toList();
 
-_rebuildReport();
-}
+    if (!mounted) return;
+
+    setState(() {
+      _filteredTransactions = results;
+    });
+
+    // Rebuild account totals based on the filtered results.
+    _rebuildReport();
+  }
+
+
+// void _applyFilters() {
+// final query =
+// _searchController.text.trim().toLowerCase();
+//
+// List<LedgerTransaction> results;
+//
+// if (query.isEmpty) {
+// results = List.from(_allTransactions);
+// } else {
+// results = _allTransactions.where((transaction) {
+// return transaction.debitAccount
+//     .toLowerCase()
+//     .contains(query) ||
+//     transaction.creditAccount
+//         .toLowerCase()
+//         .contains(query) ||
+// transaction.debitAccountClass
+//     .toLowerCase()
+//     .contains(query) ||
+//     transaction.creditAccountClass
+//         .toLowerCase()
+//         .contains(query) ||
+//
+// transaction.studentName
+//     .toLowerCase()
+//     .contains(query) ||
+// transaction.studentId
+//     .toLowerCase()
+//     .contains(query) ||
+// transaction.feeName
+//     .toLowerCase()
+//     .contains(query) ||
+// transaction.activityType
+//     .toLowerCase()
+//     .contains(query) ||
+// transaction.staff
+//     .toLowerCase()
+//     .contains(query) ||
+// transaction.transactionId
+//     .toLowerCase()
+//     .contains(query) ||
+// transaction.billedId
+//     .toLowerCase()
+//     .contains(query) ||
+// transaction.note
+//     .toLowerCase()
+//     .contains(query);
+// }).toList();
+// }
+//
+// if (!mounted) return;
+//
+// setState(() {
+// _filteredTransactions = results;
+// });
+//
+// _rebuildReport();
+// }
 
 // =============================================================
 // REBUILD REPORT
@@ -754,58 +831,243 @@ expanded: true,
 // DATE BUTTON
 // =============================================================
 
-Widget _dateButton() {
-return InkWell(
-onTap: _selectDate,
-borderRadius:
-BorderRadius.circular(10),
-child: Container(
-height: 44,
-padding: const EdgeInsets.symmetric(
-horizontal: 12,
-),
-decoration: BoxDecoration(
-color: const Color(0xFFF8F9FC),
-borderRadius:
-BorderRadius.circular(10),
-border: Border.all(
-color: const Color(0xFFD0D5DD),
-),
-),
-child: Row(
-mainAxisSize: MainAxisSize.min,
-children: [
-const Icon(
-Icons.calendar_month_rounded,
-size: 18,
-color: Color(0xFF315CF6),
-),
-const SizedBox(width: 8),
-Flexible(
-child: Text(
-DateFormat(
-'dd MMM yyyy',
-).format(_selectedDate),
-overflow:
-TextOverflow.ellipsis,
-style: const TextStyle(
-fontSize: 11.5,
-fontWeight: FontWeight.w700,
-color: Color(0xFF344054),
-),
-),
-),
-const SizedBox(width: 5),
-const Icon(
-Icons.keyboard_arrow_down_rounded,
-size: 18,
-color: Color(0xFF667085),
-),
-],
-),
-),
-);
-}
+
+  Future<void> _selectDateRange() async {
+    DateTimeRange? result;
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        DateTime? tempStart = _startDate;
+        DateTime? tempEnd = _endDate;
+
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          titlePadding: const EdgeInsets.fromLTRB(
+            20,
+            20,
+            20,
+            8,
+          ),
+          contentPadding: const EdgeInsets.fromLTRB(
+            12,
+            8,
+            12,
+            4,
+          ),
+          actionsPadding: const EdgeInsets.fromLTRB(
+            16,
+            4,
+            16,
+            14,
+          ),
+          title: const Text(
+            'Select Date Range',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF101828),
+            ),
+          ),
+          content: SizedBox(
+            width: 360,
+            height: 350,
+            child: SfDateRangePicker(
+              selectionMode:
+              DateRangePickerSelectionMode.range,
+              initialSelectedRange: PickerDateRange(
+                _startDate,
+                _endDate,
+              ),
+              maxDate: DateTime.now(),
+              showActionButtons: false,
+              selectionColor:
+              const Color(0xFF315CF6),
+              startRangeSelectionColor:
+              const Color(0xFF315CF6),
+              endRangeSelectionColor:
+              const Color(0xFF315CF6),
+              rangeSelectionColor:
+              const Color(0xFFEFF2FF),
+              todayHighlightColor:
+              const Color(0xFF315CF6),
+              headerStyle:
+              const DateRangePickerHeaderStyle(
+                textAlign: TextAlign.center,
+                textStyle: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF101828),
+                ),
+              ),
+              monthViewSettings:
+              const DateRangePickerMonthViewSettings(
+                firstDayOfWeek: 1,
+              ),
+              onSelectionChanged:
+                  (DateRangePickerSelectionChangedArgs args) {
+                final value = args.value;
+
+                if (value is PickerDateRange) {
+                  tempStart = value.startDate;
+                  tempEnd = value.endDate;
+                }
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text(
+                'Cancel',
+                style: TextStyle(
+                  color: Color(0xFF667085),
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (tempStart == null) return;
+
+                result = DateTimeRange(
+                  start: tempStart!,
+                  end: tempEnd ?? tempStart!,
+                );
+
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor:
+                const Color(0xFF315CF6),
+                foregroundColor: Colors.white,
+                elevation: 0,
+                padding:
+                const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 11,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius:
+                  BorderRadius.circular(9),
+                ),
+              ),
+              child: const Text(
+                'Apply',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result == null) return;
+
+    setState(() {
+      _startDate = DateTime(
+        result!.start.year,
+        result!.start.month,
+        result!.start.day,
+      );
+
+      _endDate = DateTime(
+        result!.end.year,
+        result!.end.month,
+        result!.end.day,
+        23,
+        59,
+        59,
+        999,
+      );
+    });
+
+    _applyFilters();
+  }
+
+
+  Widget _dateButton() {
+    return InkWell(
+      onTap: _selectDateRange,
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        height: 44,
+        padding: const EdgeInsets.symmetric(
+          horizontal: 12,
+        ),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF8F9FC),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: const Color(0xFFD0D5DD),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.calendar_month_rounded,
+              size: 18,
+              color: Color(0xFF315CF6),
+            ),
+
+            const SizedBox(width: 8),
+
+            Text(
+              DateFormat(
+                'dd MMM yyyy',
+              ).format(_startDate),
+              style: const TextStyle(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF344054),
+              ),
+            ),
+
+            const Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: 8,
+              ),
+              child: Icon(
+                Icons.arrow_forward_rounded,
+                size: 14,
+                color: Color(0xFF98A2B3),
+              ),
+            ),
+
+            Text(
+              DateFormat(
+                'dd MMM yyyy',
+              ).format(_endDate),
+              style: const TextStyle(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF344054),
+              ),
+            ),
+
+            const SizedBox(width: 5),
+
+            const Icon(
+              Icons.keyboard_arrow_down_rounded,
+              size: 18,
+              color: Color(0xFF667085),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
 
 // =============================================================
 // QUICK DATE BUTTON
