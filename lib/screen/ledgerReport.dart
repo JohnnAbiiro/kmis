@@ -1190,11 +1190,11 @@ children: [
 
             const SizedBox(width: 6),
 
-            _exportButton(
-              icon: Icons.picture_as_pdf_outlined,
-              label: 'PDF',
-              onPressed: _exportFullReport,
-            ),
+            // _exportButton(
+            //   icon: Icons.picture_as_pdf_outlined,
+            //   label: 'PDF',
+            //   onPressed: _exportFullReport,
+            // ),
           ],
         )      ],
     ),
