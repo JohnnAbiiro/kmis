@@ -46,6 +46,7 @@ import '../screen/idformat.dart';
 import '../screen/individualcumreport.dart';
 import '../screen/judgeui.dart';
 
+import '../screen/ledgerReport.dart';
 import '../screen/levelreg.dart';
 import '../screen/masspromotion.dart';
 import '../screen/multipleschools.dart';
@@ -65,6 +66,8 @@ import '../screen/scoringhome.dart';
 import '../screen/singleBilling.dart';
 import '../screen/singlepromotion.dart';
 import '../screen/staffhomepage.dart';
+import '../screen/studentdashboard.dart';
+import '../screen/studentp.dart';
 import '../screen/studentsetup.dart';
 import '../screen/subject.dart';
 import '../screen/systemActivity.dart';
@@ -219,6 +222,8 @@ class Routes {
   static const reopening = "/reopening";
   static const headremarks = "/headremarks";
   static const enterAssessmentMarks = "/enterAssessmentMarks";
+  static const studentportal = "/studentportal";
+  static const ledger_report = "/ledger_report";
 
   // Role → Allowed routes mapping
   static const roleAllowedRoutes = {
@@ -238,6 +243,8 @@ final GoRouter router = GoRouter(
 
   routes: [
     GoRoute(path: Routes.enterAssessmentMarks, builder: (c, s) => AssessmentEntryPage()),
+    GoRoute(path: Routes.studentportal, builder: (c, s) => StudentPortalApp()),
+    GoRoute(path: Routes.ledger_report, builder: (c, s) => LedgerReportPage()),
     GoRoute(path: Routes.sales, builder: (c, s) => Sales()),
     GoRoute(path: Routes.stock, builder: (c, s) => StockForm()),
     //GoRoute(path: Routes.stockStatement, builder: (c, s) => StockStatement()),

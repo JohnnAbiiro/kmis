@@ -204,7 +204,7 @@ class _ViewScorePageState extends State<ViewScorePage> {
                                   mark['studentName'] ?? '',
                                   mark['class'] ?? '',
                                   mark['department'] ?? '',
-                                  mark['hassubjectkey'] ?? '',
+                                  mark['hassubjectkey'] ?? false,
                                   mark['subject'] ?? '',
                                   mark['photoUrl'] ?? '',
                                  total,

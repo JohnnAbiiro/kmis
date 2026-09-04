@@ -677,6 +677,22 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                   ),
                                 ),
                               ),
+                              SizedBox(
+                                child: _drawerTile(
+                                  icon: Icons.supervised_user_circle,
+                                  title: 'Student portal',
+                                  onTap: () =>context.go(Routes.studentportal,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                child: _drawerTile(
+                                  icon: Icons.supervised_user_circle,
+                                  title: 'Ledger Report',
+                                  onTap: () =>context.go(Routes.ledger_report,
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                         ),
