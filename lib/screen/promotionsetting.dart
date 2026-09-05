@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
 import 'package:provider/provider.dart';
@@ -26,6 +25,7 @@ class _PromotionScreenState extends State<PromotionScreen> {
     super.initState();
 
     Future.microtask(() async {
+      if (!mounted) return;
       final provider = context.read<Myprovider>();
 
       await provider.fetchclass();
@@ -36,8 +36,8 @@ class _PromotionScreenState extends State<PromotionScreen> {
           selectedClass = data["current"];
           selectedNextClass = data["next"];
           selectedpreviousClass = data["previous"];
-          print("Editing current: ${data['current']}");
-          print("Editing next: ${data['next']}");
+          // print("Editing current: ${data['current']}");
+          // print("Editing next: ${data['next']}");
          // print("Available classes: $classes");
         });
       } else {
@@ -86,7 +86,7 @@ class _PromotionScreenState extends State<PromotionScreen> {
                       child: Text(c),
                     ))
                         .toList(),
-                    value: selectedpreviousClass,
+                    initialValue: selectedpreviousClass,
                     onChanged: (value) {
                       setState(() => selectedpreviousClass = value);
                     },

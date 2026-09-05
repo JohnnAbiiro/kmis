@@ -53,7 +53,8 @@ class _BillingState extends State<Billing> {
 
   @override
   Widget build(BuildContext context) {
-    final inputFill = const Color(0xFFffffff);
+    final colors = Theme.of(context).colorScheme;
+    final inputFill = colors.surface;
     return ProgressHUD(
       child: Builder(
         builder: (context) {
@@ -71,7 +72,17 @@ class _BillingState extends State<Billing> {
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 600),
                     child: Container(
-                      color: const Color(0xFFffffff),
+                      decoration: BoxDecoration(
+                        color: colors.surface,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.1),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
                       margin: const EdgeInsets.all(20),
                       child: SingleChildScrollView(
                         padding: const EdgeInsets.all(20),
@@ -83,93 +94,114 @@ class _BillingState extends State<Billing> {
                                 inputFormatters: [
                                   FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
                                 ],
-                                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
                                 controller: accountController,
                                 decoration: InputDecoration(
                                   labelText: "Billed Amount ",
                                   hintText: "Billed  Amount ",
-                                  border: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.grey[700]!),
+                                  border: const OutlineInputBorder(),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: colors.outline.withValues(alpha: 0.5)),
                                   ),
+                                  labelStyle: TextStyle(color: colors.onSurface),
+                                  hintStyle: TextStyle(color: colors.onSurfaceVariant),
                                 ),
                                 validator: (value) =>
                                 value == null || value.trim().isEmpty ? "Amount is required" : null,
                               ),
                               const SizedBox(height: 20),
                               // Debit Account Dropdown
-                              buildDropdown(value: selectedfee, items: value.fees.map((e) => e.name).toList(), label: "FEES", fillColor: inputFill, onChanged: (v) => setState(() => selectedfee = v), validatorMsg: 'Select Fees',),
+                              DropdownWidget.buildDropdown(dropdownContext: context, value: selectedfee, items: value.fees.map((e) => e.name).toList(), label: "FEES", fillColor: inputFill, onChanged: (v) => setState(() => selectedfee = v), validatorMsg: 'Select Fees',),
                               const SizedBox(height: 20),
-                              buildDropdown(value: selectedLevel, items: value.classdata.map((e) => e.name).toList(), label: "Class", fillColor: inputFill, onChanged: (v) => setState(() => selectedLevel = v), validatorMsg: 'Select class',),
+                              DropdownWidget.buildDropdown(dropdownContext: context, value: selectedLevel, items: value.classdata.map((e) => e.name).toList(), label: "Class", fillColor: inputFill, onChanged: (v) => setState(() => selectedLevel = v), validatorMsg: 'Select class',),
                               const SizedBox(height: 20),
-                              buildDropdown(value: selecteddepart, items: value.departments.map((e) => e.name).toList(), label: "Department", fillColor: inputFill, onChanged: (v) => setState(() => selecteddepart = v), validatorMsg: 'Select Department',),
+                              DropdownWidget.buildDropdown(dropdownContext: context, value: selecteddepart, items: value.departments.map((e) => e.name).toList(), label: "Department", fillColor: inputFill, onChanged: (v) => setState(() => selecteddepart = v), validatorMsg: 'Select Department',),
                               // Credit Account Dropdown
                               const SizedBox(height: 20),
-                              buildDropdown(value: selectedTerm, items: value.terms.map((e)=>e.name).toList(), label: "Term", fillColor: inputFill, onChanged: (v) => setState(() => selectedTerm = v), validatorMsg: "Select year group"),
+                              DropdownWidget.buildDropdown(dropdownContext: context, value: selectedTerm, items: value.terms.map((e)=>e.name).toList(), label: "Term", fillColor: inputFill, onChanged: (v) => setState(() => selectedTerm = v), validatorMsg: "Select year group"),
                               const SizedBox(height: 20),
-                              buildDropdown(value: selectedYearGroup, items: _yeargroup, label: "Year Group", fillColor: inputFill, onChanged: (v) => setState(() => selectedYearGroup = v), validatorMsg: "Select year group"),
-                              const SizedBox(height: 20),
-                              // Save Button
-                              Row(
+                              DropdownWidget.buildDropdown(dropdownContext: context, value: selectedYearGroup, items: _yeargroup, label: "Year Group", fillColor: inputFill, onChanged: (v) => setState(() => selectedYearGroup = v), validatorMsg: "Select year group"),
+                              const SizedBox(height: 32),
+                              // Save & View Buttons
+                              Column(
                                 children: [
-                                  ElevatedButton.icon(style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00496d), padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12)),
-                                    onPressed: () async {
-                                      if (_formKey.currentState!.validate()) {
-                                        final progress = ProgressHUD.of(context);
-                                        progress!.show();
-                                        String amount=accountController.text.trim();
-                                        String ids="${value.schoolid}$selectedYearGroup$selectedTerm$selecteddepart$selectedLevel$selectedfee";
-                                        String id = ids.replaceAll(RegExp(r'\s+'), '').toLowerCase();
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: ElevatedButton.icon(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: colors.primary,
+                                        foregroundColor: colors.onPrimary,
+                                        padding: const EdgeInsets.symmetric(vertical: 16),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                      ),
+                                      onPressed: () async {
+                                        if (_formKey.currentState!.validate()) {
+                                          final progress = ProgressHUD.of(context);
+                                          progress!.show();
+                                          String amount=accountController.text.trim();
+                                          String ids="${value.schoolid}$selectedYearGroup$selectedTerm$selecteddepart$selectedLevel$selectedfee";
+                                          String id = ids.replaceAll(RegExp(r'\s+'), '').toLowerCase();
 
-                                        try {
-                                          final dataexist=await value.db.collection("billed").doc(id).get();
-                                          if(dataexist.exists){
+                                          try {
+                                            final dataexist=await value.db.collection("billed").doc(id).get();
+                                            if(dataexist.exists){
+                                              progress.dismiss();
+                                              if (context.mounted) {
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  SnackBar(
+                                                    content: Text("$selectedfee has been billed already"),
+                                                    backgroundColor: Colors.red,
+                                                  ),
+                                                );
+                                              }
+                                              return;
+                                            }
+                                            final data=BilledModel(level: selectedLevel.toString(), yeargroup: selectedYearGroup.toString(), amount: amount, activityType: "Fee Billing", term: selectedTerm.toString(), schoolId: value.schoolid, dateCreated: DateTime.now(), feeName:selectedfee.toString()).toJson();
+                                            await value.db.collection("billed").doc(id).set(data);
+
+                                            progress.dismiss();
+
+                                            if (context.mounted) {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(
+                                                  content: Text("$selectedfee - GHS$amount Saved Successfully"),
+                                                  backgroundColor: Colors.green,
+                                                ),
+                                              );
+                                            }
+                                          } catch (e) {
                                             progress.dismiss();
                                             ScaffoldMessenger.of(context).showSnackBar(
-                                               SnackBar(
-                                                content: Text("$selectedfee  has been billed already"),
+                                              SnackBar(
+                                                content: Text("Failed to save data: $e"),
                                                 backgroundColor: Colors.red,
                                               ),
                                             );
-                                            return;
                                           }
-                                          final data=BilledModel(level: selectedLevel.toString(), yeargroup: selectedYearGroup.toString(), amount: amount, activityType: "Fee Billing", term: selectedTerm.toString(), schoolId: value.schoolid, dateCreated: DateTime.now(), feeName:selectedfee.toString()).toJson();
-                                          await value.db.collection("billed").doc(id).set(data);
-
-                                          progress.dismiss();
-
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                             SnackBar(
-                                              content: Text("$selectedfee - GHS$amount  Saved Successfully"),
-                                              backgroundColor: Colors.green,
-                                            ),
-                                          );
-
-                                          setState(() {
-                                            // _selectedDebitAccount = null;
-                                            // _selectedCreditAccount = null;
-                                          });
-                                        } catch (e) {
-                                          progress.dismiss();
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(
-                                              content: Text("Failed to save data: $e"),
-                                              backgroundColor: Colors.red,
-                                            ),
-                                          );
                                         }
-                                      }
-                                    },
-                                    icon: const Icon(Icons.save, color: Colors.white),
-                                    label: const Text("Save Activity",
-                                        style: TextStyle(color: Colors.white)),
+                                      },
+                                      icon: const Icon(Icons.save),
+                                      label: const Text("Save Activity", style: TextStyle(fontWeight: FontWeight.bold)),
+                                    ),
                                   ),
-                                  ElevatedButton.icon(style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00496d), padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12)),
-                                    onPressed: () {
-                                      Navigator.pushNamed(context, Routes.billingview);
-                                    },
-                                    icon: const Icon(Icons.save, color: Colors.white),
-                                    label: const Text("View Activity",
-                                        style: TextStyle(color: Colors.white)),
+                                  const SizedBox(height: 12),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: OutlinedButton.icon(
+                                      style: OutlinedButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(vertical: 16),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                      ),
+                                      onPressed: () {
+                                        Navigator.pushNamed(context, Routes.billingview);
+                                      },
+                                      icon: const Icon(Icons.list_alt),
+                                      label: const Text("View All Activities"),
+                                    ),
                                   ),
                                 ],
                               ),

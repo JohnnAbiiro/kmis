@@ -471,7 +471,6 @@ _searchController.clear();
 @override
 Widget build(BuildContext context) {
 return Scaffold(
-backgroundColor: Constants.scaffoldcolor,
 appBar: _buildAppBar(),
 body: _loading
 ? const _LoadingView()

@@ -100,6 +100,7 @@ class _DashboardLayoutState extends State<DashboardLayout> {
                             break;
                           case ThemeMode.system:
                             nextMode = ThemeMode.light;
+                            break;
                         }
                         provider.setThemeMode(nextMode);
                       },

@@ -126,157 +126,156 @@ class _ClassScreenState extends State<ClassScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final colors = Theme.of(context).colorScheme;
 
-    return Builder(
-      builder: (context) {
-        return Consumer<Myprovider>(
-          builder: (BuildContext context, Myprovider value, Widget? child) {
-            return Scaffold(
-              appBar: AppBar(
-                title: Text(isEdit ? 'Edit Class' : 'Register Class'),
-                leading: IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  onPressed: () {
-                    if (context.canPop()) {
-                      context.pop();
-                    } else {
-                      context.go(Routes.dashboard);
-                    }
-                  },
-                ),
+    return ProgressHUD(
+      child: Consumer<Myprovider>(
+        builder: (BuildContext context, Myprovider value, Widget? child) {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(isEdit ? 'Edit Class' : 'Register Class'),
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () {
+                  if (context.canPop()) {
+                    context.pop();
+                  } else {
+                    context.go(Routes.dashboard);
+                  }
+                },
               ),
-              body: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 16),
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 800),
-                    child: Card(
-                      color: colorScheme.surface,
-                      margin: const EdgeInsets.all(30.0),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.all(20.0),
-                        child: Form(
-                          key: _formKey,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              buildDropdown(
-                                value: selecteddepart,
-                                items: value.departments.map((e) => e.name).toList(),
-                                label: "Department",
-                                fillColor: colorScheme.surfaceContainerHighest,
-                                onChanged: (v) {
-                                  setState(() => selecteddepart = v);
-                                  _scheduleDuplicateCheck();
-                                },
-                                validatorMsg: 'Select department',
-                              ),
-                              const SizedBox(height: 20),
+            ),
+            body: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 16),
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 800),
+                  child: Card(
+                    color: colors.surface,
+                    margin: const EdgeInsets.all(30.0),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            DropdownWidget.buildDropdown(
+                              dropdownContext: context,
+                              value: selecteddepart,
+                              items: value.departments.map((e) => e.name).toList(),
+                              label: "Department",
+                              fillColor: colors.surfaceContainerHighest,
+                              onChanged: (v) {
+                                setState(() => selecteddepart = v);
+                                _scheduleDuplicateCheck();
+                              },
+                              validatorMsg: 'Select department',
+                            ),
+                            const SizedBox(height: 20),
 
-                              TextFormField(
-                                controller: classController,
-                                enabled: !_isSubmitting,
-                                decoration: InputDecoration(
-                                  labelText: "Class Name",
-                                  hintText: "Enter Class Name",
-                                  filled: true,
-                                  fillColor: colorScheme.surfaceContainerHighest,
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
-                                  ),
-                                  contentPadding:
-                                  const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-                                  suffixIcon: _checkingDuplicate
-                                      ? const Padding(
-                                    padding: EdgeInsets.all(12),
-                                    child: SizedBox(
-                                      width: 16,
-                                      height: 16,
-                                      child: CircularProgressIndicator(strokeWidth: 2),
-                                    ),
-                                  )
-                                      : null,
+                            TextFormField(
+                              controller: classController,
+                              enabled: !_isSubmitting,
+                              decoration: InputDecoration(
+                                labelText: "Class Name",
+                                hintText: "Enter Class Name",
+                                filled: true,
+                                fillColor: colors.surfaceContainerHighest,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide.none,
                                 ),
-                                validator: (value) {
-                                  if (value == null || value.trim().isEmpty) {
-                                    return 'Class name cannot be empty';
-                                  }
-                                  if (_duplicateWarning != null) {
-                                    return _duplicateWarning;
-                                  }
-                                  return null;
-                                },
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(color: colors.primary, width: 1.5),
+                                ),
+                                contentPadding:
+                                const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                                suffixIcon: _checkingDuplicate
+                                    ? const Padding(
+                                  padding: EdgeInsets.all(12),
+                                  child: SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                  ),
+                                )
+                                    : null,
                               ),
-                              if (_duplicateWarning != null)
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 6),
-                                  child: Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      _duplicateWarning!,
-                                      style: TextStyle(color: colorScheme.error, fontSize: 12),
-                                    ),
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Class name cannot be empty';
+                                }
+                                if (_duplicateWarning != null) {
+                                  return _duplicateWarning;
+                                }
+                                return null;
+                              },
+                            ),
+                            if (_duplicateWarning != null)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 6),
+                                child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    _duplicateWarning!,
+                                    style: TextStyle(color: colors.error, fontSize: 12),
                                   ),
                                 ),
-                              const SizedBox(height: 20),
+                              ),
+                            const SizedBox(height: 20),
 
-                              Wrap(
-                                alignment: WrapAlignment.center,
-                                spacing: 20,
-                                runSpacing: 10,
-                                children: [
-                                  ElevatedButton.icon(
-                                    onPressed: (_isSubmitting ||
-                                        _checkingDuplicate ||
-                                        _duplicateWarning != null)
-                                        ? null
-                                        : () => _handleSubmit(context, value),
-                                    icon: Icon(isEdit ? Icons.update : Icons.save),
-                                    label: Text(isEdit ? 'Update Class' : 'Register Class'),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: colorScheme.primary,
-                                      foregroundColor: colorScheme.onPrimary,
-                                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                                      textStyle: const TextStyle(fontSize: 15),
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                      elevation: 5,
-                                    ),
+                            Wrap(
+                              alignment: WrapAlignment.center,
+                              spacing: 20,
+                              runSpacing: 10,
+                              children: [
+                                ElevatedButton.icon(
+                                  onPressed: (_isSubmitting ||
+                                      _checkingDuplicate ||
+                                      _duplicateWarning != null)
+                                      ? null
+                                      : () => _handleSubmit(context, value),
+                                  icon: Icon(isEdit ? Icons.update : Icons.save),
+                                  label: Text(isEdit ? 'Update Class' : 'Register Class'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: colors.primary,
+                                    foregroundColor: colors.onPrimary,
+                                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                                    textStyle: const TextStyle(fontSize: 15),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                    elevation: 5,
                                   ),
-                                  OutlinedButton.icon(
-                                    style: OutlinedButton.styleFrom(
-                                      side: BorderSide(color: colorScheme.primary),
-                                      foregroundColor: colorScheme.primary,
-                                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                                    ),
-                                    icon: const Icon(Icons.list),
-                                    label: const Text("View Classes"),
-                                    onPressed: () {
-                                      Navigator.pushNamed(context, Routes.viewclass);
-                                    },
+                                ),
+                                OutlinedButton.icon(
+                                  style: OutlinedButton.styleFrom(
+                                    side: BorderSide(color: colors.primary),
+                                    foregroundColor: colors.primary,
+                                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                                   ),
-                                ],
-                              ),
-                              const SizedBox(height: 20),
-                            ],
-                          ),
+                                  icon: const Icon(Icons.list),
+                                  label: const Text("View Classes"),
+                                  onPressed: () {
+                                    context.pushNamed(Routes.viewclass);
+                                  },
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 20),
+                          ],
                         ),
                       ),
                     ),
                   ),
                 ),
               ),
-            );
-          },
-        );
-      },
+            ),
+          );
+        },
+      ),
     );
   }
 

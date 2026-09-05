@@ -55,6 +55,7 @@ class MyApp extends StatelessWidget {
             colorScheme: ColorScheme.fromSeed(
               seedColor: Colors.deepOrange,
               brightness: Brightness.light,
+              surface: const Color(0xFFFFFDF8),
               onSurface: Colors.black,
               onSurfaceVariant: Colors.black,
             ),

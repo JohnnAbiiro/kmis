@@ -1,6 +1,6 @@
 import 'package:go_router/go_router.dart';
 import 'package:ksoftsms/controller/dbmodels/classmodel.dart';
-import 'package:ksoftsms/screen/expenseForm.dart';
+import 'package:ksoftsms/screen/expense_form.dart';
 import 'package:ksoftsms/screen/itemCategory.dart';
 import 'package:ksoftsms/screen/itemreg.dart';
 import 'package:ksoftsms/screen/sales.dart';
@@ -33,6 +33,7 @@ import '../screen/assessmentcomponents.dart';
 import '../screen/attendance.dart';
 import '../screen/billing.dart';
 import '../screen/class.dart';
+import '../screen/classpromotion.dart';
 import '../screen/courseallocation.dart';
 import '../screen/coursemounting.dart';
 import '../screen/currentacademicyrterm.dart';
@@ -68,7 +69,7 @@ import '../screen/reopening.dart';
 import '../screen/scoreconfig.dart';
 import '../screen/scoringhome.dart';
 import '../screen/setupwizard.dart';
-import '../screen/singleBilling.dart';
+import '../screen/single_billing.dart';
 import '../screen/singlepromotion.dart';
 import '../screen/staffhomepage.dart';
 import '../screen/studentdashboard.dart';
@@ -221,13 +222,14 @@ class Routes {
   static const transcript = "/transcript";
   static const currenterm = "/currenterm";
   static const masspromotion = "/masspromotion";
+  static const classpromotion = "/classpromotion";
   static const totalattend = "/totalattend";
   static const nextfees = "/nextfees";
   static const reopening = "/reopening";
   static const headremarks = "/headremarks";
   static const enterAssessmentMarks = "/enterAssessmentMarks";
   static const studentportal = "/studentportal";
-  static const ledger_report = "/ledger_report";
+  static const ledgerReport = "/ledger_report";
   static const registerschool = "/registerschool";
   static const setupWizard = "/setupWizard";
   static const courseallocation = "/courseallocation";
@@ -254,7 +256,7 @@ final GoRouter router = GoRouter(
   routes: [
     GoRoute(path: Routes.enterAssessmentMarks, builder: (c, s) => AssessmentEntryPage()),
     GoRoute(path: Routes.studentportal, builder: (c, s) => StudentPortalApp()),
-    GoRoute(path: Routes.ledger_report, builder: (c, s) => LedgerReportPage()),
+    GoRoute(path: Routes.ledgerReport, builder: (c, s) => LedgerReportPage()),
     GoRoute(path: Routes.sales, builder: (c, s) => Sales()),
     GoRoute(path: Routes.stock, builder: (c, s) => StockForm()),
     //GoRoute(path: Routes.stockStatement, builder: (c, s) => StockStatement()),
@@ -278,22 +280,68 @@ final GoRouter router = GoRouter(
     ),
     GoRoute(path: Routes.payroll, builder: (context, state) => PayrollScreen()),
     GoRoute(
-      path: Routes.employee,
-      builder: (context, state) => EmployeeScreen(),
+      path: Routes.levelreg,
+      builder: (context, state) {
+        final level = state.extra as LevelModel?;
+        return LevelListScreen(levelData: level);
+      },
     ),
-
-    GoRoute(path: Routes.levelreg, builder: (c, s) => LevelListScreen()),
     GoRoute(path: Routes.dashboard, builder: (c, s) => DashboardLayout()),
     GoRoute(path: Routes.receipt, builder: (c, s) => SchoolReceipt()),
 
-
-  GoRoute(path: Routes.term, builder: (c, s) => Term()),
-   GoRoute(path: Routes.depart,builder: (c, s) => Department()),
-  GoRoute(path: Routes.classes, builder: (c, s) => ClassScreen()),
-  GoRoute(path: Routes.subjects, builder: (c, s) => SubjectRegistration()),
-    GoRoute(path: Routes.school, builder: (c, s) => RegisterSchool()),
-
-    GoRoute(path: Routes.academicyr, builder: (c, s) => AcademicYr()),
+    GoRoute(
+      path: Routes.term,
+      builder: (context, state) {
+        final term = state.extra as TermModel?;
+        return Term(term: term);
+      },
+    ),
+    GoRoute(
+      path: Routes.depart,
+      builder: (context, state) {
+        final depart = state.extra as DepartmentModel?;
+        return Department(depart: depart);
+      },
+    ),
+    GoRoute(
+      path: Routes.classes,
+      builder: (context, state) {
+        final classes = state.extra as ClassModel?;
+        return ClassScreen(classes: classes);
+      },
+    ),
+    GoRoute(
+      path: Routes.subjects,
+      builder: (context, state) {
+        final subject = state.extra is SubjectModel
+            ? state.extra as SubjectModel
+            : null;
+        return SubjectRegistration(subject: subject);
+      },
+    ),
+    GoRoute(
+      path: Routes.school,
+      builder: (context, state) {
+        final school = state.extra is SchoolModel
+            ? state.extra as SchoolModel
+            : null;
+        return RegisterSchool(school: school);
+      },
+    ),
+    GoRoute(
+      path: Routes.scoreconfig,
+      builder: (context, state) {
+        final config = state.extra as ScoremodelConfig?;
+        return ScoreConfigPage(config: config);
+      },
+    ),
+    GoRoute(
+      path: Routes.academicyr,
+      builder: (context, state) {
+        final year = state.extra as AcademicModel?;
+        return AcademicYr(year: year);
+      },
+    ),
 
 
     GoRoute(
@@ -331,7 +379,7 @@ final GoRouter router = GoRouter(
       path: Routes.paymentmethods,
       builder: (c, s) => PaymentMethodForm(),
     ),
-    GoRoute(path: Routes.feepayment, builder: (c, s) => Feepayment()),
+    GoRoute(path: Routes.feepayment, builder: (c, s) => FeePayment()),
     GoRoute(path: Routes.feesetup, builder: (c, s) => FeesSetup()),
     GoRoute(path: Routes.singlebilling, builder: (c, s) => SingleBilling()),
     GoRoute(path: Routes.terminalreport, builder: (c, s) => ReportSheet()),
@@ -359,6 +407,7 @@ final GoRouter router = GoRouter(
     GoRoute(path: Routes.transcript, builder: (c, s) => TranscriptReport()),
     GoRoute(path: Routes.currenterm, builder: (c, s) => Currenttermyr()),
     GoRoute(path: Routes.masspromotion, builder: (c, s) => Masspromotion()),
+    GoRoute(path: Routes.classpromotion, builder: (c, s) => ClassPromotion()),
     GoRoute(path: Routes.studentsetup, builder: (c, s) => StudentSetupPage()),
     GoRoute(path: Routes.viewmarks,builder: (c,s)=> ViewScorePage()),
     GoRoute(path: Routes.totalattend,builder: (c,s)=> Totalattend()),

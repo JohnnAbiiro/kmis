@@ -8,15 +8,15 @@ import '../controller/myprovider.dart';
 import '../controller/routes.dart';
 import '../widgets/dropdown.dart';
 
-class ClassScreen extends StatefulWidget {
+class ClassPromotion extends StatefulWidget {
   final ClassModel? classes;
-  const ClassScreen({super.key, this.classes});
+  const ClassPromotion({super.key, this.classes});
 
   @override
-  State<ClassScreen> createState() => _ClassScreenState();
+  State<ClassPromotion> createState() => _ClassPromotionState();
 }
 
-class _ClassScreenState extends State<ClassScreen> {
+class _ClassPromotionState extends State<ClassPromotion> {
   final classController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   String? selecteddepart;
@@ -29,7 +29,6 @@ class _ClassScreenState extends State<ClassScreen> {
       provider.fetchdepart();
     });
 
-
     final data = widget.classes;
     if (data != null) {
       classController.text = data.name;
@@ -39,204 +38,134 @@ class _ClassScreenState extends State<ClassScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final inputFill = const Color(0xFFffffff);
+    final colors = Theme.of(context).colorScheme;
     final isEdit = widget.classes != null;
 
     return ProgressHUD(
-      child: Builder(
-        builder: (context) {
-          return Consumer<Myprovider>(
-            builder: (BuildContext context, Myprovider value, Widget? child) {
-              return Scaffold(
-                appBar: AppBar(
-                  backgroundColor: const Color(0xFF2D2F45),
-                  leading: IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () => Navigator.pop(context,true),
+      child: Consumer<Myprovider>(
+        builder: (BuildContext context, Myprovider value, Widget? child) {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(isEdit ? 'Edit Class' : 'Register Class'),
+            ),
+            body: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 16),
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: colors.surface,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
-                  title: Text(
-                    isEdit ? 'Edit Class' : 'Register Class',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                body: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 40,
-                    horizontal: 16,
-                  ),
-                  child: Align(
-                    alignment: Alignment.topCenter,
-                    child: Container(
-                      color: const Color(0xFFffffff),
-                      margin: const EdgeInsets.all(30.0),
-                      constraints: const BoxConstraints(maxWidth: 800),
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Form(
-                          key: _formKey,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  constraints: const BoxConstraints(maxWidth: 800),
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          DropdownWidget.buildDropdown(
+                            dropdownContext: context,
+                            value: selecteddepart,
+                            items: value.departments.map((e) => e.name).toList(),
+                            label: "Department",
+                            fillColor: colors.surface,
+                            onChanged: (v) => setState(() => selecteddepart = v),
+                            validatorMsg: 'Select department',
+                          ),
+                          const SizedBox(height: 20),
+                          TextFormField(
+                            controller: classController,
+                            decoration: const InputDecoration(
+                              labelText: "Class Name",
+                              hintText: "e.g. Class 1",
+                              border: OutlineInputBorder(),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Class name required';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 32),
+                          Row(
                             children: [
-                              buildDropdown(
-                                value: selecteddepart,
-                                items: value.departments
-                                    .map((e) => e.name)
-                                    .toList(),
-                                label: "Department",
-                                fillColor: inputFill,
-                                onChanged: (v) =>
-                                    setState(() => selecteddepart = v),
-                                validatorMsg: 'Select department',
-                              ),
-                              const SizedBox(height: 20),
-
-                              // Class Name Input
-                              TextFormField(
-                                controller: classController,
-                                decoration: InputDecoration(
-                                  labelText: "Class Name",
-                                  hintText: "Enter Class Name",
-                                  labelStyle:
-                                  const TextStyle(color: Colors.black54),
-                                  hintStyle:
-                                  const TextStyle(color: Colors.grey),
-                                  border: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: Colors.grey[700]!,
-                                    ),
+                              Expanded(
+                                child: ElevatedButton.icon(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: colors.primary,
+                                    foregroundColor: colors.onPrimary,
+                                    padding: const EdgeInsets.symmetric(vertical: 16),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))
                                   ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: Colors.grey[700]!,
-                                    ),
-                                  ),
-                                  focusedBorder: const OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: Color(0xFF00496d),
-                                    ),
-                                  ),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 10,
-                                    horizontal: 12,
-                                  ),
-                                  filled: false,
-                                  fillColor: inputFill,
-                                ),
-                                style: const TextStyle(
-                                    fontSize: 16, color: Colors.black),
-                                validator: (value) {
-                                  if (value == null || value.trim().isEmpty) {
-                                    return 'Class name cannot be empty';
-                                  }
-                                  return null;
-                                },
-                              ),
-                              const SizedBox(height: 20),
+                                  onPressed: () async {
+                                    if (_formKey.currentState!.validate()) {
+                                      final progress = ProgressHUD.of(context);
+                                      progress!.show();
 
-                              // Buttons
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  ElevatedButton.icon(
-                                    onPressed: () async {
-                                      if (_formKey.currentState!.validate()) {
-                                        final progress =
-                                        ProgressHUD.of(context);
-                                        progress!.show();
+                                      String className = classController.text.trim();
+                                      String idd = className.replaceAll(RegExp(r'\s+'), '').toLowerCase();
+                                      final id = "${value.schoolid}_$idd".toUpperCase();
+                                      
+                                      final data = ClassModel(
+                                        id: id,
+                                        name: className,
+                                        schoolId: value.schoolid,
+                                        department: selecteddepart,
+                                        timestamp: DateTime.now(),
+                                        staff: value.name,
+                                      ).toMap();
 
-                                        String className =
-                                        classController.text.trim();
-                                        String idd = className
-                                            .replaceAll(RegExp(r'\s+'), '')
-                                            .toLowerCase();
-                                        final id = "${value.schoolid}_$idd"
-                                            .replaceAll(" ", "");
-                                        final data = ClassModel(
-                                          id: id,
-                                          name: className,
-                                          schoolId: value.schoolid,
-                                          department: selecteddepart,
-                                          timestamp: DateTime.now(),
-                                          staff: value.name,
-                                        ).toMap();
-
-                                        await value.db
-                                            .collection('classes')
-                                            .doc(id)
-                                            .set(data, SetOptions(merge: true));
-
-                                        progress.dismiss();
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
+                                      await value.db.collection('classes').doc(id).set(data, SetOptions(merge: true));
+                                      progress.dismiss();
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
                                           SnackBar(
-                                            content: Text(
-                                              isEdit
-                                                  ? 'Class updated successfully'
-                                                  : 'Class registered successfully',
-                                            ),
+                                            content: Text(isEdit ? 'Class updated' : 'Class registered'),
                                             backgroundColor: Colors.green,
                                           ),
                                         );
-
-                                        if (!isEdit) {
-                                          classController.clear();
-                                          setState(() => selecteddepart = null);
-                                        }
                                       }
-                                    },
-                                    icon: Icon(
-                                      isEdit ? Icons.update : Icons.save,
-                                    ),
-                                    label: Text(
-                                      isEdit ? 'Update Class' : 'Register Class',
-                                    ),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Color(0xFF00496d),
-                                      foregroundColor: Colors.white,
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 40,
-                                        vertical: 15,
-                                      ),
-                                      textStyle:
-                                      const TextStyle(fontSize: 15),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      elevation: 5,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 20),
 
-                                  OutlinedButton.icon(
-                                    style: OutlinedButton.styleFrom(
-                                      side:
-                                      const BorderSide(color: Color(0xFF00496d)),
-                                      foregroundColor: Colors.black54,
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 20, vertical: 14),
-                                    ),
-                                    icon: const Icon(Icons.list),
-                                    label: const Text("View Classes"),
-                                    onPressed: () {
-                                      Navigator.pushNamed(context, Routes.viewclass);
-                                    },
-                                  ),
-                                ],
+                                      if (!isEdit) {
+                                        Navigator.pop(context);
+                                      }
+                                    }
+                                  },
+                                  icon: Icon(isEdit ? Icons.update : Icons.save),
+                                  label: Text(isEdit ? 'Update Class' : 'Register Class', style: const TextStyle(fontWeight: FontWeight.bold)),
+                                ),
                               ),
-                              const SizedBox(height: 20),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: OutlinedButton.icon(
+                                  style: OutlinedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(vertical: 16),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  ),
+                                  onPressed: () => Navigator.pushNamed(context, Routes.viewclass),
+                                  icon: const Icon(Icons.list_alt),
+                                  label: const Text("View Classes"),
+                                ),
+                              ),
                             ],
                           ),
-                        ),
+                        ],
                       ),
                     ),
                   ),
                 ),
-              );
-            },
+              ),
+            ),
           );
         },
       ),

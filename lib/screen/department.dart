@@ -1,4 +1,3 @@
-
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -36,6 +35,7 @@ class _DepartmentState extends State<Department> {
   void initState() {
     super.initState();
     Future.microtask(() {
+      if (!mounted) return;
       final provider = context.read<Myprovider>();
       provider.fetchFaculty();
     });
@@ -229,7 +229,8 @@ class _DepartmentState extends State<Department> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
 
-                            buildDropdown(
+                            DropdownWidget.buildDropdown(
+                              dropdownContext: context,
                               value: selectedfaculty,
                               items: value.faculties
                                   .map((e) => e.name)

@@ -55,20 +55,20 @@ export const createLedgerOnFeePaymentUpdate = onDocumentUpdated(
           term,
           level,
           yeargroup,
-          amount: String(amount),
+          amount: Number(amount),
           paymentId: event.params.paymentId,
           createdAt: admin.firestore.FieldValue.serverTimestamp(),
           accounts: {
             debit: {
               account: receivedaccount ?? null,
               accountClass: debitAccountClass,
-              value: String(amount),
+              value: Number(amount),
               subClass: debitSubClass,
             },
             credit: {
               account: crAccount ?? null,
               accountClass: crAccountClass ?? null,
-              value: String(amount),
+              value: Number(amount),
               subClass: crAccountSubClass ?? null,
             },
           },
