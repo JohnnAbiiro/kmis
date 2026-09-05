@@ -33,6 +33,8 @@ import '../screen/assessmentcomponents.dart';
 import '../screen/attendance.dart';
 import '../screen/billing.dart';
 import '../screen/class.dart';
+import '../screen/courseallocation.dart';
+import '../screen/coursemounting.dart';
 import '../screen/currentacademicyrterm.dart';
 import '../screen/department.dart';
 
@@ -63,6 +65,7 @@ import '../screen/remarks.dart';
 import '../screen/reopening.dart';
 import '../screen/scoreconfig.dart';
 import '../screen/scoringhome.dart';
+import '../screen/setupwizard.dart';
 import '../screen/singleBilling.dart';
 import '../screen/singlepromotion.dart';
 import '../screen/staffhomepage.dart';
@@ -71,7 +74,6 @@ import '../screen/studentp.dart';
 import '../screen/studentsetup.dart';
 import '../screen/subject.dart';
 import '../screen/systemActivity.dart';
-import '../screen/teachersetup.dart';
 import '../screen/term.dart';
 import '../screen/terminalreport.dart';
 import '../screen/termlist.dart';
@@ -224,6 +226,10 @@ class Routes {
   static const enterAssessmentMarks = "/enterAssessmentMarks";
   static const studentportal = "/studentportal";
   static const ledger_report = "/ledger_report";
+  static const registerschool = "/registerschool";
+  static const setupWizard = "/setupWizard";
+  static const courseallocation = "/courseallocation";
+  static const coursemounting = "/coursemounting";
 
   // Role → Allowed routes mapping
   static const roleAllowedRoutes = {
@@ -334,13 +340,7 @@ final GoRouter router = GoRouter(
         return AcademicYr(year: year);
       },
     ),
-    GoRoute(
-      path: Routes.setupteacher,
-      builder: (context, state) {
-        final setupData = state.extra as TeacherSetup?; // Optional
-        return TeacherSetupPage(setupData: setupData);
-      },
-    ),
+
 
     GoRoute(
       path: Routes.gradingsystem,
@@ -411,5 +411,9 @@ final GoRouter router = GoRouter(
     GoRoute(path: Routes.nextfees,builder: (c,s)=> NextFees()),
     GoRoute(path: Routes.reopening,builder: (c,s)=> Reopening()),
     GoRoute(path: Routes.headremarks,builder: (c,s)=> HeadremarkPage()),
+    GoRoute(path: Routes.registerschool,builder: (c,s)=> RegisterSchool()),
+    GoRoute(path: Routes.setupWizard,builder: (c,s)=> SetupWizardPage()),
+    GoRoute(path: Routes.courseallocation,builder: (c,s)=> CourseAllocationPage()),
+    GoRoute(path: Routes.coursemounting,builder: (c,s)=> CourseMountingPage()),
   ],
 );

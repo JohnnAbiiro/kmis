@@ -15,6 +15,7 @@ class ColumnChart extends StatefulWidget {
 class _ColumnChartState extends State<ColumnChart> {
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
 
     final List<Map<String, dynamic>> barData = [
       {'month': 'Jan', 'paid': 80, 'unpaid': 50},
@@ -36,7 +37,7 @@ class _ColumnChartState extends State<ColumnChart> {
       width: widget.cwidth,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
@@ -48,13 +49,13 @@ class _ColumnChartState extends State<ColumnChart> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+                Text(
                   'Fees Report',
-                  style: TextStyle(fontSize: 18, color: Color(0xFF00496d))
+                  style: TextStyle(fontSize: 18, color: colors.primary)
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
+                children: [
                   CircleAvatar(radius: 5, backgroundColor: Color(0xFF00b377)),
                   SizedBox(width: 6),
                   Text('Paid'),

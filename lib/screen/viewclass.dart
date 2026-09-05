@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:ksoftsms/controller/myprovider.dart';
 import '../controller/routes.dart';
+import 'class.dart';
 
 class Viewclass extends StatefulWidget {
   const Viewclass({super.key});
@@ -30,10 +30,10 @@ class _ViewclassState extends State<Viewclass> {
             backgroundColor: const Color(0xFF2D2F45),
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),
-              onPressed: () => context.go(Routes.dashboard),
+              onPressed: () => Navigator.pop(context,true),
             ),
           ),
-          //backgroundColor: const Color(0xFF1F1F2C),
+
           body: Align(
             alignment: Alignment.topCenter,
             child: ConstrainedBox(
@@ -76,7 +76,7 @@ class _ViewclassState extends State<Viewclass> {
                           IconButton(
                             icon: const Icon(Icons.edit, color: Colors.amber),
                             onPressed: () {
-                              context.go(Routes.classes, extra: classes);
+                             Navigator.push(context,MaterialPageRoute(builder: (context) => ClassScreen(classes: classes)));
                             },
                           ),
                           IconButton(
@@ -106,7 +106,7 @@ class _ViewclassState extends State<Viewclass> {
                               );
 
                               if (confirm == true) {
-                                await provider.deleteData("classes", classes.id);
+                                await provider.deleteClass(classes.id);
 
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(

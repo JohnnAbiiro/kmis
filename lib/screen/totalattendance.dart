@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../controller/myprovider.dart';
 import '../controller/routes.dart';
@@ -39,7 +38,7 @@ class _TotalattendState extends State<Totalattend> {
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back),
                 onPressed: () {
-                  context.go(Routes.dashboard);
+                  Navigator.pop(context);
                 },
               ),
             ),

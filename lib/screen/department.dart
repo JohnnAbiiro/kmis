@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../controller/dbmodels/departmodel.dart';
 import '../controller/myprovider.dart';
@@ -43,7 +42,7 @@ class _DepartmentState extends State<Department> {
                   backgroundColor: const Color(0xFF2D2F45),
                   leading: IconButton(
                     icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () => context.go(Routes.dashboard),
+                    onPressed: () => Navigator.pop(context,true),
                   ),
                   title: Text(
                     isEdit ? 'Edit Department' : 'Register Department',
@@ -174,32 +173,7 @@ class _DepartmentState extends State<Department> {
                                     ),
                                   ),
                                   const SizedBox(width: 20),
-                                  // ElevatedButton.icon(
-                                  //   onPressed: () {
-                                  //     context.go(Routes.viewdepart);
-                                  //   },
-                                  //   icon: const Icon(
-                                  //     Icons.list,
-                                  //     color: Colors.white,
-                                  //   ),
-                                  //   label: const Text(
-                                  //     'View Departments',
-                                  //     style: TextStyle(color: Colors.white),
-                                  //   ),
-                                  //   style: ElevatedButton.styleFrom(
-                                  //     backgroundColor: Colors.blueAccent,
-                                  //     foregroundColor: Colors.white,
-                                  //     padding: const EdgeInsets.symmetric(
-                                  //       horizontal: 40,
-                                  //       vertical: 15,
-                                  //     ),
-                                  //     //textStyle: const TextStyle(fontSize: 18),
-                                  //     shape: RoundedRectangleBorder(
-                                  //       borderRadius: BorderRadius.circular(10),
-                                  //     ),
-                                  //     elevation: 5,
-                                  //   ),
-                                  // ),
+
                                   OutlinedButton.icon(
                                     style: OutlinedButton.styleFrom(
                                       side:
@@ -211,7 +185,7 @@ class _DepartmentState extends State<Department> {
                                     icon: const Icon(Icons.list),
                                     label: const Text("View Departments"),
                                     onPressed: () {
-                                      context.go(Routes.viewdepart);
+                                      Navigator.pushNamed(context, Routes.viewdepart);
                                     },
                                   ),
                                 ],

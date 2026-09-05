@@ -2,7 +2,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../controller/dbmodels/componentmodel.dart';
@@ -45,7 +44,7 @@ class _RevenueGridPageState extends State<AccessComponent> {
                   backgroundColor: const Color(0xFF2D2F45),
                   leading: IconButton(
                     icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () => context.go(Routes.dashboard),
+                    onPressed: () => Navigator.pop(context),
                   ),
                   title: const Text(
                     'Access Components',
@@ -249,7 +248,7 @@ class _RevenueGridPageState extends State<AccessComponent> {
                                   ),
                                   InkWell(
                                     onTap: () =>
-                                        context.go(Routes.accesslist),
+                                        Navigator.pushNamed(context, Routes.accesslist),
                                     borderRadius: BorderRadius.circular(12),
                                     child: Container(
                                       padding: const EdgeInsets.symmetric(
@@ -300,7 +299,6 @@ class _RevenueGridPageState extends State<AccessComponent> {
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../controller/dbmodels/componentmodel.dart';
 import '../controller/myprovider.dart';
@@ -351,7 +349,7 @@ class _AccessComponentState extends State<AccessComponent> {
                   backgroundColor: const Color(0xFF2D2F45),
                   leading: IconButton(
                     icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () => context.go(Routes.dashboard),
+                    onPressed: () => Navigator.pop(context),
                   ),
                   title: Text(
                     widget.component == null
@@ -465,7 +463,7 @@ class _AccessComponentState extends State<AccessComponent> {
                                               backgroundColor: Colors.green,
                                             ),
                                           );
-                                          context.go(Routes.accesslist);
+                                          Navigator.pushNamed(context, Routes.accesslist);
                                         }
                                       } catch (e) {
                                         progress?.dismiss();
@@ -493,7 +491,7 @@ class _AccessComponentState extends State<AccessComponent> {
                                 ),
                                 icon: const Icon(Icons.list),
                                 label: const Text("View Access"),
-                                onPressed: () => context.go(Routes.accesslist),
+                                onPressed: () => Navigator.pushNamed(context, Routes.accesslist),
                               ),
                             ],
                           ),

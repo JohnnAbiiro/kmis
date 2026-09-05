@@ -191,7 +191,6 @@ class _ItemRegViewState extends State<ItemRegView> {
 
                                               ],
                                               rows: value.itemreglist.map((doc){
-                                                //final data = doc.data() as Map<String, dynamic>;
                                                 return DataRow(
                                                     cells: [
                                                       DataCell(Text(doc.name)),
@@ -293,6 +292,7 @@ class _ItemRegViewState extends State<ItemRegView> {
                                           ),
                                         );
                                       }
+
                                     }
                                 ),
                               ),

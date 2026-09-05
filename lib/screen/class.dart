@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../controller/dbmodels/classmodel.dart';
@@ -30,7 +29,7 @@ class _ClassScreenState extends State<ClassScreen> {
       provider.fetchdepart();
     });
 
-    // Pre-fill if editing
+
     final data = widget.classes;
     if (data != null) {
       classController.text = data.name;
@@ -53,7 +52,7 @@ class _ClassScreenState extends State<ClassScreen> {
                   backgroundColor: const Color(0xFF2D2F45),
                   leading: IconButton(
                     icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () => context.go(Routes.dashboard),
+                    onPressed: () => Navigator.pop(context,true),
                   ),
                   title: Text(
                     isEdit ? 'Edit Class' : 'Register Class',
@@ -211,33 +210,7 @@ class _ClassScreenState extends State<ClassScreen> {
                                     ),
                                   ),
                                   const SizedBox(width: 20),
-                                  // ElevatedButton.icon(
-                                  //   onPressed: () {
-                                  //     context.go(Routes.viewclass);
-                                  //   },
-                                  //   icon: const Icon(
-                                  //     Icons.list,
-                                  //     color: Colors.white,
-                                  //   ),
-                                  //   label: const Text(
-                                  //     'View Classes',
-                                  //     style: TextStyle(color: Colors.white),
-                                  //   ),
-                                  //   style: ElevatedButton.styleFrom(
-                                  //     backgroundColor: Colors.blueAccent,
-                                  //     foregroundColor: Colors.white,
-                                  //     padding: const EdgeInsets.symmetric(
-                                  //       horizontal: 40,
-                                  //       vertical: 15,
-                                  //     ),
-                                  //     textStyle:
-                                  //     const TextStyle(fontSize: 18),
-                                  //     shape: RoundedRectangleBorder(
-                                  //       borderRadius: BorderRadius.circular(10),
-                                  //     ),
-                                  //     elevation: 5,
-                                  //   ),
-                                  // ),
+
                                   OutlinedButton.icon(
                                     style: OutlinedButton.styleFrom(
                                       side:
@@ -249,7 +222,7 @@ class _ClassScreenState extends State<ClassScreen> {
                                     icon: const Icon(Icons.list),
                                     label: const Text("View Classes"),
                                     onPressed: () {
-                                      context.go(Routes.viewclass);
+                                      Navigator.pushNamed(context, Routes.viewclass);
                                     },
                                   ),
                                 ],

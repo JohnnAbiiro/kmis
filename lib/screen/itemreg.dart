@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:go_router/go_router.dart';
 import 'package:ksoftsms/controller/dbmodels/accountsModel.dart';
 import 'package:ksoftsms/controller/dbmodels/iteRegModel.dart';
 import 'package:provider/provider.dart';
@@ -62,7 +61,7 @@ class _RevenueGridPageState extends State<ItemReg> {
                   backgroundColor: const Color(0xFF00273a),
                   leading: IconButton(
                     icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () => context.go(Routes.dashboard),
+                    onPressed: () => Navigator.pop(context),
                   ),
                   title: Text(
                     'Register Item',
@@ -199,7 +198,7 @@ class _RevenueGridPageState extends State<ItemReg> {
                                       padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
                                     ),
                                     onPressed: () {
-                                      context.go(Routes.itemregview);
+                                      Navigator.pushNamed(context, Routes.itemregview);
                                     },
                                     icon: const Icon(Icons.save, color: Colors.white),
                                     label: const Text("View Account", style: TextStyle(color: Colors.white)),

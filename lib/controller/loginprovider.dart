@@ -1,4 +1,5 @@
 
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -24,8 +25,8 @@ import 'dbmodels/staffmodel.dart';
 
 class LoginProvider extends ChangeNotifier {
   String today = DateFormat("MMMM d, y").format(DateTime.now());
-  List<String> staffSchoolIds=[];
-  List<String> schoolnames=[];
+  List<String> staffSchoolIds = [];
+  List<String> schoolnames = [];
   List<SchoolModel> schoolList = [];
   List<Staff> staffschools = [];
 
@@ -39,19 +40,43 @@ class LoginProvider extends ChangeNotifier {
   List<CoaModel> accountlist = [];
   List<ItemRegModel> itemreglist = [];
 
-  List<String> staffaccesslevel = ["admin", "teacher", "super admin"];
+  List<String> staffaccesslevel = [
+    "admin",
+    "super admin",
+    "academic",
+    "hod",
+    "tutor",
+    "student",
+    "teacher",
+    "head teacher",
+    "accountant",
+    "admissions officer",
+    "store officer",
+  ];
   List<StudentModel> selectedStudents = [];
   List<ExpenseModel> expenselist = [];
   List<SupplierModel> supplierList = [];
   List<StudentModel> searchResults = [];
-  List<Map<String, String>> linkedAccounts = []; // holds account id + name
-  Map<String,dynamic> receiptrecords = {};
+  List<Map<String, String>> linkedAccounts = [];
+  Map<String, dynamic> receiptrecords = {};
   final numberFormat = NumberFormat("#,##0.00", "en_US");
   String currentschool = "";
   Staff? usermodel;
   String schoolid = "";
   String staffid = "";
+  String region = "";
+  String createddate = "";
   String accesslevel = "";
+  //String schoolType = "Pre-tertiary";
+  String schoolType = "tertiary";
+  String departmentId = "";
+
+  bool get isSuperAdmin => accesslevel.trim().toLowerCase() == 'super admin';
+  bool get isAdmin => accesslevel.trim().toLowerCase() == 'admin';
+  bool get isAcademic => accesslevel.trim().toLowerCase() == 'academic';
+  bool get isHod => accesslevel.trim().toLowerCase() == 'hod';
+  bool get isTutor => accesslevel.trim().toLowerCase() == 'tutor';
+  bool get isStudent => accesslevel.trim().toLowerCase() == 'student';
   String phone = "";
   String name = "";
   String year = "";
@@ -68,16 +93,16 @@ class LoginProvider extends ChangeNotifier {
   List<String> accountclass = [];
   List<FeeSetUpModel> fees = [];
   List<PaymentMethodModel> paymethodlist = [];
-  String receiptno="";
-  String status="";
+  String receiptno = "";
+  String status = "";
   List<String> accountsubclass = [];
-  String receiptName="";
-  String receiptpaymentmethod="";
-  String receiptdate="";
+  String receiptName = "";
+  String receiptpaymentmethod = "";
+  String receiptdate = "";
 
-  String receiptnote="";
-  String receipt="";
-  double receiptTotal=0;
+  String receiptnote = "";
+  String receipt = "";
+  double receiptTotal = 0;
 
   String normalizeAndSanitize(dynamic value) {
     if (value == null) return "n_a";
@@ -98,47 +123,6 @@ class LoginProvider extends ChangeNotifier {
 
   List<Map<String, dynamic>> assignedList = [];
 
-  fetchTeacherSetup(String staffKeys) async {
-    try {
-      final snapshot = await db.collection("teacherSetup").doc(staffKeys).get();
-
-      if (!snapshot.exists || snapshot.data() == null) {
-        assignedList = [];
-        notifyListeners();
-        return;
-      }
-
-      final data = snapshot.data() as Map<String, dynamic>;
-      final classesMap = Map<String, dynamic>.from(data['classname'] ?? {});
-      final subjectsMap = Map<String, dynamic>.from(data['subjects'] ?? {});
-
-      if (classesMap.isEmpty || subjectsMap.isEmpty) {
-        assignedList = [];
-        notifyListeners();
-        return;
-      }
-
-      assignedList = [
-        for (final classEntry in classesMap.values)
-          for (final subjectEntry in subjectsMap.values)
-            if (subjectEntry is Map<String, dynamic> &&
-                subjectEntry.containsKey('name') &&
-                subjectEntry.containsKey('id'))
-              {
-                "class": classEntry['name'],
-                "subject": subjectEntry['name'],
-                "subjectkey": subjectEntry['id'],
-                "department": classEntry['department'],
-              }
-      ];
-
-      notifyListeners();
-    } catch (e) {
-      debugPrint("Error fetching teacher setup: $e");
-      assignedList = [];
-      notifyListeners();
-    }
-  }
   //  login(String email, String password, BuildContext context) async {
   //   try {
   //     final loginhere = await auth.signInWithEmailAndPassword(
@@ -174,14 +158,14 @@ class LoginProvider extends ChangeNotifier {
   //         prefs.setStringList("staffschools", staffschools.map((e) => e.schoolId).toList());
   //         prefs.setStringList("schoolnames", staffschools.map((e) => e.schoolname).toList());
   //         await getdata();
-  //         context.go(Routes.nextpage);
+  //         Navigator.pushNamed(context, Routes.nextpage);
   //         notifyListeners();
   //       }
   //
   //       else {
   //         await getdata();
   //         auth.currentUser!.updateDisplayName(nameTxt);
-  //         context.go(Routes.dashboard);
+  //         Navigator.pushNamed(context, Routes.dashboard);
   //         notifyListeners();
   //       }
   //
@@ -205,7 +189,10 @@ class LoginProvider extends ChangeNotifier {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('useremail', email);
 
-        final detail = await db.collection("staff").where('email', isEqualTo: email).get();
+        final detail = await db
+            .collection("staff")
+            .where('email', isEqualTo: email)
+            .get();
         int numberofdocs = detail.docs.length;
 
         if (numberofdocs == 0) {
@@ -222,38 +209,75 @@ class LoginProvider extends ChangeNotifier {
         String schoolTxt = usermodel?.schoolname ?? '';
         String schoolIdTxt = usermodel?.schoolId ?? '';
         String IdTxt = usermodel?.id ?? '';
+        createddate = usermodel?.createdAt != null
+            ? usermodel!.createdAt.toIso8601String()
+            : '';
+        region = usermodel?.region ?? '';
+        departmentId =
+            userData["departmentId"]?.toString() ??
+                userData["departmentid"]?.toString() ??
+                "";
 
-        // Save to prefs
-        prefs.setString("school", schoolTxt);
-        prefs.setString("email", emailTxt);
-        prefs.setString("name", nameTxt);
-        prefs.setString("role", roleTxt);
-        prefs.setString("phone", phoneTxt);
-        prefs.setString("schoolid", schoolIdTxt);
-        prefs.setString("staffid", IdTxt);
+        await Future.wait([
+          prefs.setString("school", schoolTxt),
+          prefs.setString("email", emailTxt),
+          prefs.setString("name", nameTxt),
+          prefs.setString("role", roleTxt),
+          prefs.setString("accessLevel", roleTxt),
+          prefs.setString("phone", phoneTxt),
+          prefs.setString("schoolid", schoolIdTxt),
+          prefs.setString("staffid", IdTxt),
+          prefs.setString("createddate", createddate),
+          prefs.setString("region", region),
+          prefs.setString("departmentId", departmentId),
+        ]);
 
         try {
-
-          final schoolSnapshot =
-          await db.collection("schools").doc(schoolIdTxt).get();
+          var schoolSnapshot = await db
+              .collection("schools")
+              .doc(schoolIdTxt)
+              .get();
+          if (!schoolSnapshot.exists && schoolIdTxt.isNotEmpty) {
+            final schoolQuery = await db
+                .collection("schools")
+                .where("schoolid", isEqualTo: schoolIdTxt)
+                .limit(1)
+                .get();
+            if (schoolQuery.docs.isNotEmpty) {
+              schoolSnapshot = schoolQuery.docs.first;
+            }
+          }
           if (schoolSnapshot.exists) {
             final data = schoolSnapshot.data() as Map<String, dynamic>;
             final String termTxt = data["term"]?.toString() ?? "";
             final String yearTxt = data["academicyr"]?.toString() ?? "";
-            final String academicyridTxt = data["academicyrid"]?.toString() ?? "";
+            final String academicyridTxt =
+                data["academicyrid"]?.toString() ?? "";
+            final String schoolTypeTxt =
+                data["type"]?.toString() ?? "Pre-tertiary";
+            final String schoolNameTxt =
+                data["schoolname"]?.toString() ?? schoolTxt;
 
-            await prefs.setString("term", termTxt);
-            await prefs.setString("year", yearTxt);
-            await prefs.setString("academicyrid", academicyridTxt);
-            await prefs.setString("staffkey", academicyridTxt);
+            await Future.wait([
+              prefs.setString("school", schoolNameTxt),
+              prefs.setString("term", termTxt),
+              prefs.setString("year", yearTxt),
+              prefs.setString("academicyrid", academicyridTxt),
+              prefs.setString("staffkey", academicyridTxt),
+              prefs.setString("schoolType", schoolTypeTxt),
+            ]);
+            schoolTxt = schoolNameTxt;
+            currentschool = schoolNameTxt;
+            schoolType = schoolTypeTxt;
             term = termTxt;
             year = yearTxt;
             academicyrid = academicyridTxt;
             notifyListeners();
           } else {
-            debugPrint("Firestore returned NO DOCUMENT for schoolId: $schoolIdTxt");
+            debugPrint(
+              "Firestore returned NO DOCUMENT for schoolId: $schoolIdTxt",
+            );
           }
-
         } catch (e) {
           debugPrint("ERROR fetching academic term/year: $e");
         }
@@ -263,18 +287,27 @@ class LoginProvider extends ChangeNotifier {
           staffschools = detail.docs.map((doc) {
             return Staff.fromMap(doc.data(), doc.id);
           }).toList();
-          prefs.setStringList(
-              "staffschools", staffschools.map((e) => e.schoolId).toList());
-          prefs.setStringList(
-              "schoolnames", staffschools.map((e) => e.schoolname).toList());
+          await prefs.setStringList(
+            "staffschools",
+            staffschools.map((e) => e.schoolId).toList(),
+          );
+          await prefs.setStringList(
+            "schoolnames",
+            staffschools.map((e) => e.schoolname).toList(),
+          );
 
           await getdata();
           context.go(Routes.nextpage);
         } else {
           // Single school
+          await prefs.remove("staffschools");
+          await prefs.remove("schoolnames");
           await getdata();
-          auth.currentUser!.updateDisplayName(nameTxt);
-          if (roleTxt == 'teacher') {
+          await auth.currentUser!.updateDisplayName(nameTxt);
+          final normalizedRole = roleTxt.trim().toLowerCase();
+          if (normalizedRole == 'teacher' ||
+              normalizedRole == 'tutor' ||
+              normalizedRole == 'staff-tutor') {
             context.go(Routes.staffhome);
           } else {
             context.go(Routes.dashboard);
@@ -289,38 +322,94 @@ class LoginProvider extends ChangeNotifier {
     }
   }
 
-   getdata() async {
+  getdata() async {
     final prefs = await SharedPreferences.getInstance();
     schoolid = prefs.getString('schoolid') ?? '';
     staffid = prefs.getString('staffid') ?? '';
+    region = prefs.getString('region') ?? '';
+    createddate = prefs.getString('createddate') ?? '';
     currentschool = prefs.getString('school') ?? '';
     phone = prefs.getString('phone') ?? '';
     email = prefs.getString('email') ?? '';
     accesslevel = prefs.getString('role') ?? '';
+    if (accesslevel.isEmpty) {
+      accesslevel = prefs.getString('accessLevel') ?? '';
+    }
+    schoolType = prefs.getString('schoolType') ?? 'Pre-tertiary';
+    departmentId = prefs.getString('departmentId') ?? '';
     name = prefs.getString('name') ?? '';
     year = prefs.getString('year') ?? '';
     academicyrid = prefs.getString('academicyrid') ?? '';
     term = prefs.getString('term') ?? '';
     staffSchoolIds = prefs.getStringList("staffschools") ?? [];
     schoolnames = prefs.getStringList("schoolnames") ?? [];
-    receiptno=prefs.getString("receiptno")??"";
+    receiptno = prefs.getString("receiptno") ?? "";
     notifyListeners();
   }
-   setSchool(String school, String schoolid) async {
-    try{
+
+  Future<void> fetchAssignedCourses() async {
+    await getdata();
+    if (schoolid.isEmpty || staffid.isEmpty) {
+      assignedList = [];
+      notifyListeners();
+      return;
+    }
+    try {
+      final snapshot = await db
+          .collection('teacherSetup')
+          .where('schoolId', isEqualTo: schoolid)
+          .where('staffid', isEqualTo: staffid)
+          .get();
+      final assignments = <Map<String, dynamic>>[];
+      for (final document in snapshot.docs) {
+        final data = document.data();
+        final subjects = data['subjects'];
+        final classes = data['classname'];
+        final subjectEntries = subjects is Map ? subjects.values : const [];
+        final classEntries = classes is Map ? classes.values : const [];
+        for (final subject in subjectEntries) {
+          if (subject is! Map) continue;
+          for (final schoolClass in classEntries) {
+            if (schoolClass is! Map) continue;
+            assignments.add({
+              'subject': subject['name'] ?? subject['id'] ?? '',
+              'subjectId': subject['id'] ?? '',
+              'class': schoolClass['name'] ?? '',
+              'department': schoolClass['department'] ?? '',
+              'academicYear': data['academicyear'] ?? year,
+              'term': data['term'] ?? term,
+              'setupId': document.id,
+            });
+          }
+        }
+      }
+      assignedList = assignments;
+    } catch (error) {
+      debugPrint('Unable to load assigned courses: $error');
+      assignedList = [];
+    }
+    notifyListeners();
+  }
+
+  setSchool(String school, String schoolid) async {
+    try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString("school", school);
       await prefs.setString("schoolid", schoolid);
-    }catch(e){
+    } catch (e) {
       errorMessage = e.toString();
     }
     notifyListeners();
   }
-   staffcount() async {
+
+  staffcount() async {
     await getdata();
     try {
       print(schoolid);
-      final detail = await db.collection("staff").where('schoolId', isEqualTo: schoolid).get();
+      final detail = await db
+          .collection("staff")
+          .where('schoolId', isEqualTo: schoolid)
+          .get();
       int numberofdocs = detail.docs.length;
       staffcount_in_school = numberofdocs;
       print(numberofdocs);
@@ -331,115 +420,125 @@ class LoginProvider extends ChangeNotifier {
   }
 
   fetchStaff() async {
-     try{
-       final snapshot = await db.collection('staff').where('schoolId',isEqualTo: schoolid).get();
-    stafflist = snapshot.docs.map((doc) {
-         return Staff.fromMap(doc.data(), doc.id);
-       }).toList();
-
-     }
-     catch(e){
+    try {
+      final snapshot = await db
+          .collection('staff')
+          .where('schoolId', isEqualTo: schoolid)
+          .get();
+      stafflist = snapshot.docs.map((doc) {
+        return Staff.fromMap(doc.data(), doc.id);
+      }).toList();
+    } catch (e) {
       print(e);
-     }
+    }
     notifyListeners();
   }
-  fetchSupplier()async{
-     try{
-       final snapshot = await db.collection('supplier').get();
-       supplierlist = snapshot.docs.map((doc) {
-         return SupplierModel.fromMap(doc.data());
-       }).toList();
-     }catch(e){
-       //print(e);
-     }
-     notifyListeners();
-  }
-  fetchExpense()async{
-     try{
-       final snapshot = await db.collection('expense').get();
-       expenselists = snapshot.docs.map((doc){
-         return ExpenseModel.fromJson(  doc.data() as Map<String, dynamic>,
-           doc.id,);
-       }).toList();
-     }catch(e){
 
-     }
-     notifyListeners();
-  }
-  fetchFeePayment () async {
-     try{
-       final snapshot = await db.collection('feepayment').get();
-       feepaymentlist = snapshot.docs.map((doc){
-         return FeePaymentModel.fromJson(doc.data());
-       }).toList();
-     }catch(e){}
+  fetchSupplier() async {
+    try {
+      final snapshot = await db.collection('supplier').get();
+      supplierlist = snapshot.docs.map((doc) {
+        return SupplierModel.fromMap(doc.data());
+      }).toList();
+    } catch (e) {
+      //print(e);
+    }
     notifyListeners();
   }
+
+  fetchExpense() async {
+    try {
+      final snapshot = await db.collection('expense').get();
+      expenselists = snapshot.docs.map((doc) {
+        return ExpenseModel.fromJson(
+          doc.data() as Map<String, dynamic>,
+          doc.id,
+        );
+      }).toList();
+    } catch (e) {}
+    notifyListeners();
+  }
+
+  fetchFeePayment() async {
+    try {
+      final snapshot = await db.collection('feepayment').get();
+      feepaymentlist = snapshot.docs.map((doc) {
+        return FeePaymentModel.fromJson(doc.data());
+      }).toList();
+    } catch (e) {}
+    notifyListeners();
+  }
+
   fetchSingleBilled() async {
-     try{
-       final snapshot = await db.collection('singlebilled').get();
-       singlebilledlist = snapshot.docs.map((doc){
-         return SingleBilledModel.fromMap(doc.data());
-       }).toList();
-     }catch(e){}
-    notifyListeners();
-  }
-  fetchBilled()async{
-     try{
-       final snapshot = await db.collection('billed').get();
-       billedlist = snapshot.docs.map((doc){
-         return BilledModel.fromMap(doc.data());
-       }).toList();
-     }catch(e){}
-    notifyListeners();
-  }
-  fetchActivityList()async{
-     try{
-       final snapshot = await db.collection('systemActivity').get();
-       activitylist = snapshot.docs.map((doc){
-         return ActivityModel.fromMap(  doc.data() as Map<String, dynamic>,
-           doc.id,);
-       }).toList();
-     }catch(e){}
-    notifyListeners();
-  }
-  fetchAccountList()async{
-     try{
-       final snapshot = await db.collection('mainaccounts').get();
-       accountlist = snapshot.docs.map((doc){
-         return CoaModel.fromMap(  doc.data() as Map<String, dynamic>,
-           doc.id,);
-       }).toList();
-     }catch(e){}
-    notifyListeners();
-  }
-  fetchItemRegList()async{
-     try{
-       final snapshot = await db.collection('itemReg').get();
-       itemreglist = snapshot.docs.map((doc){
-         return ItemRegModel.fromMap(doc.data());
-       }).toList();
-     }catch(e){}
+    try {
+      final snapshot = await db.collection('singlebilled').get();
+      singlebilledlist = snapshot.docs.map((doc) {
+        return SingleBilledModel.fromMap(doc.data());
+      }).toList();
+    } catch (e) {}
     notifyListeners();
   }
 
-  Future<void> deleteStaff(String id,int index,BuildContext context) async {
+  fetchBilled() async {
+    try {
+      final snapshot = await db.collection('billed').get();
+      billedlist = snapshot.docs.map((doc) {
+        return BilledModel.fromMap(doc.data());
+      }).toList();
+    } catch (e) {}
+    notifyListeners();
+  }
+
+  fetchActivityList() async {
+    try {
+      final snapshot = await db.collection('systemActivity').get();
+      activitylist = snapshot.docs.map((doc) {
+        return ActivityModel.fromMap(
+          doc.data() as Map<String, dynamic>,
+          doc.id,
+        );
+      }).toList();
+    } catch (e) {}
+    notifyListeners();
+  }
+
+  fetchAccountList() async {
+    try {
+      final snapshot = await db.collection('mainaccounts').get();
+      accountlist = snapshot.docs.map((doc) {
+        return CoaModel.fromMap(doc.data() as Map<String, dynamic>, doc.id);
+      }).toList();
+    } catch (e) {}
+    notifyListeners();
+  }
+
+  fetchItemRegList() async {
+    try {
+      final snapshot = await db.collection('itemReg').get();
+      itemreglist = snapshot.docs.map((doc) {
+        return ItemRegModel.fromMap(doc.data());
+      }).toList();
+    } catch (e) {}
+    notifyListeners();
+  }
+
+  Future<void> deleteStaff(String id, int index, BuildContext context) async {
     try {
       await db.collection('staff').doc(id).delete();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("deleted successfully")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("deleted successfully")));
       stafflist.removeAt(index);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error deleting: $e")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error deleting: $e")));
     }
     fetchStaff();
     notifyListeners();
   }
 
-   Future<bool> staffexistbyphone(String phone) async {
+  Future<bool> staffexistbyphone(String phone) async {
     try {
       final detail = await db
           .collection("staff")
@@ -457,7 +556,8 @@ class LoginProvider extends ChangeNotifier {
       return false;
     }
   }
-   Future<bool> staffexistbyemail(String email) async {
+
+  Future<bool> staffexistbyemail(String email) async {
     try {
       final detail = await db
           .collection("staff")
@@ -475,7 +575,8 @@ class LoginProvider extends ChangeNotifier {
       return false;
     }
   }
-   //  Future<void> fetchtermyear(String schoolId, SharedPreferences prefs) async {
+
+  //  Future<void> fetchtermyear(String schoolId, SharedPreferences prefs) async {
   //   try {
   //     final snapshot = await db.collection("schools").doc(schoolId).get();
   //
@@ -494,31 +595,49 @@ class LoginProvider extends ChangeNotifier {
   //     debugPrint("Error fetching term/year: $e");
   //   }
   // }
-   void setAccounts(List<String> accounts) {
+  void setAccounts(List<String> accounts) {
     accounts = accounts;
     notifyListeners();
   }
-   Future<void> fetchAccounts() async {
+
+  Future<void> fetchAccounts() async {
     try {
       final snapshot = await db.collection("mainaccounts").get();
-      accounts = snapshot.docs.map((doc) => (doc.data()["name"] ?? "") as String).where((name) => name.isNotEmpty).toList();
-      accountclass = snapshot.docs.map((doc) => (doc.data()["accountType"] ?? "") as String).where((name) => name.isNotEmpty).toList();
-      accountsubclass = snapshot.docs.map((doc) => (doc.data()["subType"] ?? "") as String).where((name) => name.isNotEmpty).toList();
+      accounts = snapshot.docs
+          .map((doc) => (doc.data()["name"] ?? "") as String)
+          .where((name) => name.isNotEmpty)
+          .toList();
+      accountclass = snapshot.docs
+          .map((doc) => (doc.data()["accountType"] ?? "") as String)
+          .where((name) => name.isNotEmpty)
+          .toList();
+      accountsubclass = snapshot.docs
+          .map((doc) => (doc.data()["subType"] ?? "") as String)
+          .where((name) => name.isNotEmpty)
+          .toList();
     } catch (e) {
       print("Error fetching accounts: $e");
     }
     notifyListeners();
   }
-   Future<void> fetchCurrentAccounts() async {
+
+  Future<void> fetchCurrentAccounts() async {
     try {
-      final snapshot = await db.collection("mainaccounts").where('subType',isEqualTo: 'Current Assets').get();
-      currentaccounts = snapshot.docs.map((doc) => (doc.data()["name"] ?? "") as String).where((name) => name.isNotEmpty).toList();
+      final snapshot = await db
+          .collection("mainaccounts")
+          .where('subType', isEqualTo: 'Current Assets')
+          .get();
+      currentaccounts = snapshot.docs
+          .map((doc) => (doc.data()["name"] ?? "") as String)
+          .where((name) => name.isNotEmpty)
+          .toList();
     } catch (e) {
       print("Error fetching accounts: $e");
     }
     notifyListeners();
   }
-   Future<void> fetchFess() async {
+
+  Future<void> fetchFess() async {
     try {
       //loadclassdata = true;
       notifyListeners();
@@ -527,15 +646,16 @@ class LoginProvider extends ChangeNotifier {
         return FeeSetUpModel.fromMap(doc.data());
       }).toList();
 
-    //  loadclassdata = false;
+      //  loadclassdata = false;
       notifyListeners();
     } catch (e) {
-     // loadclassdata = false;
+      // loadclassdata = false;
       notifyListeners();
       print("Failed to fetch class: $e");
     }
   }
-   Future<void> paymentmethodslist() async {
+
+  Future<void> paymentmethodslist() async {
     try {
       //loadclassdata = true;
       final snapshot = await db.collection("paymentmethod").get();
@@ -544,21 +664,22 @@ class LoginProvider extends ChangeNotifier {
         return PaymentMethodModel.fromMap(doc.data());
       }).toList();
 
-    //  loadclassdata = false;
+      //  loadclassdata = false;
       notifyListeners();
     } catch (e) {
-     // loadclassdata = false;
+      // loadclassdata = false;
       notifyListeners();
       print("Failed to fetch class: $e");
     }
     notifyListeners();
-
   }
-   emptysearchResults(){
-    searchResults=[];
+
+  emptysearchResults() {
+    searchResults = [];
     notifyListeners();
   }
-    searchStudents(String query) async {
+
+  searchStudents(String query) async {
     try {
       if (query.isEmpty) {
         searchResults = [];
@@ -566,28 +687,35 @@ class LoginProvider extends ChangeNotifier {
       }
       searchResults.clear();
 
-      final snap = await FirebaseFirestore.instance.collection("students").where("name", isGreaterThanOrEqualTo: query).where("name", isLessThanOrEqualTo: "$query\uf8ff").limit(10).get();
+      final snap = await FirebaseFirestore.instance
+          .collection("students")
+          .where("name", isGreaterThanOrEqualTo: query)
+          .where("name", isLessThanOrEqualTo: "$query\uf8ff")
+          .limit(10)
+          .get();
       //searchResults = snap.docs.map((d) => {"id": d.id, ...d.data() as Map<String, dynamic>}).toList();
       searchResults = snap.docs.map((doc) {
         return StudentModel.fromMap(doc.data());
       }).toList();
-
     } catch (e) {
       print("Error searching students: $e");
     }
     notifyListeners();
   }
-   void addStudent(StudentModel student) {
+
+  void addStudent(StudentModel student) {
     if (!selectedStudents.any((s) => s.studentid == student.studentid)) {
       selectedStudents.add(student);
       notifyListeners();
     }
   }
-   void removeStudent(String studentId) {
+
+  void removeStudent(String studentId) {
     selectedStudents.removeWhere((s) => s.studentid == studentId);
     notifyListeners();
   }
-   Future<void> fetchLinkedAccounts(String paymentMethodName) async {
+
+  Future<void> fetchLinkedAccounts(String paymentMethodName) async {
     linkedAccounts.clear();
     final snapshot = await FirebaseFirestore.instance
         .collection("paymentmethod")
@@ -603,68 +731,78 @@ class LoginProvider extends ChangeNotifier {
 
         // fetch account names from mainaccounts
         if (ids.isNotEmpty) {
-            linkedAccounts = ids.map((id) {
-              return {"name": id};
-            }).toList();
-
+          linkedAccounts = ids.map((id) {
+            return {"name": id};
+          }).toList();
         }
       }
     }
     notifyListeners();
   }
-   void clearSelectedStudents() {
+
+  void clearSelectedStudents() {
     selectedStudents.clear();
     notifyListeners();
   }
-   generatereceiptnumber()async{
-    SharedPreferences spref=await SharedPreferences.getInstance();
-    try{
-      final now = DateTime.now();
-      final dateKey = "${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}";
-      final lastreceiptnumber= await db.collection("feepayment").where('schoolId',isEqualTo: schoolid).get();
-      String numberPart = schoolid.replaceAll(RegExp(r'[^0-9]'), '');
-      receiptno="$numberPart$dateKey${(lastreceiptnumber.docs.length + 1)}";
-      await spref.setString("receiptno", receiptno);
-    }catch(e){
-      print(e);
-    }
-     notifyListeners();
-   }
-   myreceipt()async{
-    try{
-        await getdata();
-        final data=await db.collection("feepayment").doc(receiptno).get();
-        receiptName=data.data()!['studentName'];
-        receiptrecords=data.data()!['fees'];
-        receiptpaymentmethod=data.data()!['paymentmethod'];
-         receiptnote=receiptrecords.keys.toString().toString();
-        final ts = data['dateCreated'];
-        DateTime date = ts.toDate();
-         receiptdate = DateFormat("MMMM d, y").format(date);
-         double receiptval=0;
-        receiptTotal=receiptval;
 
-        for(var values in receiptrecords.values){
-           receiptval+=double.parse(values.toString());
-         }
-        receiptTotal=receiptval;
-        print(receiptTotal.toStringAsFixed(2));
-         print(receiptTotal);
-    }catch(e){
+  generatereceiptnumber() async {
+    SharedPreferences spref = await SharedPreferences.getInstance();
+    try {
+      final now = DateTime.now();
+      final dateKey =
+          "${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}";
+      final lastreceiptnumber = await db
+          .collection("feepayment")
+          .where('schoolId', isEqualTo: schoolid)
+          .get();
+      String numberPart = schoolid.replaceAll(RegExp(r'[^0-9]'), '');
+      receiptno = "$numberPart$dateKey${(lastreceiptnumber.docs.length + 1)}";
+      await spref.setString("receiptno", receiptno);
+    } catch (e) {
       print(e);
     }
     notifyListeners();
+  }
 
+  myreceipt() async {
+    try {
+      await getdata();
+      final data = await db.collection("feepayment").doc(receiptno).get();
+      receiptName = data.data()!['studentName'];
+      receiptrecords = data.data()!['fees'];
+      receiptpaymentmethod = data.data()!['paymentmethod'];
+      receiptnote = receiptrecords.keys.toString().toString();
+      final ts = data['dateCreated'];
+      DateTime date = ts.toDate();
+      receiptdate = DateFormat("MMMM d, y").format(date);
+      double receiptval = 0;
+      receiptTotal = receiptval;
 
-   }
+      for (var values in receiptrecords.values) {
+        receiptval += double.parse(values.toString());
+      }
+      receiptTotal = receiptval;
+      print(receiptTotal.toStringAsFixed(2));
+      print(receiptTotal);
+    } catch (e) {
+      print(e);
+    }
+    notifyListeners();
+  }
+
   Future<void> fetchexpense() async {
     try {
       //loadterms = true;
-      final snapshot = await db.collection("mainaccounts").where('accountType',isEqualTo:"Expense" ).get();
+      final snapshot = await db
+          .collection("mainaccounts")
+          .where('accountType', isEqualTo: "Expense")
+          .get();
 
       expenselist = snapshot.docs.map((doc) {
-        return ExpenseModel.fromJson(  doc.data() as Map<String, dynamic>,
-          doc.id,);
+        return ExpenseModel.fromJson(
+          doc.data() as Map<String, dynamic>,
+          doc.id,
+        );
       }).toList();
 
       // loadterms = false;
@@ -675,10 +813,14 @@ class LoginProvider extends ChangeNotifier {
       print("Failed to fetch terms: $e");
     }
   }
+
   Future<void> fetchsuppliers() async {
     try {
       //loadterms = true;
-      final snapshot = await db.collection("supplier").where('schoolId',isEqualTo:schoolid ).get();
+      final snapshot = await db
+          .collection("supplier")
+          .where('schoolId', isEqualTo: schoolid)
+          .get();
       supplierList = snapshot.docs.map((doc) {
         return SupplierModel.fromMap(doc.data());
       }).toList();
@@ -690,23 +832,36 @@ class LoginProvider extends ChangeNotifier {
     }
   }
 
-  logout(BuildContext context) async{
-    SharedPreferences pref=await SharedPreferences.getInstance();
+  logout(BuildContext context) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
     final auth = FirebaseAuth.instance;
     await auth.signOut();
 
-    await pref.remove('year');
-    await pref.remove('school');
-    await pref.remove('academicyrid') ;
-    await pref.remove('term') ;
-    await pref.remove('schoolnames');
-    await pref.remove('schoolid');
-    await pref.remove('name');
-    await pref.remove('email');
-    assignedList=[];
+    await Future.wait([
+      pref.remove('useremail'),
+      pref.remove('year'),
+      pref.remove('school'),
+      pref.remove('academicyrid'),
+      pref.remove('staffkey'),
+      pref.remove('term'),
+      pref.remove('schoolnames'),
+      pref.remove('staffschools'),
+      pref.remove('schoolid'),
+      pref.remove('staffid'),
+      pref.remove('name'),
+      pref.remove('email'),
+      pref.remove('role'),
+      pref.remove('accessLevel'),
+      pref.remove('phone'),
+      pref.remove('createddate'),
+      pref.remove('region'),
+      pref.remove('departmentId'),
+      pref.remove('schoolType'),
+    ]);
+    assignedList = [];
     //await getdata();
     // Navigate to login
-    context.go(Routes.login);
+ context.go(Routes.login);
     notifyListeners();
   }
 
@@ -725,4 +880,34 @@ class LoginProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> changePassword(
+      String currentPassword,
+      String newPassword,
+      ) async {
+    try {
+      final user = auth.currentUser;
+      if (user == null) throw Exception('No user logged in');
+
+      // Re-authenticate user with current password
+      final credential = EmailAuthProvider.credential(
+        email: user.email!,
+        password: currentPassword,
+      );
+
+      await user.reauthenticateWithCredential(credential);
+
+      // Change password
+      await user.updatePassword(newPassword);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'wrong-password') {
+        throw Exception('Current password is incorrect');
+      } else if (e.code == 'weak-password') {
+        throw Exception('New password is too weak');
+      } else {
+        throw Exception(e.message ?? 'Failed to change password');
+      }
+    } catch (e) {
+      throw Exception('Failed to change password: $e');
+    }
+  }
 }

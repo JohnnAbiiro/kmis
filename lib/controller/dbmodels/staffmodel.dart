@@ -12,6 +12,7 @@ class Staff {
   final String status;
   final String schoolname;
   final String schoolId;
+  final String departmentId;
   final DateTime createdAt;
 
   Staff({
@@ -24,6 +25,7 @@ class Staff {
     required this.sex,
     required this.region,
     required this.schoolId,
+    this.departmentId = "",
     required this.schoolname,
     required this.createdAt,
     this.status = "0",
@@ -43,6 +45,8 @@ class Staff {
       "status": status,
       "schoolid": schoolId,
       "school": schoolname,
+      "schoolId": schoolId,
+      "departmentId": departmentId,
       "createdAt": Timestamp.fromDate(createdAt),
     };
   }
@@ -66,6 +70,7 @@ class Staff {
     addIfNotEmpty("region", region);
     addIfNotEmpty("schoolid", schoolId);
     addIfNotEmpty("schoolname", schoolname);
+    addIfNotEmpty("departmentId", departmentId);
 
     return data;
   }
@@ -75,15 +80,16 @@ class Staff {
     return Staff(
       id: id,
       name: map["name"] ?? "",
-      accessLevel: map["accessLevel"] ?? "",
+        accessLevel: map["accessLevel"] ?? map["accesslevel"] ?? "",
       teaching: map["teaching"] ?? "",
       phone: map["phone"] ?? "",
       email: map["email"] ?? "",
       sex: map["sex"] ?? "",
       region: map["region"] ?? "",
       status: map["status"] ?? "0",
-      schoolId: map["schoolId"] ?? "",
-      schoolname: map["schoolname"] ?? "",
+      schoolId: map["schoolId"] ?? map["schoolid"] ?? "",
+        schoolname: map["schoolname"] ?? map["school"] ?? "",
+      departmentId: map["departmentId"] ?? map["departmentid"] ?? "",
       createdAt: (map["createdAt"] is Timestamp)
           ? (map["createdAt"] as Timestamp).toDate()
           : (map["createdAt"] ?? DateTime.now()),
@@ -103,7 +109,8 @@ class Staff {
       'region': region,
       'status': status,
       'schoolId': schoolId,
-      'schoolname': schoolname,
+        'schoolname': schoolname,
+      'departmentId': departmentId,
       'createdAt': Timestamp.fromDate(createdAt),
     };
   }

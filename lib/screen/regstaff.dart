@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
 import 'package:ksoftsms/controller/loginprovider.dart';
 import 'package:ksoftsms/controller/myprovider.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../controller/dbmodels/staffmodel.dart';
 import '../controller/routes.dart';
@@ -27,6 +26,13 @@ class _RegstaffState extends State<Regstaff> {
   String? myRegion;
   String? _selectedSex;
   String? _selectedAccessLevel;
+  final departmentIdController = TextEditingController();
+  final List<String> schoolStaffRoles = const [
+    'admin',
+    'academic',
+    'hod',
+    'tutor',
+  ];
 
   bool _showStaffContainer = false;
 
@@ -45,6 +51,12 @@ class _RegstaffState extends State<Regstaff> {
   }
 
   @override
+  void dispose() {
+    departmentIdController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final inputFill = const Color(0xFFffffff);
     final isEdit = widget.staffData != null;
@@ -60,7 +72,7 @@ class _RegstaffState extends State<Regstaff> {
                   leading: IconButton(
                     icon: const Icon(Icons.arrow_back, color: Colors.white),
                     onPressed: () {
-                      context.go(Routes.dashboard);
+                      Navigator.pop(context);
                     },
                   ),
                   title: Text(value.currentschool,
@@ -168,10 +180,28 @@ class _RegstaffState extends State<Regstaff> {
                                           ),
                                           const SizedBox(height: 20),
 
+                                          TextFormField(
+                                            controller: departmentIdController,
+                                            decoration: _inputDecoration(
+                                              "Department ID",
+                                              "Required for HOD staff",
+                                              inputFill,
+                                            ),
+                                            style: const TextStyle(fontSize: 16),
+                                            validator: (value) {
+                                              if ((_selectedAccessLevel ?? '').toLowerCase() == 'hod' &&
+                                                  (value == null || value.trim().isEmpty)) {
+                                                return 'Department ID is required for HOD';
+                                              }
+                                              return null;
+                                            },
+                                          ),
+                                          const SizedBox(height: 20),
+
                                           // Access Level
                                           DropdownButtonFormField<String>(
                                             value: _selectedAccessLevel,
-                                            items: value.staffaccesslevel.map((accesslevel) {
+                                            items: schoolStaffRoles.map((accesslevel) {
                                               return DropdownMenuItem(
                                                 value: accesslevel,
                                                 child: Text(accesslevel, style: const TextStyle(color: Colors.black54)),
@@ -203,6 +233,7 @@ class _RegstaffState extends State<Regstaff> {
                                                         String schoolName= value.currentschool ?? "";
                                                         DateTime createdAt= DateTime.now();
                                                         String accessLevelTxt= _selectedAccessLevel ?? "";
+                                                        String departmentIdTxt = departmentIdController.text.trim();
                                                         //get the next staffid
                                                         await value.staffcount();
                                                         String _staffcount=value.staffcount_in_school.toString();
@@ -230,6 +261,7 @@ class _RegstaffState extends State<Regstaff> {
                                                             region: regionTxt,
                                                             schoolId: schoolId,
                                                             schoolname: schoolName,
+                                                            departmentId: departmentIdTxt,
                                                             id: _staffid,
                                                             createdAt: createdAt, teaching: '').toMap();
                                                         final password ="123456";
@@ -262,9 +294,9 @@ class _RegstaffState extends State<Regstaff> {
                                                   ),
                                                   ElevatedButton.icon(
                                                     onPressed: (){
-                                                      context.go(Routes.staffview);
+                                                      Navigator.pushNamed(context, Routes.staffview);
                                                     },
-                                                    //=> context.go(Routes.viewstaff),
+                                                    //=> Navigator.pushNamed(context, Routes.viewstaff),
                                                     icon: const Icon(Icons.view_list),
                                                     label: const Text('View Staff', style: TextStyle(fontSize: 12),),
                                                     style: _btnStyle(),

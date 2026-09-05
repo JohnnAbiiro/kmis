@@ -377,6 +377,38 @@ class Myprovider extends LoginProvider {
       rethrow;
     }
   }
+    Future<void> deleteDepartment(String id) async {
+    await db.collection('department').doc(id).delete();
+    departments.removeWhere((c) => c.id == id);
+    notifyListeners();
+  }
+  Future<void> deleteClass(String id) async {
+    await db.collection('classes').doc(id).delete();
+    classdata.removeWhere((c) => c.id == id);
+    notifyListeners();
+  }
+  Future<void> deleteSubject(String id) async {
+    await db.collection('subjects').doc(id).delete();
+    subjectList.removeWhere((c) => c.id == id);
+    notifyListeners();
+  }
+  Future<void> deleteStudents(String id) async {
+    await db.collection('students').doc(id).delete();
+    studentlist.removeWhere((c) => c.id == id);
+    notifyListeners();
+  }
+
+  Future<void> deleteAcademicyr(String id) async {
+    await db.collection('academicyears').doc(id).delete();
+    academicyears.removeWhere((c) => c.id == id);
+    notifyListeners();
+  }
+
+  Future<void> deleteTerms(String id) async {
+    await db.collection('terms').doc(id).delete();
+    terms.removeWhere((c) => c.id == id);
+    notifyListeners();
+  }
   showform(bool show, String type) {
     if (type == 'login') {
       loginform = true;

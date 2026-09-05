@@ -1,11 +1,8 @@
-import 'dart:io';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../controller/myprovider.dart';
 import '../controller/routes.dart';
 import '../controller/dbmodels/schoolmodel.dart';
@@ -29,6 +26,8 @@ class _RegisterSchoolState extends State<RegisterSchool> {
   final countryCode = TextEditingController();
   final schoolId = TextEditingController();
   bool agreedToTerms = true;
+  String schoolType = 'Pre-tertiary';
+  bool _isLoadingSchool = false;
 
   String? _uploadedLogoUrl = '';
 
@@ -37,16 +36,85 @@ class _RegisterSchoolState extends State<RegisterSchool> {
     super.initState();
     final data = widget.school;
     if (data != null) {
-      schoolName.text = data.schoolname;
-      prefix.text = data.prefix;
-      address.text = data.address;
-      email.text = data.email;
-      phone.text = data.phone;
-      countryName.text = data.countryName;
-      countryCode.text = data.countryCode;
-      schoolId.text = data.schoolId;
-      agreedToTerms = data.agreedToTerms;
-      _uploadedLogoUrl = data.logoUrl;
+      _prefill(
+        schoolname: data.schoolname,
+        prefix: data.prefix,
+        address: data.address,
+        email: data.email,
+        phone: data.phone,
+        countryName: data.countryName,
+        countryCode: data.countryCode,
+        schoolId: data.schoolId,
+        agreedToTerms: data.agreedToTerms,
+        type: data.type,
+        logoUrl: data.logoUrl,
+      );
+    }
+    Future.microtask(() {
+      final provider = Provider.of<Myprovider>(context, listen: false);
+      if (provider.schoolid.isNotEmpty) {
+        _fetchSchool(provider.schoolid);
+      }
+    });
+  }
+
+  void _prefill({
+    String? schoolname,
+    String? prefix,
+    String? address,
+    String? email,
+    String? phone,
+    String? countryName,
+    String? countryCode,
+    String? schoolId,
+    bool? agreedToTerms,
+    String? type,
+    String? logoUrl,
+  }) {
+    if (schoolname != null) this.schoolName.text = schoolname;
+    if (prefix != null) this.prefix.text = prefix;
+    if (address != null) this.address.text = address;
+    if (email != null) this.email.text = email;
+    if (phone != null) this.phone.text = phone;
+    if (countryName != null) this.countryName.text = countryName;
+    if (countryCode != null) this.countryCode.text = countryCode;
+    if (schoolId != null) this.schoolId.text = schoolId;
+    if (agreedToTerms != null) this.agreedToTerms = agreedToTerms;
+    if (type != null) schoolType = type == 'Tertiary' ? 'Tertiary' : 'Pre-tertiary';
+    if (logoUrl != null) _uploadedLogoUrl = logoUrl;
+  }
+
+  Future<void> _fetchSchool(String id) async {
+    setState(() => _isLoadingSchool = true);
+    try {
+      final provider = Provider.of<Myprovider>(context, listen: false);
+      final doc = await provider.db.collection('schools').doc(id).get();
+      if (doc.exists && mounted) {
+        final map = doc.data()!;
+        setState(() {
+          _prefill(
+            schoolname: map['schoolname'] as String?,
+            prefix: map['prefix'] as String?,
+            address: map['address'] as String?,
+            email: map['email'] as String?,
+            phone: map['phone'] as String?,
+            countryName: map['countryName'] as String?,
+            countryCode: map['countryCode'] as String?,
+            schoolId: map['schoolId'] as String?,
+            agreedToTerms: map['agreedToTerms'] as bool?,
+            type: map['type'] as String?,
+            logoUrl: map['logoUrl'] as String?,
+          );
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to load school details: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoadingSchool = false);
     }
   }
 
@@ -76,7 +144,11 @@ class _RegisterSchoolState extends State<RegisterSchool> {
               backgroundColor: const Color(0xFF00273a),
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () => context.go(Routes.dashboard),
+                onPressed: () => Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  Routes.dashboard,
+                      (route) => false,
+                ),
               ),
               title: Text(
                 isEdit ? 'Edit School' : 'Register School',
@@ -87,7 +159,9 @@ class _RegisterSchoolState extends State<RegisterSchool> {
                 ),
               ),
             ),
-            body: SingleChildScrollView(
+            body: _isLoadingSchool
+                ? const Center(child: CircularProgressIndicator())
+                : SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(16, 40, 16, 20),
               child: Align(
                 alignment: Alignment.topCenter,
@@ -168,6 +242,29 @@ class _RegisterSchoolState extends State<RegisterSchool> {
                             validatorMsg: 'School ID cannot be empty',
                             fillColor: inputFill,
                           ),
+                          const SizedBox(height: 10),
+                          DropdownButtonFormField<String>(
+                            initialValue: schoolType,
+                            decoration: const InputDecoration(
+                              labelText: 'School Type',
+                              border: OutlineInputBorder(),
+                            ),
+                            items: const [
+                              DropdownMenuItem(
+                                value: 'Pre-tertiary',
+                                child: Text('Pre-tertiary'),
+                              ),
+                              DropdownMenuItem(
+                                value: 'Tertiary',
+                                child: Text('Tertiary'),
+                              ),
+                            ],
+                            onChanged: (value) {
+                              if (value != null) {
+                                setState(() => schoolType = value);
+                              }
+                            },
+                          ),
                           const SizedBox(height: 20),
                           Row(
                             children: [
@@ -187,7 +284,6 @@ class _RegisterSchoolState extends State<RegisterSchool> {
                             ],
                           ),
                           const SizedBox(height: 20),
-                         // _buildLogoPicker(value),
                           const SizedBox(height: 20),
                           ElevatedButton.icon(
                             onPressed: () async {
@@ -205,9 +301,6 @@ class _RegisterSchoolState extends State<RegisterSchool> {
                               String countryCodeTxt = countryCode.text.trim();
                               String schoolIdTxt = schoolId.text.trim();
 
-                              // Upload image if new one was picked
-                              //await value.uploadImage(prefixTxt);
-
                               final school = SchoolModel(
                                 id: widget.school?.id ?? prefixTxt,
                                 schoolname: schoolNameTxt,
@@ -223,13 +316,20 @@ class _RegisterSchoolState extends State<RegisterSchool> {
                                 countryCode: countryCodeTxt,
                                 schoolId: schoolIdTxt,
                                 agreedToTerms: agreedToTerms,
-                                type: "customer",
+                                type: schoolType,
                               );
 
                               await value.db
-                                  .collection("schools") // 🔹 plural
+                                  .collection("schools")
                                   .doc(school.id)
                                   .set(school.toMap(), SetOptions(merge: true));
+
+                              final prefs = await SharedPreferences.getInstance();
+                              await Future.wait([
+                                prefs.setString('schoolid', school.schoolId),
+                                prefs.setString('school', school.schoolname),
+                                prefs.setString('schoolType', school.type),
+                              ]);
 
                               progress?.dismiss();
 
@@ -241,23 +341,6 @@ class _RegisterSchoolState extends State<RegisterSchool> {
                                   backgroundColor: Colors.green,
                                 ),
                               );
-                              // value.imagefile = null;
-
-                              // if (!isEdit) {
-                              //   setState(() {
-                              //     value.imageUrl = "";
-                              //     _uploadedLogoUrl = "";
-                              //     agreedToTerms = true;
-                              //   });
-                              //   schoolName.clear();
-                              //   prefix.clear();
-                              //   address.clear();
-                              //   email.clear();
-                              //   phone.clear();
-                              //   countryName.clear();
-                              //   countryCode.clear();
-                              //   schoolId.clear();
-                              // }
                             },
                             icon: Icon(isEdit ? Icons.update : Icons.save),
                             label: Text(isEdit ? 'Update School' : 'Register School'),
@@ -321,36 +404,4 @@ class _RegisterSchoolState extends State<RegisterSchool> {
       },
     );
   }
-
-  // Widget _buildLogoPicker(Myprovider value) {
-  //   return InkWell(
-  //     onTap: () =>null, //value.pickImageFromGallery(context),
-  //     borderRadius: BorderRadius.circular(50),
-  //     child: SizedBox(
-  //       width: 100,
-  //       height: 100,
-  //       child: ClipOval(
-  //           child: CachedNetworkImage(
-  //             imageUrl: _uploadedLogoUrl!,
-  //             fit: BoxFit.cover,
-  //             placeholder: (_, __) =>
-  //             const Center(child: CircularProgressIndicator()),
-  //             errorWidget: (_, __, ___) =>
-  //             const Icon(Icons.broken_image, size: 40, color: Colors.white),
-  //           )
-  //
-  //               ? Image.file(File(value.imagefile!.path), fit: BoxFit.cover)
-  //               : (_uploadedLogoUrl != null && _uploadedLogoUrl!.isNotEmpty
-  //               ? CachedNetworkImage(
-  //             imageUrl: _uploadedLogoUrl!,
-  //             fit: BoxFit.cover,
-  //             placeholder: (_, __) =>
-  //             const Center(child: CircularProgressIndicator()),
-  //             errorWidget: (_, __, ___) =>
-  //             const Icon(Icons.broken_image, size: 40, color: Colors.white),
-  //           )
-  //               : const Icon(Icons.school, size: 40, color: Colors.white54)))),
-  //     ),
-  //   );
-  // }
 }

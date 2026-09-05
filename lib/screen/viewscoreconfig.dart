@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:ksoftsms/controller/myprovider.dart';
 import 'package:provider/provider.dart';
 import '../controller/routes.dart';
@@ -59,9 +58,9 @@ class _ScoreConfigViewPageState extends State<ScoreConfigViewPage> {
                             color: Colors.blueAccent),
                         tooltip: 'Edit configuration',
                         onPressed: () {
-                          context.go(
+                          Navigator.pushNamed(context, 
                             Routes.scoreconfig,
-                            extra: config,
+                            arguments: config,
                           );
                         },
                       ),

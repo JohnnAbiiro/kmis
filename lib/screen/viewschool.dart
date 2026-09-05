@@ -1,7 +1,6 @@
 // import 'package:ksoftsms/controller/myprovider.dart';
 // import 'package:flutter/material.dart';
 // import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-// import 'package:go_router/go_router.dart';
 // import 'package:provider/provider.dart';
 // import '../controller/routes.dart';
 //
@@ -55,7 +54,7 @@
 //               ),
 //               leading: IconButton(
 //                 icon: const Icon(Icons.arrow_back, color: Colors.white),
-//                 onPressed: () => context.go(Routes.dashboard),
+//                 onPressed: () => Navigator.pop(context),
 //               ),
 //             ),
 //             body: Align(
@@ -173,9 +172,9 @@
 //                                         icon: const Icon(Icons.edit,
 //                                             color: Colors.amber),
 //                                         onPressed: () {
-//                                           context.go(
+//                                           Navigator.pushNamed(context, 
 //                                             Routes.school,
-//                                             extra: {
+//                                             arguments: {
 //                                               "school": school,
 //                                               "isEdit": true,
 //                                             },
@@ -289,7 +288,6 @@
 // import 'package:ksoftsms/controller/myprovider.dart';
 // import 'package:flutter/material.dart';
 // import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-// import 'package:go_router/go_router.dart';
 // import 'package:provider/provider.dart';
 // import '../controller/routes.dart';
 //
@@ -342,7 +340,7 @@
 //               ),
 //               leading: IconButton(
 //                 icon: const Icon(Icons.arrow_back, color: Colors.white),
-//                 onPressed: () => context.go(Routes.dashboard),
+//                 onPressed: () => Navigator.pop(context),
 //               ),
 //             ),
 //             body: Align(
@@ -475,9 +473,9 @@
 //                                         icon: const Icon(Icons.edit,
 //                                             color: Colors.amber),
 //                                         onPressed: () {
-//                                           context.go(
+//                                           Navigator.pushNamed(context, 
 //                                             Routes.school,
-//                                             extra: {
+//                                             arguments: {
 //                                               "school": school,
 //                                               "isEdit": true,
 //                                             },

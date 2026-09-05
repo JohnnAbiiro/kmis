@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:ksoftsms/controller/myprovider.dart';
 import 'package:ksoftsms/components/academicyrmodel.dart';
@@ -50,7 +49,7 @@ class _CurrenttermyrState extends State<Currenttermyr> {
         backgroundColor: const Color(0xFF2D2F45),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => context.go(Routes.dashboard),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
       body: SingleChildScrollView(

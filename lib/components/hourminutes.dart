@@ -14,6 +14,7 @@ class HourMinutes extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
 
     final male = 60;
     final female = 40;
@@ -23,7 +24,7 @@ class HourMinutes extends StatelessWidget {
           width: cwidth,
           height: 250,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: colors.surface,
               borderRadius: BorderRadius.all(Radius.circular(12)),
             boxShadow: [
               BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
@@ -34,7 +35,7 @@ class HourMinutes extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Student Information', style: TextStyle(fontSize: 18, color: Color(0xFF00496d))),
+                Text('Student Information', style: TextStyle(fontSize: 18, color: colors.primary)),
                 SizedBox(height: 30),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -44,7 +45,7 @@ class HourMinutes extends StatelessWidget {
                         height: 150,
                         width: 150,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: colors.surface,
                           border: Border.all(
                             color: Colors.black12
                           ),
@@ -115,9 +116,9 @@ class HourMinutes extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(Icons.people_alt, color: Color(0xFF00b377), size: 40),
-                                    Text("Total Students", style: TextStyle(fontSize: 12),),
-                                    Text(count.toString(), style: TextStyle(fontWeight: FontWeight.w600, fontSize: 30))
+                                    Icon(Icons.people_alt, color: colors.primary, size: 40),
+                                    Text("Total Students", style: TextStyle(fontSize: 12, color: colors.onSurface),),
+                                    Text(count.toString(), style: TextStyle(fontWeight: FontWeight.w600, fontSize: 30, color: colors.onSurface))
                                   ],
                                 );
                               }
@@ -131,7 +132,7 @@ class HourMinutes extends StatelessWidget {
                         height: 150,
                         width: 150,
                         decoration: BoxDecoration(
-                            color: Color(0xFFe1fef3),
+                            color: colors.surface,
                             borderRadius: BorderRadius.all(Radius.circular(6))
                         ),
                         child: StreamBuilder(
@@ -139,8 +140,8 @@ class HourMinutes extends StatelessWidget {
                             builder: (context, snapshot){
                               if (!snapshot.hasData) {
                                 return Shimmer.fromColors(
-                                  baseColor: const Color(0xFF00b377).withOpacity(0.2),
-                                  highlightColor: const Color(0xFF00d7c4).withOpacity(0.4),
+                                  baseColor: colors.primary.withOpacity(0.2),
+                                  highlightColor: colors.primaryContainer.withOpacity(0.4),
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
@@ -149,7 +150,7 @@ class HourMinutes extends StatelessWidget {
                                         height: 12,
                                         width: 100,
                                         decoration: BoxDecoration(
-                                          color: Colors.white,
+                                          color: colors.primary.withOpacity(0.1),
                                           borderRadius: BorderRadius.circular(4),
                                         ),
                                       ),
@@ -159,8 +160,8 @@ class HourMinutes extends StatelessWidget {
                                       Container(
                                         height: 50,
                                         width: 50,
-                                        decoration: const BoxDecoration(
-                                          color: Colors.white,
+                                        decoration: BoxDecoration(
+                                          color: colors.primary.withOpacity(0.1),
                                           shape: BoxShape.circle,
                                         ),
                                       ),
@@ -174,7 +175,7 @@ class HourMinutes extends StatelessWidget {
                                             height: 12,
                                             width: 50,
                                             decoration: BoxDecoration(
-                                              color: Colors.white,
+                                              color: colors.primary.withOpacity(0.1),
                                               borderRadius: BorderRadius.circular(4),
                                             ),
                                           ),
@@ -229,9 +230,9 @@ class HourMinutes extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    const Text(
+                                    Text(
                                       "Male vs Female",
-                                      style: TextStyle(fontSize: 13),
+                                      style: TextStyle(fontSize: 13, color: colors.onSurface),
                                     ),
                                     //const SizedBox(height: 10),
                                     SizedBox(
@@ -243,23 +244,23 @@ class HourMinutes extends StatelessWidget {
                                           sections: [
                                             PieChartSectionData(
                                               value: male.toDouble(),
-                                              color: Color(0xFF00b377),
+                                              color: colors.primary,
                                               title: "${malePercentage.toStringAsFixed(1)}%",
                                               radius: 30,
-                                              titleStyle: const TextStyle(
+                                              titleStyle: TextStyle(
                                                   fontSize: 10,
                                                   fontWeight: FontWeight.bold,
-                                                  color: Colors.white),
+                                                  color: colors.onPrimary),
                                             ),
                                             PieChartSectionData(
                                               value: female.toDouble(),
-                                              color: Color(0xFF00d7c4),
+                                              color: colors.primaryContainer,
                                               title: "${femalePercentage.toStringAsFixed(1)}%",
                                               radius: 28,
-                                              titleStyle: const TextStyle(
+                                              titleStyle: TextStyle(
                                                   fontSize: 10,
                                                   fontWeight: FontWeight.bold,
-                                                  color: Colors.white),
+                                                  color: colors.onPrimaryContainer),
                                             ),
                                           ],
                                         ),
@@ -276,12 +277,12 @@ class HourMinutes extends StatelessWidget {
                                             Container(
                                               width: 12,
                                               height: 12,
-                                              decoration: BoxDecoration(color: Color(0xFF00b377), shape: BoxShape.circle),
+                                              decoration: BoxDecoration(color: colors.primary, shape: BoxShape.circle),
                                             ),
                                             const SizedBox(width: 6),
                                             Text(
                                               "Male",
-                                              style: const TextStyle(fontSize: 12),
+                                              style: TextStyle(fontSize: 12, color: colors.onSurface),
                                             ),
                                           ],
                                         ),
@@ -291,12 +292,12 @@ class HourMinutes extends StatelessWidget {
                                             Container(
                                               width: 12,
                                               height: 12,
-                                              decoration: BoxDecoration(color: Color(0xFF00d7c4), shape: BoxShape.circle),
+                                              decoration: BoxDecoration(color: colors.primaryContainer, shape: BoxShape.circle),
                                             ),
                                             const SizedBox(width: 6),
                                             Text(
                                               "Female",
-                                              style: const TextStyle(fontSize: 12),
+                                              style: TextStyle(fontSize: 12, color: colors.onSurface),
                                             ),
                                           ],
                                         )

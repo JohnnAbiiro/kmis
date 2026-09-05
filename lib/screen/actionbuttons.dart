@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import '../controller/myprovider.dart';
 import '../controller/routes.dart';
 
@@ -12,7 +11,7 @@ List<Widget> actionButtons(Myprovider value, BuildContext context) {
     //     if (selected == 'Logout') {
     //      // await value.logout(context);
     //     } else if (selected == 'viewScores') {
-    //      context.go(Routes.viewmarks);
+    //      Navigator.pushNamed(context, Routes.viewmarks);
     //     }else if (selected == 'finalize') {
     //       final bool? shouldProceed = await _showConfirmationDialog(context, value);
     //       if (shouldProceed == true) {
@@ -62,7 +61,7 @@ List<Widget> actionButtons(Myprovider value, BuildContext context) {
     // )
     //     : InkWell(
     //   onTap: () {
-    //     context.go(Routes.login);
+    //     Navigator.pushNamed(context, Routes.login);
     //   },
     //   child: Container(
     //     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -102,7 +101,7 @@ Future<bool?> _showConfirmationDialog(BuildContext context, provider) async {
             onPressed: () async{
               //await provider.updatecompletedjudgescores();
               Navigator.of(context).pop(true);
-              context.go(Routes.judgelandingpage);
+              Navigator.pushNamed(context, Routes.judgelandingpage);
             },
           ),
         ],

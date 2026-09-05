@@ -1,7 +1,6 @@
 /*
 
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../controller/myprovider.dart';
 import '../controller/routes.dart';
@@ -45,7 +44,7 @@ class _clearScoresState extends State<clearScores> {
           backgroundColor: const Color(0xFF2D2F45),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => context.go( Routes.dashboard),
+            onPressed: () => Navigator.pushNamed(context,  Routes.dashboard),
           ),
           title:  Text(
             'Drop Judge Scores',
