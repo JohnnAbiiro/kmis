@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:go_router/go_router.dart';
 import 'package:ksoftsms/controller/accountProvider.dart';
 import 'package:ksoftsms/controller/dbmodels/accountsModel.dart';
 import 'package:ksoftsms/controller/dbmodels/activityModel.dart';
@@ -67,7 +66,7 @@ class _SystemActivityState extends State<SystemActivity> {
                   backgroundColor: const Color(0xFF00273a),
                   leading: IconButton(
                     icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () => context.go(Routes.dashboard),
+                    onPressed: () => Navigator.pop(context),
                   ),
                   title: Text(
                     '${value.currentschool.toUpperCase()} SYSTEM ACTIVITY',
@@ -210,7 +209,7 @@ class _SystemActivityState extends State<SystemActivity> {
                                           horizontal: 30, vertical: 12),
                                     ),
                                     onPressed: () {
-                                      context.go(Routes.systemactivityview);
+                                      Navigator.pushNamed(context, Routes.systemactivityview);
                                     },
                                     icon: const Icon(Icons.save, color: Colors.white),
                                     label: const Text("View Activity",

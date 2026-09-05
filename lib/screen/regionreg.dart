@@ -3,7 +3,6 @@ import 'package:ksoftsms/controller/routes.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../controller/dbmodels/regionmodel.dart';
 import '../controller/myprovider.dart';
@@ -61,7 +60,7 @@ class _RegionregistrationState extends State<Regionregistration> {
               iconTheme: const IconThemeData(color: Colors.white),
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () => context.go(Routes.dashboard),
+                onPressed: () => Navigator.pop(context),
               ),
             ),
             body: SingleChildScrollView(
@@ -138,7 +137,7 @@ class _RegionregistrationState extends State<Regionregistration> {
                         ),
                         const SizedBox(width: 16),
                         ElevatedButton.icon(
-                          onPressed: () => context.go(Routes.regionlist),
+                          onPressed: () => Navigator.pushNamed(context, Routes.regionlist),
                           icon: const Icon(Icons.list),
                           label: const Text("View Regions"),
                         ),

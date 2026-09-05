@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:ksoftsms/controller/myprovider.dart';
 import '../controller/routes.dart';
+import 'department.dart';
 
 class Viewdepartment extends StatefulWidget {
   const Viewdepartment({super.key});
@@ -30,7 +30,7 @@ class _ViewdepartmentState extends State<Viewdepartment> {
             backgroundColor: const Color(0xFF2D2F45),
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),
-              onPressed: () => context.go(Routes.dashboard),
+              onPressed: () => Navigator.pop(context,true),
             ),
           ),
           body: Align(
@@ -75,7 +75,9 @@ class _ViewdepartmentState extends State<Viewdepartment> {
                           IconButton(
                             icon: const Icon(Icons.edit, color: Colors.amber),
                             onPressed: () {
-                              context.go(Routes.depart, extra: depart);
+                             Navigator.push(context,
+                                 MaterialPageRoute(
+                                     builder: (context) => Department(depart: depart)));
                             },
                           ),
                           IconButton(
@@ -105,7 +107,7 @@ class _ViewdepartmentState extends State<Viewdepartment> {
                               );
 
                               if (confirm == true) {
-                                await provider.deleteData("department", depart.id);
+                                await provider.deleteDepartment(depart.id);
 
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(

@@ -18,6 +18,7 @@ class StudentModel {
   final String timestamp;
   final String photourl;
   final String status;
+  final String accessLevel;
   final String yeargroup;
   final String? academicyr;
   final String? promotionstatus;
@@ -56,6 +57,7 @@ class StudentModel {
     required this.photourl,
     required this.yeargroup,
     this.status = "active",
+    this.accessLevel = "student",
     this.academicyr,
     this.promotionstatus ="not",
     this.promotioncycle ="0",
@@ -95,6 +97,7 @@ class StudentModel {
       'timestamp': timestamp,
       'photourl': photourl,
       'status': status,
+      'accessLevel': accessLevel,
       'yeargroup': yeargroup,
       'academicyr':academicyr,
       'promotionstatus':promotionstatus,
@@ -137,6 +140,7 @@ class StudentModel {
       photourl: map['photourl'] ?? '',
       yeargroup: map['yeargroup'] ?? '',
       status: map['status'] ?? 'active',
+      accessLevel: map['accessLevel'] ?? 'student',
       academicyr: map['academicyr'] ?? '',
       promotioncycle: map['promotioncycle'] ?? '',
       promotionstatus: map['promotionstatus'] ?? '',

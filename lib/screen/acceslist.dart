@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../controller/dbmodels/componentmodel.dart';
@@ -42,7 +41,7 @@ class _AccessListState extends State<AccessList> {
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => context.go(Routes.accesscomponent),
+          onPressed: () => Navigator.pushNamed(context, Routes.accesscomponent),
         ),
       ),
       body: provider.isloadcomponents
@@ -119,9 +118,9 @@ class _AccessListState extends State<AccessList> {
                             color: Colors.amber, size: 20),
                         tooltip: "Edit",
                         onPressed: () {
-                          context.go(
+                          Navigator.pushNamed(context, 
                             Routes.accesscomponent,
-                            extra: data,
+                            arguments: data,
                           );
                         },
                       ),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:ksoftsms/controller/loginprovider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
@@ -42,7 +41,7 @@ class _SchoolReceiptState extends State<SchoolReceipt> {
             leading: IconButton(
               icon: const Icon(Icons.arrow_back,color: Colors.white,),
               onPressed: () {
-                context.go(Routes.feepayment);
+                Navigator.pushNamed(context, Routes.feepayment);
               },
             ),
             title:  Text(" School Receipt",style: TextStyle(color: Colors.white),),

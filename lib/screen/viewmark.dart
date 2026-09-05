@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../controller/routes.dart';
 import '../controller/myprovider.dart';
@@ -71,7 +70,7 @@ class _ViewScorePageState extends State<ViewScorePage> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
-            context.go(Routes.scores);
+            Navigator.pushNamed(context, Routes.scores);
           },
         ),
         backgroundColor: const Color(0xFF2D2F45),
@@ -212,7 +211,7 @@ class _ViewScorePageState extends State<ViewScorePage> {
                                   level,
 
                                 );
-                                context.go(Routes.entermark);
+                                Navigator.pushNamed(context, Routes.entermark);
                               },
                             ),
                           );

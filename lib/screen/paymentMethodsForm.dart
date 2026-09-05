@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
 import 'package:ksoftsms/controller/loginprovider.dart';
-import 'package:ksoftsms/screen/teachersetup.dart' hide MultiSelectItem;
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:provider/provider.dart';
 

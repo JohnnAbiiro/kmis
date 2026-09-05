@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../controller/myprovider.dart';
@@ -33,7 +32,7 @@ class _ViewPromotionSettingsState extends State<ViewPromotionSettings> {
             backgroundColor: const Color(0xFF2D2F45),
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),
-              onPressed: () => context.go(Routes.dashboard),
+              onPressed: () => Navigator.pop(context),
             ),
           ),
 
@@ -92,7 +91,7 @@ class _ViewPromotionSettingsState extends State<ViewPromotionSettings> {
                             tooltip: "Edit",
                             onPressed: () {
                               provider.setEditPromotionData(rule);
-                              context.go(Routes.promotionsetting);
+                              Navigator.pushNamed(context, Routes.promotionsetting);
                             },
                           ),
 

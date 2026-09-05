@@ -1,7 +1,7 @@
 import 'package:ksoftsms/controller/myprovider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:go_router/go_router.dart';
+import 'package:ksoftsms/screen/subject.dart';
 import 'package:provider/provider.dart';
 import '../controller/routes.dart';
 
@@ -55,7 +55,7 @@ class _ViewSubjectPageState extends State<ViewSubjectPage> {
               ),
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () => context.go(Routes.dashboard),
+                onPressed: () => Navigator.pop(context),
               ),
             ),
             body: Align(
@@ -176,10 +176,7 @@ class _ViewSubjectPageState extends State<ViewSubjectPage> {
                                       IconButton(
                                         icon: const Icon(Icons.edit, color: Colors.amber),
                                         onPressed: () {
-                                          context.go(
-                                            Routes.subjects,
-                                            extra: subj, // pass the SubjectModel directly
-                                          );
+                                          Navigator.push(context,MaterialPageRoute(builder: (context) => SubjectRegistration(subject: subj)));
                                         },
                                       ),
 
@@ -235,12 +232,9 @@ class _ViewSubjectPageState extends State<ViewSubjectPage> {
 
                                           if (confirm == true) {
                                             try {
-                                              await provider.deleteData(
-                                                  "subjects", subj.id);
+                                              await provider.deleteSubject(subj.id);
                                               if (mounted) {
-                                                ScaffoldMessenger.of(
-                                                    context)
-                                                    .showSnackBar(
+                                                ScaffoldMessenger.of(context).showSnackBar(
                                                   const SnackBar(
                                                     content: Text(
                                                         "Subject deleted successfully"),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../components/academicyrmodel.dart';
@@ -136,7 +135,7 @@ class _TermcummulativeState extends State<Termcummulative> {
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => context.go(Routes.dashboard),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
 

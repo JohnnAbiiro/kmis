@@ -1,6 +1,5 @@
 
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:ksoftsms/controller/myprovider.dart';
 import '../controller/routes.dart';
@@ -29,7 +28,7 @@ class _LevelListPageState extends State<LevelListPage> {
         backgroundColor: const Color(0xFF2D2F45),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => context.go(Routes.dashboard),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
       backgroundColor: const Color(0xFF1F1F2C),
@@ -62,7 +61,7 @@ return Text("data");
           //             icon: const Icon(Icons.edit, color: Colors.blueAccent),
           //
           //             onPressed: () {
-          //               context.go(Routes.levelreg, extra: level);
+          //               Navigator.pushNamed(context, Routes.levelreg, arguments: level);
           //             },
           //           ),
           //           IconButton(

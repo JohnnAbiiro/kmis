@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:ksoftsms/controller/myprovider.dart';
 import '../controller/routes.dart';
+import 'idformat.dart';
 
 class ViewIdFormats extends StatefulWidget {
   const ViewIdFormats({super.key});
@@ -32,7 +32,7 @@ class _ViewIdFormatsState extends State<ViewIdFormats> {
             elevation: 0,
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),
-              onPressed: () => context.go(Routes.dashboard),
+              onPressed: () => Navigator.pop(context),
             ),
           ),
           body: Center(
@@ -108,7 +108,7 @@ class _ViewIdFormatsState extends State<ViewIdFormats> {
                             icon: const Icon(Icons.edit, color: Colors.amber),
                             tooltip: "Edit ${idFormat.name}",
                             onPressed: () {
-                              context.go(Routes.idformat, extra: idFormat);
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => IdformatScreen(idformatModel: idFormat)));
                             },
                           ),
                           IconButton(

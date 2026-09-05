@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
-import 'package:go_router/go_router.dart';
 
 import '../components/terminalreportsheetprinter.dart';
 import '../controller/routes.dart';
@@ -402,7 +401,7 @@ class _ReportSheetState extends State<ReportSheet> {
         iconTheme: const IconThemeData(color: Colors.white60),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => context.go(Routes.dashboard),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
       body: Padding(
@@ -465,7 +464,6 @@ class _ReportSheetState extends State<ReportSheet> {
 
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../controller/myprovider.dart';
@@ -516,7 +514,7 @@ class _ReportSheetState extends State<ReportSheet> {
               iconTheme: const IconThemeData(color: Colors.white60),
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () => context.go(Routes.dashboard),
+                onPressed: () => Navigator.pop(context),
               ),
             ),
             body: Padding(

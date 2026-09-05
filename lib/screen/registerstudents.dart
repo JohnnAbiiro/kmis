@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../controller/dbmodels/contestantsmodel.dart';
 import '../controller/myprovider.dart';
@@ -71,18 +70,23 @@ class _RegisterStudentState extends State<RegisterStudent> {
     _years = List.generate(now - 1899, (i) => now - i);
 
     final data = widget.studentData;
+    print(data);
     if (data != null) {
-      studentName.text = data.name;
-      studentId.text = data.studentid;
-      dob.text = data.dob;
-      address.text = data.address;
+      studentName.text = data.name ?? '';
+      studentId.text = data.studentid ??'';
+      dob.text = data.dob ?? '';
+      address.text = data.address ?? '';
       email.text = data.email ?? '';
-      phone.text = data.phone;
-      selectedSex = data.sex;
-      selectedLevel = data.level;
-      selectedRegion = data.region;
-      selectedStatus = data.status;
-      selectedTerm = data.term;
+      phone.text = data.phone ?? '';
+
+      selectedTerm = data.term ?? '';
+      selecteddepart = (data.department.isNotEmpty) ? data.department : null;
+      selectedYearGroup = (data.yeargroup.isNotEmpty) ? data.yeargroup : null;
+      selectedRegion = (data.region.isNotEmpty) ? data.region : null;
+      selectedLevel = (data.level.isNotEmpty) ? data.level : null;
+      selectedStatus = (data.status.isNotEmpty) ? data.status : null;
+      selectedSex = (data.sex.isNotEmpty) ? data.sex : null;
+
       _uploadedImageUrl = data.photourl;
       if (dob.text.isNotEmpty) {
         try {
@@ -139,7 +143,7 @@ class _RegisterStudentState extends State<RegisterStudent> {
               backgroundColor: const Color(0xFF2D2F45),
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () => context.go(Routes.dashboard),
+                onPressed: () => Navigator.pop(context),
               ),
               title: Text(
                 isEdit ? 'Edit Student' : 'Register Student',
@@ -422,35 +426,137 @@ class _RegisterStudentState extends State<RegisterStudent> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               ElevatedButton.icon(
+                                // onPressed: () async {
+                                //   if (!_formKey.currentState!.validate()) return;
+                                //   final progress = ProgressHUD.of(context);
+                                //   progress?.show();
+                                //   final query = await value.db .collection('idformats').where('schoolId', isEqualTo: value.schoolid).limit(1).get();
+                                //  if (query.docs.isEmpty) {
+                                //     throw Exception("No ID format found for school ${value.schoolid}");
+                                //   }
+                                //   final formatRef = query.docs.first.reference;
+                                //   final generatedId = await value.db.runTransaction((transaction) async {
+                                //     final snapshot = await transaction.get(formatRef);
+                                //     final data = snapshot.data() as Map<String, dynamic>;
+                                //     final prefix = data['name'] as String;
+                                //     final lastNumber = (data['lastnumber'] ?? 0) as int;
+                                //     final newNumber = lastNumber + 1;
+                                //     final newId = '$prefix${newNumber.toString().padLeft(4, '0')}';
+                                //     transaction.update(formatRef, {"lastnumber": newNumber});
+                                //     return newId;
+                                //   });
+                                //   final nextclass = await value.getnextclass(currentLevel: selectedLevel!);
+                                //   final sid = showStudentId
+                                //       ? studentId.text.trim() // use typed ID
+                                //       : generatedId;
+                                //   //final id = "${value.schoolid}_$generatedId";
+                                //   final id = "${value.schoolid}_$sid".toUpperCase();
+                                //   await value.uploadImage(sid);
+                                //   final student = StudentModel(
+                                //     id: widget.studentData?.id ?? id,
+                                //     studentid: generatedId.toUpperCase(),
+                                //     name: studentName.text.trim(),
+                                //     sex: selectedSex ?? "",
+                                //     school: value.currentschool,
+                                //     region: selectedRegion ?? "",
+                                //     guardiancontact: guardianContacts.map((c) => c.text.trim()).toList(),
+                                //     parentname: parentNames.map((c) => c.text.trim()).toList(),
+                                //     level: selectedLevel ?? "",
+                                //     previousclass: nextclass['previous']??'',
+                                //     nextclass: nextclass["next"] ?? "",
+                                //     currentclass: selectedLevel ?? "",
+                                //     term: value.term,
+                                //     schoolId: value.schoolid,
+                                //     dob: dob.text.trim(),
+                                //     address: address.text.trim(),
+                                //     email: email.text.trim().isEmpty ? null : email.text.trim(),
+                                //     phone: phone.text.trim(),
+                                //     timestamp: DateTime.now().toIso8601String(),
+                                //     photourl: value.imageUrl.isNotEmpty
+                                //         ? value.imageUrl
+                                //         : _uploadedImageUrl ?? "",
+                                //     status: selectedStatus ?? "active",
+                                //     department: selecteddepart ?? "",
+                                //     yeargroup: DateTime.now().year.toString(),
+                                //     academicyr: value.year,
+                                //
+                                //   );
+                                //   await value.db.collection("students")
+                                //       .doc(student.id)
+                                //       .set(student.toMap(), SetOptions(merge: true));
+                                //   progress?.dismiss();
+                                //   ScaffoldMessenger.of(context).showSnackBar(
+                                //     SnackBar(
+                                //       content: Text(isEdit
+                                //           ? 'Student Updated Successfully'
+                                //           : 'Student Registered Successfully'),
+                                //       backgroundColor: Colors.green,
+                                //     ),
+                                //   );
+                                //
+                                //   value.imagefile = null;
+                                //
+                                //   if (!isEdit) {
+                                //     setState(() {
+                                //       value.imageUrl = "";
+                                //       _uploadedImageUrl = "";
+                                //     });
+                                //     studentName.clear();
+                                //     studentId.clear();
+                                //     dob.clear();
+                                //     address.clear();
+                                //     email.clear();
+                                //     phone.clear();
+                                //     parentNames.clear();
+                                //     guardianContacts.clear();
+                                //     parentNames.add(TextEditingController());
+                                //     guardianContacts.add(TextEditingController());
+                                //     selectedDay = null;
+                                //     selectedMonth = null;
+                                //     selectedYear = null;
+                                //   }
+                                // },
                                 onPressed: () async {
                                   if (!_formKey.currentState!.validate()) return;
                                   final progress = ProgressHUD.of(context);
                                   progress?.show();
-                                  final query = await value.db .collection('idformats').where('schoolId', isEqualTo: value.schoolid).limit(1).get();
-                                 if (query.docs.isEmpty) {
-                                    throw Exception("No ID format found for school ${value.schoolid}");
+
+                                  String finalStudentId;
+                                  String finalId;
+
+                                  if (isEdit) {
+                                    finalStudentId = widget.studentData!.studentid;
+                                    finalId = widget.studentData!.id;
+                                  } else {
+                                    final query = await value.db
+                                        .collection('idformats')
+                                        .where('schoolId', isEqualTo: value.schoolid)
+                                        .limit(1)
+                                        .get();
+                                    if (query.docs.isEmpty) {
+                                      throw Exception("No ID format found for school ${value.schoolid}");
+                                    }
+                                    final formatRef = query.docs.first.reference;
+                                    final generatedId = await value.db.runTransaction((transaction) async {
+                                      final snapshot = await transaction.get(formatRef);
+                                      final data = snapshot.data() as Map<String, dynamic>;
+                                      final prefix = data['name'] as String;
+                                      final lastNumber = (data['lastnumber'] ?? 0) as int;
+                                      final newNumber = lastNumber + 1;
+                                      final newId = '$prefix${newNumber.toString().padLeft(4, '0')}';
+                                      transaction.update(formatRef, {"lastnumber": newNumber});
+                                      return newId;
+                                    });
+                                    final sid = showStudentId ? studentId.text.trim() : generatedId;
+                                    finalStudentId = generatedId.toUpperCase();
+                                    finalId = "${value.schoolid}_$sid".toUpperCase();
                                   }
-                                  final formatRef = query.docs.first.reference;
-                                  final generatedId = await value.db.runTransaction((transaction) async {
-                                    final snapshot = await transaction.get(formatRef);
-                                    final data = snapshot.data() as Map<String, dynamic>;
-                                    final prefix = data['name'] as String;
-                                    final lastNumber = (data['lastnumber'] ?? 0) as int;
-                                    final newNumber = lastNumber + 1;
-                                    final newId = '$prefix${newNumber.toString().padLeft(4, '0')}';
-                                    transaction.update(formatRef, {"lastnumber": newNumber});
-                                    return newId;
-                                  });
+
                                   final nextclass = await value.getnextclass(currentLevel: selectedLevel!);
-                                  final sid = showStudentId
-                                      ? studentId.text.trim() // use typed ID
-                                      : generatedId;
-                                  //final id = "${value.schoolid}_$generatedId";
-                                  final id = "${value.schoolid}_$sid".toUpperCase();
-                                  await value.uploadImage(sid);
+                                  await value.uploadImage(finalStudentId);
                                   final student = StudentModel(
-                                    id: widget.studentData?.id ?? id,
-                                    studentid: generatedId.toUpperCase(),
+                                    id: finalId,
+                                    studentid: finalStudentId,
                                     name: studentName.text.trim(),
                                     sex: selectedSex ?? "",
                                     school: value.currentschool,
@@ -458,7 +564,7 @@ class _RegisterStudentState extends State<RegisterStudent> {
                                     guardiancontact: guardianContacts.map((c) => c.text.trim()).toList(),
                                     parentname: parentNames.map((c) => c.text.trim()).toList(),
                                     level: selectedLevel ?? "",
-                                    previousclass: nextclass['previous']??'',
+                                    previousclass: nextclass['previous'] ?? '',
                                     nextclass: nextclass["next"] ?? "",
                                     currentclass: selectedLevel ?? "",
                                     term: value.term,
@@ -468,16 +574,15 @@ class _RegisterStudentState extends State<RegisterStudent> {
                                     email: email.text.trim().isEmpty ? null : email.text.trim(),
                                     phone: phone.text.trim(),
                                     timestamp: DateTime.now().toIso8601String(),
-                                    photourl: value.imageUrl.isNotEmpty
-                                        ? value.imageUrl
-                                        : _uploadedImageUrl ?? "",
+                                    photourl: value.imageUrl.isNotEmpty ? value.imageUrl : _uploadedImageUrl ?? "",
                                     status: selectedStatus ?? "active",
+                                    accessLevel: "student",
                                     department: selecteddepart ?? "",
                                     yeargroup: DateTime.now().year.toString(),
                                     academicyr: value.year,
-
                                   );
-                                  await value.db.collection("students")
+                                  await value.db
+                                      .collection("students")
                                       .doc(student.id)
                                       .set(student.toMap(), SetOptions(merge: true));
                                   progress?.dismiss();
@@ -531,7 +636,7 @@ class _RegisterStudentState extends State<RegisterStudent> {
                                 icon: const Icon(Icons.list),
                                 label: const Text("View Students"),
                                 onPressed: () {
-                                  context.go(Routes.viewstudentlist);
+                                  Navigator.pushNamed(context, Routes.viewstudentlist);
                                 },
                               ),
                             ],

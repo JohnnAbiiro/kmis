@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:go_router/go_router.dart';
 import 'package:ksoftsms/controller/dbmodels/accountsModel.dart';
 import 'package:provider/provider.dart';
 import '../controller/dbmodels/componentmodel.dart';
@@ -71,7 +70,7 @@ class _RevenueGridPageState extends State<AccountsChart> {
                   backgroundColor: const Color(0xFF00273a),
                   leading: IconButton(
                     icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () => context.go(Routes.dashboard),
+                    onPressed: () => Navigator.pop(context),
                   ),
                   title: Text(
                     '${value.currentschool} Add Account Chart',
@@ -227,7 +226,7 @@ class _RevenueGridPageState extends State<AccountsChart> {
                                               ),
                                               onPressed: () async {
                                                 setState(() {
-                                                  context.go(Routes.accountchartview);
+                                                  Navigator.pushNamed(context, Routes.accountchartview);
                                                 });
                                               },
                                               icon: const Icon(Icons.view_comfy_alt_outlined, color: Colors.white),

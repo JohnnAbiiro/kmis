@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:go_router/go_router.dart';
 import 'package:ksoftsms/controller/dbmodels/expenseModel.dart';
 import 'package:provider/provider.dart';
 import 'package:ksoftsms/controller/myprovider.dart';
@@ -71,7 +70,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
                 backgroundColor: const Color(0xFF00273a),
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_back, color: Colors.white),
-                  onPressed: () => context.go(Routes.dashboard),
+                  onPressed: () => Navigator.pop(context),
                 ),
                 title: const Text(
                   'SCHOOL EXPENSE ENTRY',
@@ -333,7 +332,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
                                             padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
                                           ),
                                           onPressed: () {
-                                            context.go(Routes.expenseview);
+                                            Navigator.pushNamed(context, Routes.expenseview);
                                           },
                                           icon: const Icon(Icons.save, color: Colors.white),
                                           label: const Text(

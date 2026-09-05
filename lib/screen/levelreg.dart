@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../controller/dbmodels/levelmodel.dart';
@@ -44,7 +43,7 @@ class _LevelListScreenState extends State<LevelListScreen> {
                   backgroundColor: Color(0xFF2D2F45),
                   leading: IconButton(
                     icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () => context.go(Routes.dashboard),
+                    onPressed: () => Navigator.pop(context),
                   ),
                   title: Text(
                     isEdit ? 'Edit Level' : 'Register Level',

@@ -1,7 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:ksoftsms/controller/dbmodels/staffmodel.dart';
 import 'package:ksoftsms/controller/myprovider.dart';
 import 'package:provider/provider.dart';
@@ -26,7 +25,11 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
       final provider = Provider.of<Myprovider>(context, listen: false);
       provider.getdata();
       if(provider.auth.currentUser != null){
-        context.go(Routes.dashboard);
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          Routes.dashboard,
+          (route) => false,
+        );
       }
 
     });
@@ -197,11 +200,13 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
   ];
 
   String? selectedPaymentMethod;
+  String schoolType = 'Pre-tertiary';
 
 
   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 900;
+    final colors = Theme.of(context).colorScheme;
 
     Widget leftPanel(BuildContext context) {
       return SingleChildScrollView(
@@ -219,7 +224,7 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                     horizontal: 12,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.85),
+                    color: colors.surface.withOpacity(0.85),
                     borderRadius: BorderRadius.circular(12),
                     // boxShadow: [
                     //   BoxShadow(
@@ -231,7 +236,7 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
+                    children: [
                       Text(
                         'Welcome to KologSoft Management Information System',
                         style: TextStyle(
@@ -242,8 +247,8 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                       ),
                       SizedBox(height: 8),
                       Text(
-                        'Our digital election system provides a secure, transparent, and user-friendly platform for casting votes and monitoring results. Join us in shaping the future of democracy with technology-driven solutions.',
-                        style: TextStyle(fontSize: 15, color: Colors.black87),
+                        'A secure, practical, and user-friendly platform for managing schools, students, staff, academics, attendance, and fees.',
+                        style: TextStyle(fontSize: 15, color: colors.onSurface),
                       ),
                     ],
                   ),
@@ -304,8 +309,8 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                           title: 'Basic',
                           price: 'Free',
                           features: [
-                            'Vote in elections',
-                            'View results',
+                            'Manage student records',
+                            'Track attendance and classes',
                             'Basic support',
                           ],
                           headerColor: Colors.blue.shade700,
@@ -315,8 +320,8 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                           price: 'GHS 20',
                           features: [
                             'All Basic features',
-                            'Priority support',
-                            'Detailed analytics',
+                            'Manage fees and billing',
+                            'Academic reports',
                           ],
                           headerColor: Colors.orange.shade700,
                         ),
@@ -324,9 +329,9 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                           title: 'Organization',
                           price: 'GHS 100',
                           features: [
-                            'Manage elections',
-                            'Custom branding',
-                            'Advanced analytics',
+                            'Manage staff and admissions',
+                            'School-wide administration',
+                            'Advanced reports',
                           ],
                           headerColor: Colors.green.shade700,
                         ),
@@ -371,7 +376,7 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
+                      children: [
                         Text(
                           'Welcome to KologSoft Management Information System',
                           style: TextStyle(
@@ -382,8 +387,8 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                         ),
                         SizedBox(height: 6),
                         Text(
-                          'A secure, transparent, and user-friendly platform for digital voting and results.',
-                          style: TextStyle(fontSize: 13, color: Colors.black87),
+                          'A secure, user-friendly platform for school administration, teaching, learning, and reporting.',
+                          style: TextStyle(fontSize: 13, color: colors.onSurface),
                         ),
                       ],
                     ),
@@ -444,7 +449,7 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
           left: 5.0,
         ),
         child: Container(
-          decoration: BoxDecoration(color: const Color(0xFFffffff)),
+          decoration: BoxDecoration(color: colors.surface),
           child: LayoutBuilder(
             builder: (context, constraints) {
               return ProgressHUD(
@@ -475,12 +480,12 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                                     children: [
                                       // Payment Method
                                       const SizedBox(height: 6),
-                                      const Text(
+                                      Text(
                                         'Create your account',
                                         style: TextStyle(
                                           fontSize: 24,
                                           fontWeight: FontWeight.bold,
-                                          color: Colors.black87,
+                                          color: colors.onSurface,
                                         ),
                                       ),
                                       const SizedBox(height: 10),
@@ -510,6 +515,29 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                                         value == null || value.isEmpty
                                             ? 'Please enter school Name'
                                             : null,
+                                      ),
+                                      const SizedBox(height: 8),
+                                      DropdownButtonFormField<String>(
+                                        initialValue: schoolType,
+                                        decoration: const InputDecoration(
+                                          labelText: 'School Type',
+                                          border: UnderlineInputBorder(),
+                                        ),
+                                        items: const [
+                                          DropdownMenuItem(
+                                            value: 'Pre-tertiary',
+                                            child: Text('Pre-tertiary'),
+                                          ),
+                                          DropdownMenuItem(
+                                            value: 'Tertiary',
+                                            child: Text('Tertiary'),
+                                          ),
+                                        ],
+                                        onChanged: (value) {
+                                          if (value != null) {
+                                            setState(() => schoolType = value);
+                                          }
+                                        },
                                       ),
                                       const SizedBox(height: 8),
                                       TextFormField(
@@ -549,7 +577,7 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                                           border: UnderlineInputBorder(),
                                         ),
                                         isExpanded: true,
-                                        value: selectedCountryName,
+                                        initialValue: selectedCountryName,
                                         items: countries.map((country) {
                                           return DropdownMenuItem<String>(
                                             value: country['name'],
@@ -626,7 +654,7 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                                           ),
                                           Expanded(
                                             child: Text(
-                                              'By accepting, you agree that the carrier of your luggage will not be held liable for any illegal, prohibited, or harmful substances found in your possession. You acknowledge full responsibility and understand that you may be held accountable in a court of law.',
+                                              'I agree to the Terms of Service and Privacy Policy. I understand that this platform is for educational management purposes only, and I take full responsibility for all data and information provided.',
                                               style: TextStyle(fontSize: 14),
                                               textAlign: TextAlign.justify,
                                             ),
@@ -661,11 +689,19 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                                                 int count_exist=result_count.docs.length;
                                                 int new_count=count_exist+1;
                                                 String schoolid='KS${new_count.toString().padLeft(4, '0')}';
-                                                final Map<String,dynamic>  staffdata=Staff(name: name, accessLevel: "admin", phone: phone, email: email, sex: "", region: "", schoolId: schoolid, schoolname: school, createdAt: dateTime, teaching: '').toMap();
+                                                final Map<String,dynamic> schooldata = {
+                                                  'id': schoolid,
+                                                  'schoolid': schoolid,
+                                                  'name': school,
+                                                  'email': email,
+                                                  'type': schoolType,
+                                                  'createdAt': dateTime,
+                                                };
+                                                final Map<String,dynamic> staffdata=Staff(name: name, accessLevel: "admin", phone: phone, email: email, sex: "", region: "", schoolId: schoolid, schoolname: school, createdAt: dateTime, teaching: '').toMap();
 
                                                 try{
                                                   if(result.docs.isEmpty){
-                                                    await value.db.collection("schools").doc(schoolid).set(staffdata);
+                                                    await value.db.collection("schools").doc(schoolid).set(schooldata);
                                                     await value.db.collection("staff").doc(schoolid).set(staffdata);
                                                     await value.auth.createUserWithEmailAndPassword(email: email, password: password);
                                                     await value.auth.currentUser!.sendEmailVerification();
@@ -799,7 +835,7 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                                         width: double.infinity,
                                         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
                                         decoration: BoxDecoration(
-                                          color: Colors.white.withOpacity(0.85),
+                                          color: colors.surface.withOpacity(0.85),
                                           borderRadius: BorderRadius.circular(12),
                                           boxShadow: [
                                             BoxShadow(
@@ -812,7 +848,7 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
 
-                                          children: const [
+                                          children: [
                                             Text(
                                               'Login',
                                               style: TextStyle(
@@ -960,14 +996,14 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
       //       onPressed: () {},
       //       child: Row(
       //         children: [
-      //           Icon(Icons.how_to_vote_rounded),
-      //           Text('Vote', style: TextStyle(color: Colors.black)),
+      //           Icon(Icons.school_outlined),
+      //           Text('School', style: TextStyle(color: Colors.black)),
       //         ],
       //       ),
       //     ),
       //   ],
       // ),
-      backgroundColor: Color(0xFFffffff),
+      backgroundColor: colors.surface,
       body: LayoutBuilder(
         builder: (context, constraints) {
 
@@ -999,9 +1035,9 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
+                          children: [
                             Text(
-                              'Welcome to the Election System',
+                              'Welcome to the School Management System',
                               style: TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
@@ -1010,8 +1046,8 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                             ),
                             SizedBox(height: 8),
                             Text(
-                              'Our digital election system provides a secure, transparent, and user-friendly platform for casting votes and monitoring results. Join us in shaping the future of democracy with technology-driven solutions.',
-                              style: TextStyle(fontSize: 13, color: Colors.black87),
+                              'A secure, practical, and user-friendly platform for managing schools, students, staff, academics, attendance, and fees.',
+                                            style: TextStyle(fontSize: 13, color: colors.onSurface),
                             ),
                           ],
                         ),
@@ -1081,8 +1117,8 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                                     title: 'Basic',
                                     price: 'Free',
                                     features: [
-                                      'Vote in elections',
-                                      'View results',
+                                      'Manage student records',
+                                      'Track attendance and classes',
                                       'Basic support',
                                     ],
                                     headerColor: Colors.blue.shade700,
@@ -1101,9 +1137,9 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                                     title: 'Organization',
                                     price: 'GHS 100',
                                     features: [
-                                      'Manage elections',
-                                      'Custom branding',
-                                      'Advanced analytics',
+                                      'Manage staff and admissions',
+                                      'School-wide administration',
+                                      'Advanced reports',
                                     ],
                                     headerColor: Colors.green.shade700,
                                   ),
@@ -1119,7 +1155,7 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                 Container(
                   width: containerWidth,
                   height: isMobile ? 1100 : 800,
-                  decoration: BoxDecoration(color: const Color(0xFFffffff)),
+                  decoration: BoxDecoration(color: colors.surface),
                   child: ProgressHUD(
                     child: Form(
                       key: _formKey,
@@ -1128,12 +1164,12 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                           return Center(
                             child: ConstrainedBox(
                               constraints: BoxConstraints(maxWidth: 400),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Visibility(
-                                    visible:value.regform,
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Visibility(
+                                      visible:value.regform,
                                     child: Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: Column(
@@ -1141,12 +1177,12 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                                         children: [
                                           // Payment Method
                                           const SizedBox(height: 6),
-                                          const Text(
+                                          Text(
                                             'Create new account',
                                             style: TextStyle(
                                               fontSize: 18,
                                               fontWeight: FontWeight.bold,
-                                              color: Colors.black,
+                                              color: colors.onSurface,
                                             ),
                                           ),
                                           const SizedBox(height: 10),
@@ -1156,7 +1192,7 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                                               labelText: "Name",
                                               hintText: "Enter Name",
                                               labelStyle:
-                                              const TextStyle(color: Colors.black54, fontSize: 12),
+                                              TextStyle(color: colors.onSurfaceVariant, fontSize: 12),
                                               hintStyle:
                                               const TextStyle(color: Colors.grey, fontSize: 12),
                                               border: OutlineInputBorder(
@@ -1192,7 +1228,7 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                                               labelText: "School Name",
                                               hintText: "Enter School Name",
                                               labelStyle:
-                                              const TextStyle(color: Colors.black54, fontSize: 12),
+                                              TextStyle(color: colors.onSurfaceVariant, fontSize: 12),
                                               hintStyle:
                                               const TextStyle(color: Colors.grey, fontSize: 12),
                                               border: OutlineInputBorder(
@@ -1222,13 +1258,50 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                                                 : null,
                                           ),
                                           const SizedBox(height: 8),
+                                          DropdownButtonFormField<String>(
+                                            initialValue: schoolType,
+                                            decoration: InputDecoration(
+                                              labelText: "School Type",
+                                              labelStyle: TextStyle(
+                                                color: colors.onSurfaceVariant,
+                                                fontSize: 12,
+                                              ),
+                                              border: OutlineInputBorder(
+                                                borderSide: BorderSide(
+                                                  color: Colors.grey[700]!,
+                                                ),
+                                              ),
+                                              enabledBorder: const OutlineInputBorder(
+                                                borderSide: BorderSide(color: Colors.black12),
+                                              ),
+                                              focusedBorder: const OutlineInputBorder(
+                                                borderSide: BorderSide(color: Color(0xFF00496d)),
+                                              ),
+                                            ),
+                                            items: const [
+                                              DropdownMenuItem(
+                                                value: 'Pre-tertiary',
+                                                child: Text('Pre-tertiary'),
+                                              ),
+                                              DropdownMenuItem(
+                                                value: 'Tertiary',
+                                                child: Text('Tertiary'),
+                                              ),
+                                            ],
+                                            onChanged: (value) {
+                                              if (value != null) {
+                                                setState(() => schoolType = value);
+                                              }
+                                            },
+                                          ),
+                                          const SizedBox(height: 8),
                                           TextFormField(
                                             controller: _emailController,
                                             decoration: InputDecoration(
                                               labelText: "Email",
                                               hintText: "Enter Email Address",
                                               labelStyle:
-                                              const TextStyle(color: Colors.black54, fontSize: 12),
+                                              TextStyle(color: colors.onSurfaceVariant, fontSize: 12),
                                               hintStyle:
                                               const TextStyle(color: Colors.grey, fontSize: 12),
                                               border: OutlineInputBorder(
@@ -1270,7 +1343,7 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                                               labelText: "Password",
                                               hintText: "Enter Password",
                                               labelStyle:
-                                              const TextStyle(color: Colors.black54, fontSize: 12),
+                                              TextStyle(color: colors.onSurfaceVariant, fontSize: 12),
                                               hintStyle:
                                               const TextStyle(color: Colors.grey, fontSize: 12),
                                               border: OutlineInputBorder(
@@ -1304,7 +1377,7 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                                               labelText: "Country",
                                               hintText: "Select Country",
                                               labelStyle:
-                                              const TextStyle(color: Colors.black54, fontSize: 12),
+                                              TextStyle(color: colors.onSurfaceVariant, fontSize: 12),
                                               hintStyle:
                                               const TextStyle(color: Colors.grey, fontSize: 12),
                                               border: OutlineInputBorder(
@@ -1380,7 +1453,7 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                                               labelText: "Phone Number",
                                               hintText: "Enter Phone Number",
                                               labelStyle:
-                                              const TextStyle(color: Colors.black54, fontSize: 12),
+                                              TextStyle(color: colors.onSurfaceVariant, fontSize: 12),
                                               hintStyle:
                                               const TextStyle(color: Colors.grey, fontSize: 12),
                                               border: OutlineInputBorder(
@@ -1428,7 +1501,7 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                                               ),
                                               Expanded(
                                                 child: Text(
-                                                  'By accepting, you agree that the carrier of your luggage will not be held liable for any illegal, prohibited, or harmful substances found in your possession. You acknowledge full responsibility and understand that you may be held accountable in a court of law.',
+                                                  'I agree to the Terms of Service and Privacy Policy. I understand that this platform is for educational management purposes only, and I take full responsibility for all data and information provided.',
                                                   style: TextStyle(fontSize: 12, color: Colors.black),
                                                   textAlign: TextAlign.justify,
                                                 ),
@@ -1468,7 +1541,14 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
 
                                                     try{
                                                       if(result.docs.isEmpty){
-                                                        await value.db.collection("schools").doc(schoolid).set(staffdata);
+                                                        await value.db.collection("schools").doc(schoolid).set({
+                                                          'id': schoolid,
+                                                          'schoolid': schoolid,
+                                                          'name': school,
+                                                          'email': email,
+                                                          'type': schoolType,
+                                                          'createdAt': dateTime,
+                                                        });
                                                         await value.db.collection("staff").doc(schoolid).set(staffdata);
                                                         await value.auth.createUserWithEmailAndPassword(email: email, password: password);
                                                         await value.auth.currentUser!.sendEmailVerification();
@@ -1540,15 +1620,15 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                                                   color: Colors.grey,
                                                 ),
                                               ),
-                                              const Padding(
-                                                padding: EdgeInsets.symmetric(
+                                              Padding(
+                                                padding: const EdgeInsets.symmetric(
                                                   horizontal: 8.0,
                                                 ),
                                                 child: Text(
                                                   "Sign up with",
                                                   style: TextStyle(
                                                     fontSize: 14,
-                                                    color: Colors.black54,
+                                                    color: colors.onSurfaceVariant,
                                                     fontWeight: FontWeight.w500,
                                                   ),
                                                 ),
@@ -1610,7 +1690,7 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                                             width: double.infinity,
                                             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
                                             decoration: BoxDecoration(
-                                              color: Colors.white.withOpacity(0.85),
+                                              color: colors.surface.withOpacity(0.85),
                                               borderRadius: BorderRadius.circular(12),
                                               boxShadow: [
                                                 BoxShadow(
@@ -1623,13 +1703,13 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                                             child: Column(
                                               crossAxisAlignment: CrossAxisAlignment.center,
 
-                                              children: const [
+                                              children: [
                                                 Text(
                                                   'Log into your account',
                                                   style: TextStyle(
                                                     fontSize: 18,
                                                     fontWeight: FontWeight.bold,
-                                                    color: Colors.black,
+                                                    color: colors.onSurface,
                                                   ),
                                                 ),
 
@@ -1642,7 +1722,7 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                                               labelText: "Email address",
                                               hintText: "Enter email address",
                                               labelStyle:
-                                              const TextStyle(color: Colors.black54, fontSize: 12),
+                                              TextStyle(color: colors.onSurfaceVariant, fontSize: 12),
                                               hintStyle:
                                               const TextStyle(color: Colors.grey, fontSize: 12),
                                               border: OutlineInputBorder(
@@ -1817,8 +1897,8 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                                                 title: 'Basic',
                                                 price: 'Free',
                                                 features: [
-                                                  'Vote in elections',
-                                                  'View results',
+                                                  'Manage student records',
+                                                  'Track attendance and classes',
                                                   'Basic support',
                                                 ],
                                                 headerColor: Colors.blue.shade700,
@@ -1837,9 +1917,9 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                                                 title: 'Organization',
                                                 price: 'GHS 100',
                                                 features: [
-                                                  'Manage elections',
-                                                  'Custom branding',
-                                                  'Advanced analytics',
+                                                  'Manage staff and admissions',
+                                                  'School-wide administration',
+                                                  'Advanced reports',
                                                 ],
                                                 headerColor: Colors.green.shade700,
                                               ),
@@ -1851,6 +1931,7 @@ class _SpacerSignUpPageState extends State<SpacerSignUpPage> {
                                   ),
                                 ],
                               ),
+                            ),
                             ),
                           );
                         },

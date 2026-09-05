@@ -4,6 +4,7 @@ import 'dart:core';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:ksoftsms/controller/dbmodels/expenseModel.dart';
+import 'package:ksoftsms/controller/dbmodels/facultymodel.dart';
 import 'package:ksoftsms/controller/dbmodels/itemCategoryModel.dart';
 import 'package:ksoftsms/controller/dbmodels/termmodel.dart';
 import 'package:ksoftsms/controller/routes.dart';
@@ -42,6 +43,7 @@ class Myprovider extends LoginProvider {
   List<itemCategoryModel> itemCategorList = [];
   List<AcademicModel> academicyears = [];
   List<DepartmentModel> departments = [];
+  List<FacultyModel> faculties = [];
   List<ClassModel> classdata = [];
   List<SubjectModel> subjectList = [];
   List<StudentModel> studentlist = [];
@@ -187,6 +189,24 @@ class Myprovider extends LoginProvider {
       loaddepart = false;
       notifyListeners();
       print("Failed to fetch departments: $e");
+    }
+  }
+  bool loadfaculty =false;
+  Future<void> fetchFaculty() async {
+    try {
+      loadfaculty = true;
+      notifyListeners();
+      final snapshot = await db.collection("faculties").where("schoolId", isEqualTo: schoolid).get();
+      faculties = snapshot.docs.map((doc) {
+        return FacultyModel.fromMap(doc.data(), doc.id);
+      }).toList();
+
+      loadfaculty = false;
+      notifyListeners();
+    } catch (e) {
+      loadfaculty = false;
+      notifyListeners();
+      print("Failed to fetch faculties: $e");
     }
   }
   Future<void> fetchclass() async {
@@ -376,6 +396,43 @@ class Myprovider extends LoginProvider {
       print('Unexpected error: $e');
       rethrow;
     }
+  }
+    Future<void> deleteFaculties(String id) async {
+    await db.collection('faculties').doc(id).delete();
+    faculties.removeWhere((c) => c.id == id);
+    notifyListeners();
+  }
+  Future<void> deleteDepartment(String id) async {
+    await db.collection('department').doc(id).delete();
+    departments.removeWhere((c) => c.id == id);
+    notifyListeners();
+  }
+  Future<void> deleteClass(String id) async {
+    await db.collection('classes').doc(id).delete();
+    classdata.removeWhere((c) => c.id == id);
+    notifyListeners();
+  }
+  Future<void> deleteSubject(String id) async {
+    await db.collection('subjects').doc(id).delete();
+    subjectList.removeWhere((c) => c.id == id);
+    notifyListeners();
+  }
+  Future<void> deleteStudents(String id) async {
+    await db.collection('students').doc(id).delete();
+    studentlist.removeWhere((c) => c.id == id);
+    notifyListeners();
+  }
+
+  Future<void> deleteAcademicyr(String id) async {
+    await db.collection('academicyears').doc(id).delete();
+    academicyears.removeWhere((c) => c.id == id);
+    notifyListeners();
+  }
+
+  Future<void> deleteTerms(String id) async {
+    await db.collection('terms').doc(id).delete();
+    terms.removeWhere((c) => c.id == id);
+    notifyListeners();
   }
   showform(bool show, String type) {
     if (type == 'login') {

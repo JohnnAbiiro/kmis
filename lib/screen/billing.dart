@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:go_router/go_router.dart';
 import 'package:ksoftsms/controller/dbmodels/billedModel.dart';
 import 'package:provider/provider.dart';
 import '../controller/dbmodels/componentmodel.dart';
@@ -65,7 +64,7 @@ class _BillingState extends State<Billing> {
                   backgroundColor: const Color(0xFF00273a),
                   leading: IconButton(
                     icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () => context.go(Routes.dashboard),
+                    onPressed: () => Navigator.pop(context),
                   ),
                   title: Text(
                     '${value.currentschool.toUpperCase()} BULK FEES BILLING ',
@@ -171,7 +170,7 @@ class _BillingState extends State<Billing> {
                                   ),
                                   ElevatedButton.icon(style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00496d), padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12)),
                                     onPressed: () {
-                                      context.go(Routes.billingview);
+                                      Navigator.pushNamed(context, Routes.billingview);
                                     },
                                     icon: const Icon(Icons.save, color: Colors.white),
                                     label: const Text("View Activity",

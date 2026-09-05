@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:go_router/go_router.dart';
 
 import 'package:ksoftsms/controller/dbmodels/feeSetUpModel.dart';
 import 'package:provider/provider.dart';
@@ -59,7 +58,7 @@ class _FeesSetupState extends State<FeesSetup> {
                   backgroundColor: const Color(0xFF00273a),
                   leading: IconButton(
                     icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () => context.go(Routes.dashboard),
+                    onPressed: () => Navigator.pop(context),
                   ),
                   title: Text(
                     '${value.currentschool.toUpperCase()} FEES BILLING ',
