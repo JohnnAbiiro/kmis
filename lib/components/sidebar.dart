@@ -124,22 +124,51 @@ class _CustomDrawerState extends State<CustomDrawer> {
                           _drawerTile(context, icon: Icons.view_list_outlined, title: 'View Staff', onTap: () => context.go(Routes.staffview)),
                         ],
                       ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 12, top: 20, bottom: 8),
+                        child: Text(
+                          "Accounts Desk",
+                          style: textTheme.labelSmall?.copyWith(
+                            color: colors.primary,
+                            letterSpacing: 1.5,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
                       _buildExpansionTile(
                         context,
                         icon: Icons.account_balance_wallet_outlined,
-                        title: 'Finance & Billing',
+                        title: 'Accounts & Setup',
                         children: [
                           _drawerTile(context, icon: Icons.add_chart, title: 'Add Account', onTap: () => context.go(Routes.coa)),
                           _drawerTile(context, icon: Icons.settings_accessibility, title: 'System Activity', onTap: () => context.go(Routes.accountActivity)),
+                          _drawerTile(context, icon: Icons.local_shipping_outlined, title: 'Suppliers', onTap: () => context.go(Routes.supplier)),
+                          _drawerTile(context, icon: Icons.money_off_outlined, title: 'Expenses', onTap: () => context.go(Routes.expense)),
+
+                        ],
+                      ),
+
+
+                      _buildExpansionTile(
+                        context,
+                        icon: Icons.account_balance_wallet_outlined,
+                        title: 'Billing & Fee Setup',
+                        children: [
                           _drawerTile(context, icon: Icons.payments_outlined, title: 'Fees Names', onTap: () => context.go(Routes.feesetup)),
                           _drawerTile(context, icon: Icons.receipt_long_outlined, title: 'Bulk Billing', onTap: () => context.go(Routes.billing)),
                           _drawerTile(context, icon: Icons.person_outline, title: 'Single Billing', onTap: () => context.go(Routes.singlebilling)),
-                          _drawerTile(context, icon: Icons.payment_outlined, title: 'Fee Payment', onTap: () => context.go(Routes.feepayment)),
-                          _drawerTile(context, icon: Icons.money_off_outlined, title: 'Expenses', onTap: () => context.go(Routes.expense)),
-                          _drawerTile(context, icon: Icons.local_shipping_outlined, title: 'Suppliers', onTap: () => context.go(Routes.supplier)),
                         ],
                       ),
-                      
+
+                      _buildExpansionTile(
+                        context,
+                        icon: Icons.account_balance_wallet_outlined,
+                        title: 'Fee  Payment',
+                        children: [
+                          _drawerTile(context, icon: Icons.payment_outlined, title: 'Fee Payment', onTap: () => context.go(Routes.feepayment)),
+                          _drawerTile(context, icon: Icons.history_rounded, title: 'Payment History', onTap: () => context.go(Routes.feepaymentview)),
+                        ],
+                      ),
                       Padding(
                         padding: const EdgeInsets.only(left: 12, top: 20, bottom: 8),
                         child: Text(
@@ -156,7 +185,9 @@ class _CustomDrawerState extends State<CustomDrawer> {
                         icon: Icons.bar_chart_outlined,
                         title: 'Financial Reports',
                         children: [
+                          _drawerTile(context, icon: Icons.summarize_outlined, title: 'Daily Collection', onTap: () => context.go(Routes.accountantSummaryView)),
                           _drawerTile(context, icon: Icons.summarize_outlined, title: 'Ledger Report', onTap: () => context.go(Routes.ledgerReport)),
+                          _drawerTile(context, icon: Icons.calendar_view_day, title: 'Daily Ledger', onTap: () => context.go(Routes.dailyLedgerReport)),
                         ],
                       ),
                       _buildExpansionTile(

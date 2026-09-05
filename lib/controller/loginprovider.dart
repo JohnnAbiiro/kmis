@@ -39,6 +39,7 @@ class LoginProvider extends ChangeNotifier {
   List<ActivityModel> activitylist = [];
   List<CoaModel> accountlist = [];
   List<ItemRegModel> itemreglist = [];
+  List<Map<String, dynamic>> accountantSummaryList = [];
 
   List<String> staffaccesslevel = [
     "admin",
@@ -103,6 +104,9 @@ class LoginProvider extends ChangeNotifier {
   String receiptnote = "";
   String receipt = "";
   double receiptTotal = 0;
+  double outstandingBalance = 0;
+  double totalBilled = 0;
+  double totalPaid = 0;
 
   String normalizeAndSanitize(dynamic value) {
     if (value == null) return "n_a";
@@ -459,13 +463,42 @@ class LoginProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  fetchFeePayment() async {
+  fetchFeePayment({DateTime? startDate, DateTime? endDate}) async {
     try {
-      final snapshot = await db.collection('feepayment').get();
+      if (schoolid.isEmpty) await getdata();
+      debugPrint("Fetching payments for school ID: '$schoolid'");
+      
+      Query query = db.collection('feepayment').where('schoolId', isEqualTo: schoolid);
+      
+      if (startDate != null) {
+        query = query.where('dateCreated', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate));
+      }
+      if (endDate != null) {
+        final endOfDay = DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59);
+        query = query.where('dateCreated', isLessThanOrEqualTo: Timestamp.fromDate(endOfDay));
+      }
+
+      final snapshot = await query.orderBy('dateCreated', descending: true).get();
+      
       feepaymentlist = snapshot.docs.map((doc) {
-        return FeePaymentModel.fromJson(doc.data());
+        final data = doc.data() as Map<String, dynamic>;
+        return FeePaymentModel.fromJson(data);
       }).toList();
-    } catch (e) {}
+      
+      debugPrint("SUCCESS: Fetched ${feepaymentlist.length} payment records.");
+      
+      // If we got nothing, try checking if they were saved with 'schoolid' (lowercase i)
+      if (feepaymentlist.isEmpty) {
+        debugPrint("Trying alternative field name 'schoolid'...");
+        final altSnap = await db.collection('feepayment').where('schoolid', isEqualTo: schoolid).limit(10).get();
+        if (altSnap.docs.isNotEmpty) {
+          feepaymentlist = altSnap.docs.map((doc) => FeePaymentModel.fromJson(doc.data() as Map<String, dynamic>)).toList();
+          debugPrint("Found ${feepaymentlist.length} records with lowercase 'schoolid'");
+        }
+      }
+    } catch (e) {
+      debugPrint("CRITICAL ERROR in fetchFeePayment: $e");
+    }
     notifyListeners();
   }
 
@@ -519,6 +552,28 @@ class LoginProvider extends ChangeNotifier {
         return ItemRegModel.fromMap(doc.data());
       }).toList();
     } catch (e) {}
+    notifyListeners();
+  }
+
+  Future<void> fetchAccountantSummary({DateTime? startDate, DateTime? endDate}) async {
+    try {
+      if (schoolid.isEmpty) await getdata();
+      Query query = db.collection('accountantDailySummary').where('schoolId', isEqualTo: schoolid);
+
+      if (startDate != null) {
+        String startStr = DateFormat('yyyy-MM-dd').format(startDate);
+        query = query.where('date', isGreaterThanOrEqualTo: startStr);
+      }
+      if (endDate != null) {
+        String endStr = DateFormat('yyyy-MM-dd').format(endDate);
+        query = query.where('date', isLessThanOrEqualTo: endStr);
+      }
+
+      final snapshot = await query.orderBy('date', descending: true).get();
+      accountantSummaryList = snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+    } catch (e) {
+      debugPrint("Error fetching accountant summary: $e");
+    }
     notifyListeners();
   }
 
@@ -767,25 +822,99 @@ class LoginProvider extends ChangeNotifier {
   myreceipt() async {
     try {
       await getdata();
-      final data = await db.collection("feepayment").doc(receiptno).get();
-      receiptName = data.data()!['studentName'];
-      receiptrecords = data.data()!['fees'];
-      receiptpaymentmethod = data.data()!['paymentmethod'];
-      receiptnote = receiptrecords.keys.toString().toString();
-      final ts = data['dateCreated'];
+      final docId = "${schoolid}_$receiptno";
+      final data = await db.collection("feepayment").doc(docId).get();
+      if (!data.exists) {
+        // Fallback for old records if any
+        final oldData = await db.collection("feepayment").doc(receiptno).get();
+        if (oldData.exists) {
+           await _processReceiptData(oldData.data()!);
+        }
+        return;
+      }
+
+      await _processReceiptData(data.data()!);
+    } catch (e) {
+      print("Error in myreceipt: $e");
+    }
+    notifyListeners();
+  }
+
+  Future<void> _processReceiptData(Map<String, dynamic> paymentData) async {
+    receiptName = paymentData['studentName'] ?? "";
+    receiptrecords = paymentData['fees'] ?? {};
+    receiptpaymentmethod = paymentData['paymentmethod'] ?? "";
+    receiptnote = receiptrecords.keys.join(", ");
+    final ts = paymentData['dateCreated'];
+    if (ts is Timestamp) {
       DateTime date = ts.toDate();
       receiptdate = DateFormat("MMMM d, y").format(date);
-      double receiptval = 0;
-      receiptTotal = receiptval;
+    }
+    
+    double receiptval = 0;
+    for (var values in receiptrecords.values) {
+      receiptval += double.tryParse(values.toString()) ?? 0;
+    }
+    receiptTotal = receiptval;
 
-      for (var values in receiptrecords.values) {
-        receiptval += double.parse(values.toString());
+    // Robustly fetch student financial info
+    final studentIdField = paymentData['studentId'];
+    if (studentIdField != null && studentIdField.toString().isNotEmpty && studentIdField.toString().toLowerCase() != "null") {
+      final String sid = studentIdField.toString().trim();
+      
+      // 1. Try querying by the field 'studentid'
+      final studentQuery = await db.collection("students")
+          .where("studentid", isEqualTo: sid)
+          .where("schoolId", isEqualTo: schoolid)
+          .limit(1)
+          .get();
+      
+      DocumentSnapshot? studentDoc;
+      if (studentQuery.docs.isNotEmpty) {
+        studentDoc = studentQuery.docs.first;
+      } else {
+        // 2. Fallback to direct document ID lookup (try a few common variations)
+        final List<String> possibleIds = [
+          "${schoolid}_$sid".toUpperCase(),
+          "${schoolid}_$sid",
+          sid.toUpperCase(),
+          sid,
+        ];
+        
+        for (String id in possibleIds) {
+          final doc = await db.collection("students").doc(id).get();
+          if (doc.exists) {
+            studentDoc = doc;
+            break;
+          }
+        }
       }
-      receiptTotal = receiptval;
-      print(receiptTotal.toStringAsFixed(2));
-      print(receiptTotal);
-    } catch (e) {
-      print(e);
+
+      if (studentDoc != null && studentDoc.exists) {
+        final sData = studentDoc.data() as Map<String, dynamic>;
+        final sAccounts = Map<String, dynamic>.from(sData['accounts'] ?? {});
+        
+        // Ensure we handle numeric types correctly from Firestore
+        totalBilled = (sAccounts['billed'] ?? 0.0).toDouble();
+        totalPaid = (sAccounts['paid'] ?? 0.0).toDouble();
+        
+        // Calculate balance if missing, or use existing
+        if (sAccounts.containsKey('balance')) {
+          outstandingBalance = (sAccounts['balance'] ?? 0.0).toDouble();
+        } else {
+          outstandingBalance = totalBilled - totalPaid;
+        }
+        
+        // Fix for negative zero or tiny floating point issues
+        if (outstandingBalance.abs() < 0.01) outstandingBalance = 0.0;
+        
+        debugPrint("SUCCESS: Student found. Balance: $outstandingBalance");
+      } else {
+        debugPrint("ERROR: Student profile NOT found for receipt. ID: $sid");
+        outstandingBalance = -1; // Marker for not found
+      }
+    } else {
+      outstandingBalance = -1;
     }
     notifyListeners();
   }

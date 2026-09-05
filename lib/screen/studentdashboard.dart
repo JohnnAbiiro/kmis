@@ -764,12 +764,7 @@ class StudentPortal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Student Portal',
-      theme: AppTheme.light(),
-      debugShowCheckedModeBanner: false,
-      home: const StudentDashboard(),
-    );
+    return const StudentDashboard();
   }
 }
 

@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../controller/myprovider.dart';
+import '../controller/routes.dart';
 
 class BillingView extends StatefulWidget {
   const BillingView({super.key});
@@ -89,33 +91,53 @@ class _BillingViewState extends State<BillingView> {
                                               border: TableBorder.all(color: Colors.grey.shade300),
                                               columns: [
                                                 DataColumn(label: Text('Fee Name', style: TextStyle(color: Colors.white),)),
-                                                DataColumn(label: Text('Activity Type', style: TextStyle(color: Colors.white),)),
-                                                DataColumn(label: Text('Billed Amount', style: TextStyle(color: Colors.white),)),
                                                 DataColumn(label: Text('Level', style: TextStyle(color: Colors.white),)),
-                                                DataColumn(label: Text('School ID', style: TextStyle(color: Colors.white),)),
+                                                DataColumn(label: Text('Amount', style: TextStyle(color: Colors.white),)),
                                                 DataColumn(label: Text('Term', style: TextStyle(color: Colors.white),)),
                                                 DataColumn(label: Text('Year Group', style: TextStyle(color: Colors.white),)),
+                                                DataColumn(label: Text('Students', style: TextStyle(color: Colors.white),)),
                                                 DataColumn(label: Text('Action', style: TextStyle(color: Colors.white),)),
-
                                               ],
                                               rows: value.billedlist.map((doc){
-                                                //final data = doc.data() as Map<String, dynamic>;
                                                 return DataRow(
                                                     cells: [
                                                       DataCell(Text(doc.feeName)),
-                                                      DataCell(Text(doc.activityType)),
-                                                      DataCell(Text(doc.amount)),
                                                       DataCell(Text(doc.level)),
-                                                      DataCell(Text(doc.schoolId)),
+                                                      DataCell(Text(doc.amount)),
                                                       DataCell(Text(doc.term)),
                                                       DataCell(Text(doc.yeargroup)),
+                                                      DataCell(
+                                                        TextButton.icon(
+                                                          icon: const Icon(Icons.group_outlined, size: 18),
+                                                          label: const Text("View"),
+                                                          onPressed: () => context.push(
+                                                            Routes.billedStudentsView, 
+                                                            extra: {'billedId': doc.ledgerid, 'feeName': doc.feeName}
+                                                          ),
+                                                        )
+                                                      ),
                                                       DataCell(
                                                           Row(
                                                             children: [
                                                               InkWell(
                                                                   child: Icon(Icons.delete_forever, color: Colors.red, size: 20,),
-                                                                  onTap: (){}
-                                                                  //=> deleteFeeBilling(doc.id),
+                                                                  onTap: () async {
+                                                                    final confirm = await showDialog<bool>(
+                                                                      context: context,
+                                                                      builder: (context) => AlertDialog(
+                                                                        title: const Text("Confirm Delete"),
+                                                                        content: const Text("Are you sure you want to delete this bulk billing? All students in this class will have their balances adjusted."),
+                                                                        actions: [
+                                                                          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("Cancel")),
+                                                                          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text("Delete")),
+                                                                        ],
+                                                                      ),
+                                                                    );
+                                                                    if (confirm == true) {
+                                                                      await value.voidBilledRecord(doc, value.name);
+                                                                      value.fetchBilled();
+                                                                    }
+                                                                  }
                                                               ),
                                                               SizedBox(width: 8),
                                                               Icon(Icons.edit, color: Colors.orangeAccent, size: 20,),
@@ -165,12 +187,19 @@ class _BillingViewState extends State<BillingView> {
                                                             subtitle: Column(
                                                               crossAxisAlignment: CrossAxisAlignment.start,
                                                               children: [
-                                                                Text('Activity Type: ${doc.activityType}'),
-                                                                Text('Billed Amount: ${doc.amount}'),
                                                                 Text('Level: ${doc.level}'),
-                                                                Text('School ID: ${doc.schoolId}'),
+                                                                Text('Amount: ${doc.amount}'),
                                                                 Text('Term: ${doc.term}'),
                                                                 Text('Year Group: ${doc.yeargroup}'),
+                                                                const SizedBox(height: 8),
+                                                                OutlinedButton.icon(
+                                                                  icon: const Icon(Icons.group, size: 16),
+                                                                  label: const Text("View Billed Students"),
+                                                                  onPressed: () => context.push(
+                                                                    Routes.billedStudentsView, 
+                                                                    extra: {'billedId': doc.ledgerid, 'feeName': doc.feeName}
+                                                                  ),
+                                                                ),
                                                               ],
                                                             ),
                                                             trailing: Row(
@@ -180,8 +209,23 @@ class _BillingViewState extends State<BillingView> {
                                                                 SizedBox(width: 8),
                                                                 InkWell(
                                                                     child: Icon(Icons.delete_forever, color: Colors.red),
-                                                                  onTap: (){}
-                                                                  //=>deleteFeeBilling(doc.id),
+                                                                  onTap: () async {
+                                                                    final confirm = await showDialog<bool>(
+                                                                      context: context,
+                                                                      builder: (context) => AlertDialog(
+                                                                        title: const Text("Confirm Delete"),
+                                                                        content: const Text("Are you sure you want to delete this bulk billing? All students in this class will have their balances adjusted."),
+                                                                        actions: [
+                                                                          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("Cancel")),
+                                                                          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text("Delete")),
+                                                                        ],
+                                                                      ),
+                                                                    );
+                                                                    if (confirm == true) {
+                                                                      await value.voidBilledRecord(doc, value.name);
+                                                                      value.fetchBilled();
+                                                                    }
+                                                                  }
                                                                 ),
                                                               ],
                                                             ),

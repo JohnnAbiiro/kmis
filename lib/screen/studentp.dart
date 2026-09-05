@@ -13,25 +13,7 @@ class StudentPortalApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Student Portal',
-      theme: ThemeData(
-        useMaterial3: true,
-        fontFamily: 'Inter',
-        scaffoldBackgroundColor: const Color(0xFFF5F7FB),
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF315CF6),
-          brightness: Brightness.light,
-        ),
-        cardTheme: const CardThemeData(
-          elevation: 0,
-          margin: EdgeInsets.zero,
-          color: Colors.white,
-        ),
-      ),
-      home: const StudentDashboardPage(),
-    );
+    return const StudentDashboardPage();
   }
 }
 

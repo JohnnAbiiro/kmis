@@ -241,14 +241,19 @@ class _RegisterStudentState extends State<RegisterStudent> {
         status: selectedStatus ?? "active",
         accessLevel: "student",
         department: selecteddepart ?? "",
-        yeargroup: DateTime.now().year.toString(),
+        yeargroup: selectedYearGroup ?? DateTime.now().year.toString(),
         academicyr: value.year,
+        remarks: "Registered by ${value.name} (${value.staffid})",
       );
+
+      final studentMap = student.toMap();
+      studentMap['registeredBy'] = value.name;
+      studentMap['registeredById'] = value.staffid;
 
       await value.db
           .collection("students")
           .doc(student.id)
-          .set(student.toMap(), SetOptions(merge: true));
+          .set(studentMap, SetOptions(merge: true));
 
       value.upsertStudent(student);
 

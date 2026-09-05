@@ -20,19 +20,24 @@ import 'package:printing/printing.dart';
 
 import '../components/academicyrmodel.dart';
 import '../components/terminalreportsheetprinter.dart';
+import '../components/student_financial_printer.dart';
 import '../reportpdf/subjectprinter.dart';
 import '../reportpdf/totalprinter.dart';
 import '../reportpdf/transcript_printer.dart';
+import 'dbmodels/billedModel.dart';
 import 'dbmodels/classmodel.dart';
 import 'dbmodels/componentmodel.dart';
 import 'dbmodels/contestantsmodel.dart';
 import 'dbmodels/departmodel.dart';
 
+import 'dbmodels/feePaymentModel.dart';
 import 'dbmodels/idformatmodel.dart';
+import 'dbmodels/ledgerModel.dart';
 import 'dbmodels/regionmodel.dart';
 import 'dbmodels/schoolmodel.dart';
 import 'dbmodels/scoremodel.dart';
 import 'dbmodels/scoring_mark_model.dart';
+import 'dbmodels/singleBilledModel.dart';
 import 'dbmodels/staffmodel.dart';
 import 'dbmodels/subjectmodel.dart';
 import 'dbmodels/teachermodel.dart';
@@ -394,9 +399,81 @@ class Myprovider extends LoginProvider {
       notifyListeners();
     }
   }
+  Future<void> voidFeePayment(FeePaymentModel payment, String authorizedBy) async {
+    try {
+      final voidedData = {
+        ...payment.toJson(),
+        'voidedAt': FieldValue.serverTimestamp(),
+        'voidedBy': authorizedBy,
+        'originalCollection': 'feepayment',
+        'reversalType': 'Payment Void',
+      };
+
+      // 1. Save to voidedTransactions collection
+      await db.collection("voidedTransactions").doc(payment.ledgerid).set(voidedData);
+
+      // 2. Delete from original collection (Trigger will handle balance reversal)
+      await db.collection("feepayment").doc(payment.ledgerid).delete();
+
+      // Refresh local state
+      feepaymentlist.removeWhere((p) => p.ledgerid == payment.ledgerid);
+      notifyListeners();
+      
+      debugPrint('Payment ${payment.ledgerid} voided by $authorizedBy');
+    } catch (e) {
+      debugPrint('Error voiding payment: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> voidBilledRecord(BilledModel bill, String authorizedBy) async {
+    try {
+      final voidedData = {
+        ...bill.toJson(),
+        'voidedAt': FieldValue.serverTimestamp(),
+        'voidedBy': authorizedBy,
+        'originalCollection': 'billed',
+        'reversalType': 'Billing Reversal',
+      };
+
+      // 1. Save to voidedTransactions collection
+      await db.collection("voidedTransactions").doc(bill.ledgerid).set(voidedData);
+
+      // 2. Delete from original collection (Trigger will handle balance reduction)
+      await db.collection("billed").doc(bill.ledgerid).delete();
+
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error reversing billing: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> voidSingleBilledRecord(SingleBilledModel bill, String authorizedBy) async {
+    try {
+      final voidedData = {
+        ...bill.toJson(),
+        'voidedAt': FieldValue.serverTimestamp(),
+        'voidedBy': authorizedBy,
+        'originalCollection': 'singlebilled',
+        'reversalType': 'Single Billing Reversal',
+      };
+
+      // 1. Save to voidedTransactions collection
+      await db.collection("voidedTransactions").doc(bill.ledgerid).set(voidedData);
+
+      // 2. Delete from original collection (Trigger will handle balance reduction)
+      await db.collection("singlebilled").doc(bill.ledgerid).delete();
+
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error reversing single billing: $e');
+      rethrow;
+    }
+  }
+
   Future<void> deleteData(String collection, String documentId) async {
     try {
-    //  fetchstaff();
       fetchomponents();
       fetchterms();
       fetchdepart();
@@ -2799,5 +2876,42 @@ class Myprovider extends LoginProvider {
   void removeTerm(String id) {
     terms.removeWhere((t) => t.id == id);
     notifyListeners();
+  }
+
+  Future<void> generateStudentFinancialReport(StudentModel student) async {
+    try {
+      final snap = await db.collection('ledger')
+          .where('schoolId', isEqualTo: schoolid)
+          .where('studentId', isEqualTo: student.studentid)
+          .orderBy('createdAt', descending: false)
+          .get();
+
+      final transactions = snap.docs.map((doc) => LedgerTransaction.fromFirestore(doc.id, doc.data())).toList();
+      
+      final billed = (student.accounts?['billed'] ?? 0.0).toDouble();
+      final paid = (student.accounts?['paid'] ?? 0.0).toDouble();
+      final balance = (student.accounts?['balance'] ?? 0.0).toDouble();
+
+      final printer = StudentFinancialPrinter(
+        schoolName: currentschool,
+        schoolAddress: "BOLGA, UPPER EAST",
+        schoolEmail: "info@kologsoft.com",
+        schoolPhone: "+233 553 354 349",
+        logoAssetPath: "assets/images/logo.png",
+        studentName: student.name,
+        studentId: student.studentid,
+        level: student.level,
+        transactions: transactions,
+        currentBalance: balance,
+        totalBilled: billed,
+        totalPaid: paid,
+      );
+
+      final pdfBytes = await printer.generatePdf();
+      await Printing.layoutPdf(onLayout: (_) async => pdfBytes, name: "Financial-Statement-${student.studentid}");
+    } catch (e) {
+      debugPrint("Error generating financial report: $e");
+      rethrow;
+    }
   }
 }

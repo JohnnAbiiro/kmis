@@ -14,6 +14,7 @@ class FeePaymentModel {
   final String receivedaccount;
   final String note;
   final String staff;
+  final String staffId;
   final Map<String, double> fees;
 
   FeePaymentModel({
@@ -30,6 +31,7 @@ class FeePaymentModel {
     required this.receivedaccount,
     required this.note,
     required this.staff,
+    required this.staffId,
     required this.fees, // ✅ required now
   });
 
@@ -48,18 +50,25 @@ class FeePaymentModel {
       "receivedaccount": receivedaccount,
       "note": note,
       "staff": staff,
+      "staffId": staffId,
       "fees": fees, // ✅ stored as map in Firestore
     };
   }
 
   factory FeePaymentModel.fromJson(Map<String, dynamic> json) {
+    DateTime parseDate(dynamic d) {
+      if (d is Timestamp) return d.toDate();
+      if (d is String) return DateTime.tryParse(d) ?? DateTime.now();
+      return DateTime.now();
+    }
+
     return FeePaymentModel(
       level: json["level"] ?? "",
       yeargroup: json["yeargroup"] ?? "",
       activityType: json["activityType"] ?? "",
       term: json["term"] ?? "",
-      schoolId: json["schoolId"] ?? "",
-      dateCreated: (json["dateCreated"] as Timestamp).toDate(),
+      schoolId: json["schoolId"] ?? json["schoolid"] ?? "",
+      dateCreated: parseDate(json["dateCreated"]),
       studentId: json["studentId"] ?? "",
       studentName: json["studentName"] ?? "",
       ledgerid: json["ledgerid"] ?? "",
@@ -67,9 +76,10 @@ class FeePaymentModel {
       receivedaccount: json["receivedaccount"] ?? "",
       note: json["note"] ?? "",
       staff: json["staff"] ?? "",
+      staffId: json["staffId"] ?? json["staffid"] ?? "",
       fees: Map<String, double>.from(
-        json["fees"] ?? {},
-      ), // ✅ convert back to map
+        (json["fees"] as Map?)?.map((k, v) => MapEntry(k.toString(), (double.tryParse(v.toString()) ?? 0.0))) ?? {},
+      ),
     );
   }
 }

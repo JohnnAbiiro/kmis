@@ -1,3 +1,4 @@
+import 'package:go_router/go_router.dart';
 import 'package:ksoftsms/controller/myprovider.dart';
 import 'package:ksoftsms/controller/statsprovider.dart';
 
@@ -385,14 +386,86 @@ class _CustomDrawerState extends State<CustomDrawer> {
                         child: ExpansionTile(
                           collapsedIconColor: Colors.white,
                           iconColor: Colors.white,
-                          leading: Icon(Icons.people, color: Colors.white60, size: 17,),
+                          leading: Icon(Icons.payments_outlined, color: Colors.white60, size: 17,),
                           title: Text(
-                            'Accounts Setup',
+                            'Fees & Billing',
                             style: TextStyle(color: Colors.white54, fontSize: 14),
                           ),
                           children: [
                             _drawerTile(
-                              icon: Icons.person_add,
+                              icon: Icons.label_outline,
+                              title: 'Fees Names',
+                              onTap: () async {
+                                try {
+                                  Navigator.pushNamed(context, Routes.feesetup);
+                                } catch (e) {
+                                  print(e);
+                                }
+                              },
+                            ),
+                            _drawerTile(icon: Icons.receipt_long, title: 'Bulk Billing',
+                              onTap: () async {
+                                try {
+                                  Navigator.pushNamed(context, Routes.billing);
+                                } catch (e) {
+                                  print(e);
+                                }
+                              },
+                            ),
+                            _drawerTile(icon: Icons.person_search, title: 'Single Billing',
+                              onTap: () async {
+                                try {
+                                  Navigator.pushNamed(context, Routes.singlebilling);
+                                } catch (e) {
+                                  print(e);
+                                }
+                              },
+                            ),
+                            _drawerTile(icon: Icons.payment, title: 'Fee Payment',
+                              onTap: () async {
+                                try {
+                                  Navigator.pushNamed(context, Routes.feepayment);
+                                } catch (e) {
+                                  print(e);
+                                }
+                              },
+                            ),
+                            _drawerTile(icon: Icons.credit_card, title: 'Payment Methods',
+                              onTap: () async {
+                                try {
+                                  Navigator.pushNamed(context, Routes.paymentmethods);
+                                } catch (e) {
+                                  print(e);
+                                }
+                              },
+                            ),
+                            _drawerTile(icon: Icons.summarize_outlined, title: 'Daily Summary',
+                              onTap: () async {
+                                try {
+                                  context.push(Routes.accountantSummaryView);
+                                } catch (e) {
+                                  print(e);
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      Card(
+                        color: Colors.transparent,
+                        elevation: 0,
+                        child: ExpansionTile(
+                          collapsedIconColor: Colors.white,
+                          iconColor: Colors.white,
+                          leading: Icon(Icons.account_balance, color: Colors.white60, size: 17,),
+                          title: Text(
+                            'General Ledger',
+                            style: TextStyle(color: Colors.white54, fontSize: 14),
+                          ),
+                          children: [
+                            _drawerTile(
+                              icon: Icons.add_chart,
                               title: 'Add Account',
                               onTap: () async {
                                 try {
@@ -404,7 +477,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                             ),
 
                             _drawerTile(
-                              icon: Icons.view_list,
+                              icon: Icons.history_edu,
                               title: 'System Activity',
                               onTap: () async {
                                 try {
@@ -414,54 +487,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                 }
                               },
                             ),
-                            _drawerTile(
-                              icon: Icons.account_balance_wallet,
-                              title: 'Fees Names',
-                              onTap: () async {
-                                try {
-                                  Navigator.pushNamed(context, Routes.feesetup);
-                                } catch (e) {
-                                  print(e);
-                                }
-                              },
-                            ),
-                            _drawerTile(icon: Icons.account_balance_wallet, title: 'Billing',
-                              onTap: () async {
-                                try {
-                                  Navigator.pushNamed(context, Routes.billing);
-                                } catch (e) {
-                                  print(e);
-                                }
-                              },
-                            ),
-                            _drawerTile(icon: Icons.account_balance_wallet, title: 'Single Billing',
-                              onTap: () async {
-                                try {
-                                  Navigator.pushNamed(context, Routes.singlebilling);
-                                } catch (e) {
-                                  print(e);
-                                }
-                              },
-                            ),
-                            _drawerTile(icon: Icons.account_balance_wallet, title: 'Payment Methods',
-                              onTap: () async {
-                                try {
-                                  Navigator.pushNamed(context, Routes.paymentmethods);
-                                } catch (e) {
-                                  print(e);
-                                }
-                              },
-                            ),
-                            _drawerTile(icon: Icons.account_balance_wallet, title: 'Fee Payment',
-                              onTap: () async {
-                                try {
-                                  Navigator.pushNamed(context, Routes.feepayment);
-                                } catch (e) {
-                                  print(e);
-                                }
-                              },
-                            ),
-                            _drawerTile(icon: Icons.account_balance_wallet, title: 'Expense',
+                            _drawerTile(icon: Icons.money_off, title: 'Expenses',
                               onTap: () async {
                                 try {
                                   Navigator.pushNamed(context, Routes.expense);
@@ -470,7 +496,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                 }
                               },
                             ),
-                            _drawerTile(icon: Icons.account_balance_wallet, title: 'Supplier',
+                            _drawerTile(icon: Icons.local_shipping, title: 'Suppliers',
                               onTap: () async {
                                 try {
                                   Navigator.pushNamed(context, Routes.supplier);

@@ -19,6 +19,13 @@ class SchoolModel {
   final String schoolId;
   final String type;
 
+  // 🔹 Notification fields
+  final String? smsSenderId;
+  final String? smtpHost;
+  final int? smtpPort;
+  final String? smtpEmail;
+  final String? smtpPassword;
+
   SchoolModel({
     required this.id,
     required this.schoolname,
@@ -35,6 +42,11 @@ class SchoolModel {
     this.countryName = "Ghana",
     this.schoolId = "",
     this.type = "Pre-tertiary",
+    this.smsSenderId,
+    this.smtpHost = "smtp.gmail.com",
+    this.smtpPort = 465,
+    this.smtpEmail,
+    this.smtpPassword,
   });
 
   Map<String, dynamic> toMap() => {
@@ -55,6 +67,13 @@ class SchoolModel {
     "countryname": countryName,
     "schoolid": schoolId,
     "type": type,
+
+    // notifications
+    "smsSenderId": smsSenderId,
+    "smtpHost": smtpHost,
+    "smtpPort": smtpPort,
+    "smtpEmail": smtpEmail,
+    "smtpPassword": smtpPassword,
   };
 
   factory SchoolModel.fromMap(Map<String, dynamic> map, String id) {
@@ -75,6 +94,12 @@ class SchoolModel {
       countryName: map["countryname"] ?? "Ghana",
       schoolId: map["schoolid"] ?? "",
       type: map["type"] ?? "Pre-tertiary",
+
+      smsSenderId: map["smsSenderId"],
+      smtpHost: map["smtpHost"] ?? "smtp.gmail.com",
+      smtpPort: map["smtpPort"] ?? 465,
+      smtpEmail: map["smtpEmail"],
+      smtpPassword: map["smtpPassword"],
     );
   }
 }

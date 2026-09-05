@@ -10,8 +10,11 @@ import 'package:ksoftsms/screen/stock_form.dart';
 import 'package:ksoftsms/screen/studentlist.dart';
 //import 'package:ksoftsms/screen/stock_statement.dart';
 import 'package:ksoftsms/screen/supplierForm.dart';
-import 'package:ksoftsms/views/account_chart_view.dart';
-import 'package:ksoftsms/views/billing_view.dart';
+import '../views/account_chart_view.dart';
+import '../views/accountant_summary_view.dart';
+import 'package:ksoftsms/views/billed_students_view.dart';
+import 'package:ksoftsms/views/daily_ledger_report_view.dart';
+import '../views/billing_view.dart';
 import 'package:ksoftsms/views/expense_view.dart';
 import 'package:ksoftsms/views/fee_payment_view.dart';
 import 'package:ksoftsms/views/item_reg_view.dart';
@@ -230,6 +233,7 @@ class Routes {
   static const enterAssessmentMarks = "/enterAssessmentMarks";
   static const studentportal = "/studentportal";
   static const ledgerReport = "/ledger_report";
+  static const dailyLedgerReport = "/daily_ledger_report";
   static const registerschool = "/registerschool";
   static const setupWizard = "/setupWizard";
   static const courseallocation = "/courseallocation";
@@ -238,6 +242,8 @@ class Routes {
   static const viewfaculty = "/viewfaculty";
 
   // Role → Allowed routes mapping
+  static const billedStudentsView = "/billedStudentsView";
+  static const accountantSummaryView = "/accountantSummaryView";
   static const roleAllowedRoutes = {
     "Judge": [
       Routes.judgelandingpage,
@@ -254,9 +260,21 @@ final GoRouter router = GoRouter(
   initialLocation: Routes.login,
 
   routes: [
+    GoRoute(
+      path: Routes.billedStudentsView,
+      builder: (c, s) {
+        final extra = s.extra as Map<String, dynamic>;
+        return BilledStudentsView(
+          billedId: extra['billedId'],
+          feeName: extra['feeName'],
+        );
+      },
+    ),
+    GoRoute(path: Routes.accountantSummaryView, builder: (c, s) => AccountantSummaryView()),
     GoRoute(path: Routes.enterAssessmentMarks, builder: (c, s) => AssessmentEntryPage()),
     GoRoute(path: Routes.studentportal, builder: (c, s) => StudentPortalApp()),
     GoRoute(path: Routes.ledgerReport, builder: (c, s) => LedgerReportPage()),
+    GoRoute(path: Routes.dailyLedgerReport, builder: (c, s) => DailyLedgerReportView()),
     GoRoute(path: Routes.sales, builder: (c, s) => Sales()),
     GoRoute(path: Routes.stock, builder: (c, s) => StockForm()),
     //GoRoute(path: Routes.stockStatement, builder: (c, s) => StockStatement()),
@@ -384,7 +402,6 @@ final GoRouter router = GoRouter(
     GoRoute(path: Routes.singlebilling, builder: (c, s) => SingleBilling()),
     GoRoute(path: Routes.terminalreport, builder: (c, s) => ReportSheet()),
     GoRoute(path: Routes.entermark, builder: (c, s) => MarksEntryPage()),
-
     GoRoute(path: Routes.staffscoring, builder: (c, s) => StaffScoringPage()),
     GoRoute(path: Routes.staffview, builder: (c, s) => StaffView()),
     GoRoute(path: Routes.promotionsetting, builder: (c, s) => PromotionScreen ()),

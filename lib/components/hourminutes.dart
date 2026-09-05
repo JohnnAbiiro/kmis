@@ -196,18 +196,12 @@ class HourMinutes extends StatelessWidget {
                               }
 
                               final docs = snapshot.data!.docs;
-                              int male = docs.where((doc) => (doc['sex']?.toString().toLowerCase() == 'male')).length;
-                              int female = docs.where((doc) => (doc['sex']?.toString().toLowerCase() == 'female')).length;
-
-                              if (male == 0 && female == 0) {
-                                return const Center(child: Text('No data'));
-                              }
-
                               int maleCount = 0;
                               int femaleCount = 0;
 
-                              for (var doc in snapshot.data!.docs) {
-                                String sex = doc['sex'].toString().toLowerCase();
+                              for (var doc in docs) {
+                                final data = doc.data();
+                                final sex = data['sex']?.toString().toLowerCase();
 
                                 if (sex == 'male') {
                                   maleCount++;
@@ -216,8 +210,11 @@ class HourMinutes extends StatelessWidget {
                                 }
                               }
 
-                              int total = maleCount + femaleCount;
+                              if (maleCount == 0 && femaleCount == 0) {
+                                return const Center(child: Text('No data'));
+                              }
 
+                              int total = maleCount + femaleCount;
                               double malePercentage = total > 0 ? (maleCount / total) * 100 : 0;
                               double femalePercentage = total > 0 ? (femaleCount / total) * 100 : 0;
 
@@ -243,7 +240,7 @@ class HourMinutes extends StatelessWidget {
                                           centerSpaceRadius: 0,
                                           sections: [
                                             PieChartSectionData(
-                                              value: male.toDouble(),
+                                              value: maleCount.toDouble(),
                                               color: colors.primary,
                                               title: "${malePercentage.toStringAsFixed(1)}%",
                                               radius: 30,
@@ -253,7 +250,7 @@ class HourMinutes extends StatelessWidget {
                                                   color: colors.onPrimary),
                                             ),
                                             PieChartSectionData(
-                                              value: female.toDouble(),
+                                              value: femaleCount.toDouble(),
                                               color: colors.primaryContainer,
                                               title: "${femalePercentage.toStringAsFixed(1)}%",
                                               radius: 28,

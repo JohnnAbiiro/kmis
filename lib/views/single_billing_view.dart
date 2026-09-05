@@ -119,8 +119,23 @@ class _SingleBillingViewState extends State<SingleBillingView> {
                                                             children: [
                                                               InkWell(
                                                                   child: Icon(Icons.delete_forever, color: Colors.red, size: 20,),
-                                                                  onTap: (){}
-                                                                  //=>deleteSingleBilling(doc.id)
+                                                                  onTap: () async {
+                                                                    final confirm = await showDialog<bool>(
+                                                                      context: context,
+                                                                      builder: (context) => AlertDialog(
+                                                                        title: const Text("Confirm Delete"),
+                                                                        content: const Text("Are you sure you want to delete this billing? The student's balance will be adjusted."),
+                                                                        actions: [
+                                                                          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("Cancel")),
+                                                                          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text("Delete")),
+                                                                        ],
+                                                                      ),
+                                                                    );
+                                                                    if (confirm == true) {
+                                                                      await value.voidSingleBilledRecord(doc, value.name);
+                                                                      value.fetchSingleBilled();
+                                                                    }
+                                                                  }
                                                               ),
                                                               SizedBox(width: 8),
                                                               Icon(Icons.edit, color: Colors.orangeAccent, size: 20,),
@@ -187,8 +202,23 @@ class _SingleBillingViewState extends State<SingleBillingView> {
                                                                 SizedBox(width: 8),
                                                                 InkWell(
                                                                     child: Icon(Icons.delete_forever, color: Colors.red),
-                                                                  onTap: (){}
-                                                                  //=>deleteSingleBilling(doc.id),
+                                                                  onTap: () async {
+                                                                    final confirm = await showDialog<bool>(
+                                                                      context: context,
+                                                                      builder: (context) => AlertDialog(
+                                                                        title: const Text("Confirm Delete"),
+                                                                        content: const Text("Are you sure you want to delete this billing? The student's balance will be adjusted."),
+                                                                        actions: [
+                                                                          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("Cancel")),
+                                                                          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text("Delete")),
+                                                                        ],
+                                                                      ),
+                                                                    );
+                                                                    if (confirm == true) {
+                                                                      await value.voidSingleBilledRecord(doc, value.name);
+                                                                      value.fetchSingleBilled();
+                                                                    }
+                                                                  }
                                                                 ),
                                                               ],
                                                             ),

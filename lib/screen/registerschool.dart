@@ -26,6 +26,14 @@ class _RegisterSchoolState extends State<RegisterSchool> {
   final countryName = TextEditingController();
   final countryCode = TextEditingController();
   final schoolId = TextEditingController();
+
+  // Notification Controllers
+  final smsSenderId = TextEditingController();
+  final smtpHost = TextEditingController(text: "smtp.gmail.com");
+  final smtpPort = TextEditingController(text: "465");
+  final smtpEmail = TextEditingController();
+  final smtpPassword = TextEditingController();
+
   bool agreedToTerms = true;
   String schoolType = 'Pre-tertiary';
   bool _isLoadingSchool = false;
@@ -71,6 +79,11 @@ class _RegisterSchoolState extends State<RegisterSchool> {
     bool? agreedToTerms,
     String? type,
     String? logoUrl,
+    String? smsSenderId,
+    String? smtpHost,
+    int? smtpPort,
+    String? smtpEmail,
+    String? smtpPassword,
   }) {
     if (schoolname != null) this.schoolName.text = schoolname;
     if (prefix != null) this.prefix.text = prefix;
@@ -83,6 +96,12 @@ class _RegisterSchoolState extends State<RegisterSchool> {
     if (agreedToTerms != null) this.agreedToTerms = agreedToTerms;
     if (type != null) schoolType = type == 'Tertiary' ? 'Tertiary' : 'Pre-tertiary';
     if (logoUrl != null) _uploadedLogoUrl = logoUrl;
+
+    if (smsSenderId != null) this.smsSenderId.text = smsSenderId;
+    if (smtpHost != null) this.smtpHost.text = smtpHost;
+    if (smtpPort != null) this.smtpPort.text = smtpPort.toString();
+    if (smtpEmail != null) this.smtpEmail.text = smtpEmail;
+    if (smtpPassword != null) this.smtpPassword.text = smtpPassword;
   }
 
   Future<void> _fetchSchool(String id) async {
@@ -105,6 +124,11 @@ class _RegisterSchoolState extends State<RegisterSchool> {
             agreedToTerms: map['agreedToTerms'] as bool?,
             type: map['type'] as String?,
             logoUrl: map['logoUrl'] as String?,
+            smsSenderId: map['smsSenderId'] as String?,
+            smtpHost: map['smtpHost'] as String?,
+            smtpPort: map['smtpPort'] as int?,
+            smtpEmail: map['smtpEmail'] as String?,
+            smtpPassword: map['smtpPassword'] as String?,
           );
         });
       }
@@ -263,6 +287,62 @@ class _RegisterSchoolState extends State<RegisterSchool> {
                             },
                           ),
                           const SizedBox(height: 20),
+
+                          const Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              "Notification Settings",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF00496d),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          _buildTextField(
+                            controller: smsSenderId,
+                            label: "SMS Sender ID",
+                            hint: "e.g. KOLOGSOFT",
+                            validatorMsg: 'Sender ID required for SMS',
+                            fillColor: inputFill,
+                          ),
+                          const SizedBox(height: 10),
+                          _buildTextField(
+                            controller: smtpHost,
+                            label: "SMTP Host",
+                            hint: "e.g. smtp.gmail.com",
+                            validatorMsg: 'SMTP host required',
+                            fillColor: inputFill,
+                          ),
+                          const SizedBox(height: 10),
+                          _buildTextField(
+                            controller: smtpPort,
+                            label: "SMTP Port",
+                            hint: "e.g. 465 or 587",
+                            validatorMsg: 'SMTP port required',
+                            fillColor: inputFill,
+                            keyboardType: TextInputType.number,
+                          ),
+                          const SizedBox(height: 10),
+                          _buildTextField(
+                            controller: smtpEmail,
+                            label: "SMTP Email",
+                            hint: "e.g. yourschool@gmail.com",
+                            validatorMsg: 'SMTP email required',
+                            fillColor: inputFill,
+                            keyboardType: TextInputType.emailAddress,
+                          ),
+                          const SizedBox(height: 10),
+                          _buildTextField(
+                            controller: smtpPassword,
+                            label: "SMTP App Password",
+                            hint: "Enter Gmail App Password",
+                            validatorMsg: 'SMTP password required',
+                            fillColor: inputFill,
+                          ),
+
+                          const SizedBox(height: 20),
                           Row(
                             children: [
                               Checkbox(
@@ -314,6 +394,11 @@ class _RegisterSchoolState extends State<RegisterSchool> {
                                 schoolId: schoolIdTxt,
                                 agreedToTerms: agreedToTerms,
                                 type: schoolType,
+                                smsSenderId: smsSenderId.text.trim(),
+                                smtpHost: smtpHost.text.trim(),
+                                smtpPort: int.tryParse(smtpPort.text.trim()) ?? 465,
+                                smtpEmail: smtpEmail.text.trim(),
+                                smtpPassword: smtpPassword.text.trim(),
                               );
 
                               await value.db

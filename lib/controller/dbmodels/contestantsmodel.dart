@@ -35,6 +35,10 @@ class StudentModel {
   final String? yearlytotal;
   final String? average;
   final String? position;
+  final Map<String, dynamic>? accounts;
+  final Map<String, dynamic>? accountHistory;
+  final String? lastBilledDate;
+  final String? lastPaidDate;
 
   StudentModel({
     required this.id,
@@ -73,6 +77,10 @@ class StudentModel {
     this.yearlytotal="",
     this.average="",
     this.position ="",
+    this.accounts,
+    this.accountHistory,
+    this.lastBilledDate,
+    this.lastPaidDate,
   });
 
   /// convert to map (all lowercase keys)
@@ -114,6 +122,10 @@ class StudentModel {
       'nextfees':nextfees,
       'position':position,
       'promotiondate':promotiondate,
+      'accounts': accounts,
+      'accountHistory': accountHistory,
+      'lastBilledDate': lastBilledDate,
+      'lastPaidDate': lastPaidDate,
     };
   }
 
@@ -131,7 +143,7 @@ class StudentModel {
       level: map['level'] ?? '',
       department: map['department'] ?? '',
       term: map['term'] ?? '',
-      schoolId: map['companyid'] ?? '',
+      schoolId: map['schoolId'] ?? map['companyid'] ?? '',
       dob: map['dob'] ?? '',
       address: map['address'] ?? '',
       email: map['email'],
@@ -156,6 +168,10 @@ class StudentModel {
       totalattend: map['totalattend'] ?? '',
       nextfees: map['nextfees'] ?? '',
       position: map['position'] ?? '',
+      accounts: map['accounts'] != null ? Map<String, dynamic>.from(map['accounts']) : null,
+      accountHistory: map['accountHistory'] != null ? Map<String, dynamic>.from(map['accountHistory']) : null,
+      lastBilledDate: map['lastBilledDate'],
+      lastPaidDate: map['lastPaidDate'],
     );
   }
 }

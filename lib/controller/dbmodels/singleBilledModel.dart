@@ -11,6 +11,8 @@ class SingleBilledModel {
   final String term;
   final String schoolId;
   final String ledgerid;
+  final String? staff;
+  final String? staffId;
   final DateTime? dateCreated;
   SingleBilledModel({
     required this.studentId,
@@ -21,13 +23,18 @@ class SingleBilledModel {
     required this.activityType,
     required this.term,
     required this.schoolId,
-    required this.feeName,
     required this.ledgerid,
+    this.staff,
+    this.staffId,
     required this.dateCreated,
+    required this.feeName,
+
   });
   factory SingleBilledModel.fromMap(Map<String, dynamic> map) {
     return SingleBilledModel(
       ledgerid: map['ledgerid'] ?? '',
+      staff: map['staff'],
+      staffId: map['staffId'] ?? map['staffid'],
       studentName: map['studentName'] ?? '',
       studentId: map['studentId'] ?? '',
       level: map['level'] ?? '',
@@ -43,6 +50,8 @@ class SingleBilledModel {
   Map<String, dynamic> toJson() {
     return {
       "ledgerid": ledgerid,
+      "staff": staff,
+      "staffId": staffId,
       "studentName": studentName,
       "studentId": studentId,
       "level": level,

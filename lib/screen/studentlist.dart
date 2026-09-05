@@ -341,6 +341,14 @@ class _StudentListScreenState extends State<StudentListScreen> {
                                             children: [
                                               IconButton(
                                                 icon: const Icon(
+                                                  Icons.account_balance_wallet_outlined,
+                                                  color: Colors.blue,
+                                                ),
+                                                tooltip: 'Financial Report',
+                                                onPressed: () => value.generateStudentFinancialReport(item),
+                                              ),
+                                              IconButton(
+                                                icon: const Icon(
                                                   Icons.edit,
                                                   color: Colors.amber,
                                                 ),
@@ -506,6 +514,11 @@ class _StudentListScreenState extends State<StudentListScreen> {
             trailing: Wrap(
               spacing: 2,
               children: [
+                IconButton(
+                  tooltip: 'Financial Report',
+                  icon: const Icon(Icons.account_balance_wallet_outlined, color: Colors.blue),
+                  onPressed: () => provider.generateStudentFinancialReport(student),
+                ),
                 IconButton(
                   tooltip: 'Edit student',
                   icon: const Icon(Icons.edit, color: Colors.amber),
