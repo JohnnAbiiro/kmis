@@ -23,9 +23,9 @@ class TicketsByDayChart extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'School Performance',
-              style: TextStyle(color: colors.onSurface, fontSize: 16),
+              style: TextStyle(fontSize: 16),
             ),
             SizedBox(height: 10),
             SizedBox(
@@ -50,8 +50,7 @@ class TicketsByDayChart extends StatelessWidget {
                           ];
                           return Text(
                             days[value.toInt()],
-                            style: TextStyle(
-                              color: colors.primary,
+                            style: const TextStyle(
                               fontSize: 10,
                             ),
                           );
@@ -64,7 +63,7 @@ class TicketsByDayChart extends StatelessWidget {
                         showTitles: true,
                         getTitlesWidget: (value, _) => Text(
                           '${value.toInt()}',
-                          style: TextStyle(color: colors.primary, fontSize: 10),
+                          style: const TextStyle(fontSize: 10),
                         ),
                         interval: 2,
                       ),

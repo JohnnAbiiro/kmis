@@ -324,25 +324,16 @@ class _StudentListScreenState extends State<StudentListScreen> {
                                         DataCell(
                                           Text(
                                             item.level,
-                                            style: const TextStyle(
-                                              color: Colors.black,
-                                            ),
                                           ),
                                         ),
                                         DataCell(
                                           Text(
                                             item.region,
-                                            style: const TextStyle(
-                                              color: Colors.black,
-                                            ),
                                           ),
                                         ),
                                         DataCell(
                                           Text(
                                             item.status,
-                                            style: const TextStyle(
-                                              color: Colors.black,
-                                            ),
                                           ),
                                         ),
                                         DataCell(

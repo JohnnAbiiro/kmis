@@ -51,7 +51,7 @@ class _ColumnChartState extends State<ColumnChart> {
             children: [
                 Text(
                   'Fees Report',
-                  style: TextStyle(fontSize: 18, color: colors.primary)
+                  style: const TextStyle(fontSize: 18)
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

@@ -61,14 +61,9 @@ class _BillingState extends State<Billing> {
             builder: (BuildContext context,  value, Widget? child) {
               return Scaffold(
                 appBar: AppBar(
-                  backgroundColor: const Color(0xFF00273a),
-                  leading: IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () => Navigator.pop(context),
-                  ),
                   title: Text(
                     '${value.currentschool.toUpperCase()} BULK FEES BILLING ',
-                    style: const TextStyle(color: Colors.white, fontSize: 18),
+                    style: const TextStyle(fontSize: 18),
                   ),
                 ),
                 body: Align(

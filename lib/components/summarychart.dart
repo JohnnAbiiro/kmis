@@ -36,9 +36,9 @@ class SummaryDonutChart extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 'Admissions',
-                style: TextStyle(fontSize: 15, color: colors.onSurface),
+                style: TextStyle(fontSize: 15),
               ),
               Center(
                 child: CircularPercentIndicator(
@@ -61,7 +61,7 @@ class SummaryDonutChart extends StatelessWidget {
                       ),
                       Text(
                         "of 100%",
-                        style: TextStyle(color: colors.primary, fontSize: 14),
+                        style: const TextStyle(fontSize: 14),
                       ),
                     ],
                   ),

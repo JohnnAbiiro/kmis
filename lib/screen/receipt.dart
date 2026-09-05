@@ -38,14 +38,7 @@ class _SchoolReceiptState extends State<SchoolReceipt> {
         print("Receipt: ${val.receiptrecords}");
         return Scaffold(
           appBar: AppBar(
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back,color: Colors.white,),
-              onPressed: () {
-                Navigator.pushNamed(context, Routes.feepayment);
-              },
-            ),
-            title:  Text(" School Receipt",style: TextStyle(color: Colors.white),),
-            backgroundColor: Color(0xFF00496d),
+            title:  const Text(" School Receipt"),
           ),
           backgroundColor: Color(0xFFf3f4ff),
           body: SingleChildScrollView(
@@ -109,10 +102,8 @@ class _SchoolReceiptState extends State<SchoolReceipt> {
                          Center(
                           child: Text(
                             "${val.currentschool.toString().toUpperCase()} SCHOOL FEES RECEIPT",
-                            style: TextStyle(
+                            style: const TextStyle(
                                 fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF00496d)
                             ),
                           ),
                         ),

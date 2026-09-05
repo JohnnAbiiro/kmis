@@ -61,7 +61,7 @@ class _DuplicateContainerState extends State<DuplicateContainer> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Staff & Teacher Information', style: TextStyle(fontSize: 18, color: colors.primary)),
+            Text('Staff & Teacher Information', style: const TextStyle(fontSize: 18)),
             SizedBox(height: 30),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -143,8 +143,8 @@ class _DuplicateContainerState extends State<DuplicateContainer> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(Icons.school_sharp, size: 40, color: colors.primary),
-                                Text("Total Staff", style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant)),
-                                Text(count.toString(), style: TextStyle(fontWeight: FontWeight.w600, fontSize: 30, color: colors.onSurface))
+                                const Text("Total Staff", style: TextStyle(fontSize: 12)),
+                                Text(count.toString(), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 30))
                               ],
                             );
                           }

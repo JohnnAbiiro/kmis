@@ -161,9 +161,7 @@ class _StudentCummulativeReportState extends State<StudentCummulativeReport> {
     return Scaffold(
       backgroundColor: const Color(0xFF1B1D2A),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF2D2F45),
-        title: const Text("Student Cummulative Report",
-            style: TextStyle(color: Colors.white60)),
+        title: const Text("Student Cummulative Report"),
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),

@@ -58,10 +58,8 @@ class _TermScoreSheetState extends State<TermScoreSheet> {
     return Scaffold(
       backgroundColor: const Color(0xFF1B1D2A),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF2D2F45),
         title: const Text(
           "Terminal Sheet Student",
-          style: TextStyle(color: Colors.white60),
         ),
         centerTitle: true,
         leading: IconButton(

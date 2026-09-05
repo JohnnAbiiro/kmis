@@ -140,7 +140,6 @@ class _ForgotpasswordState extends State<Forgotpassword> {
         backgroundColor: Colors.transparent,
         title: const Text(
           'Forgot Password',
-          style: TextStyle(color: Colors.black),
         ),
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.black),
@@ -164,13 +163,12 @@ class _ForgotpasswordState extends State<Forgotpassword> {
                       style: TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
                       ),
                     ),
                     const SizedBox(height: 8),
                     const Text(
                       'Enter your email address and we’ll send you a link to reset your password.',
-                      style: TextStyle(fontSize: 16, color: Colors.black54),
+                      style: TextStyle(fontSize: 16),
                     ),
                     const SizedBox(height: 32),
                     TextFormField(
@@ -209,7 +207,7 @@ class _ForgotpasswordState extends State<Forgotpassword> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           decoration: BoxDecoration(
-                            color: Colors.brown,
+                            color: Theme.of(context).colorScheme.primary,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: const Center(

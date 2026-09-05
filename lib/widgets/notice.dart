@@ -81,9 +81,8 @@ class NoticeBoard extends StatelessWidget {
                   ),
                 ),
                 onPressed: () {},
-                child:  Text(
+                child:  const Text(
                   'Clear All',
-                  style: TextStyle(color: colors.primary),
                 ),
               ),
 

@@ -32,7 +32,7 @@ class AttendanceTracking extends StatelessWidget {
                 Text(
                   "Attendance Tracking",
                   style: TextStyle(
-                      fontSize: fontSize, color: colors.primary
+                      fontSize: fontSize
                   ),
                 ),
                 const SizedBox(height: 30),

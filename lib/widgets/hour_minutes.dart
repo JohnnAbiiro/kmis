@@ -36,7 +36,7 @@ class HourMinutes extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Student Information',
-                    style: TextStyle(fontSize: 18, color: colors.primary)),
+                    style: const TextStyle(fontSize: 18)),
                 SizedBox(height: 30),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

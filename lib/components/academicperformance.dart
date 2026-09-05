@@ -25,10 +25,8 @@ class AcademicPerformanceCard extends StatelessWidget {
           // Title
           Text(
             "Academic Performance",
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: colors.onSurface,
             ),
           ),
           const SizedBox(height: 8),
@@ -45,10 +43,8 @@ class AcademicPerformanceCard extends StatelessWidget {
               children: [
                 Text(
                   "Recent Exam Results",
-                  style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: colors.onSurface),
+                  style: const TextStyle(
+                      fontSize: 14),
                 ),
                 const SizedBox(height: 12),
 

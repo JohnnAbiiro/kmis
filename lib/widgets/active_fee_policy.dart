@@ -11,14 +11,15 @@ class ActiveFeePolicy extends StatefulWidget {
 class _ActiveFeePolicyState extends State<ActiveFeePolicy> {
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Container(
       height: 150,
       width: widget.cwidth,
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.all(Radius.circular(12)),
-        boxShadow: [
+        color: colors.surface,
+        borderRadius: const BorderRadius.all(Radius.circular(12)),
+        boxShadow: const [
           BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
         ],
       ),
@@ -27,65 +28,65 @@ class _ActiveFeePolicyState extends State<ActiveFeePolicy> {
           Row(
             //mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Active Fee Policy", style: TextStyle(fontSize: 12)),
+              const Text("Active Fee Policy", style: TextStyle(fontSize: 12)),
               Container(
-                padding: EdgeInsets.all(4),
+                padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
                   color: Colors.deepPurple.shade100,
-                  borderRadius: BorderRadius.all(Radius.circular(4))
+                  borderRadius: const BorderRadius.all(Radius.circular(4))
                 ),
-                  child: Text("2024/2025", style: TextStyle(color: Colors.deepPurple, fontSize: 10),)
+                  child: const Text("2024/2025", style: TextStyle(color: Colors.deepPurple, fontSize: 10),)
               )
             ],
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Row(
             //mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Attached To", style: TextStyle(fontSize: 12)),
+              const Text("Attached To", style: TextStyle(fontSize: 12)),
               Container(
-                padding: EdgeInsets.all(4),
+                padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
                   color: Colors.green.shade100,
-                  borderRadius: BorderRadius.all(Radius.circular(4))
+                  borderRadius: const BorderRadius.all(Radius.circular(4))
                 ),
-                  child: Text("120 Students", style: TextStyle(color: Colors.green, fontSize: 10),)
+                  child: const Text("120 Students", style: TextStyle(color: Colors.green, fontSize: 10),)
               )
             ],
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Row(
             //mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Current Base Fee", style: TextStyle(fontSize: 12)),
+              const Text("Current Base Fee", style: TextStyle(fontSize: 12)),
               Container(
-                padding: EdgeInsets.all(4),
+                padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
                   color: Colors.orange.shade100,
-                  borderRadius: BorderRadius.all(Radius.circular(4))
+                  borderRadius: const BorderRadius.all(Radius.circular(4))
                 ),
-                  child: Text("GHC 120", style: TextStyle(color: Colors.orange, fontSize: 10),)
+                  child: const Text("GHC 120", style: TextStyle(fontSize: 10),)
               )
             ],
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Row(
             //mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("View Type", style: TextStyle(fontSize: 12)),
+              const Text("View Type", style: TextStyle(fontSize: 12)),
               Container(
-                padding: EdgeInsets.all(4),
+                padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
                   //color: Colors.orange.shade100,
-                  borderRadius: BorderRadius.all(Radius.circular(4)),
-                  border: Border(
+                  borderRadius: const BorderRadius.all(Radius.circular(4)),
+                  border: const Border(
                       bottom: BorderSide(color: Colors.black26),
                       top: BorderSide(color: Colors.black26),
                       right: BorderSide(color: Colors.black26),
                       left: BorderSide(color: Colors.black26),
                   )
                 ),
-                  child: Text("Year Group", style: TextStyle(color: Colors.orange, fontSize: 10),)
+                  child: const Text("Year Group", style: TextStyle(fontSize: 10),)
               )
             ],
           ),

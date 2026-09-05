@@ -85,8 +85,7 @@ class _AnimatedAdmissionsReportCardState
                   const SizedBox(width: 4),
                   Text(
                     "10.8%",
-                    style: TextStyle(
-                      color: colors.primary,
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
                     ),
                   ),

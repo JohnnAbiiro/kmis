@@ -61,7 +61,6 @@ class _LoginPageState extends State<LoginPage> {
                             style: TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.bold,
-                              color: Colors.brown,
                             ),
                           ),
                           const SizedBox(height: 32),
@@ -80,12 +79,10 @@ class _LoginPageState extends State<LoginPage> {
                                     children: [
                                       Text(
                                         'Staff Login',
-                                        style: Theme.of(context).textTheme.titleLarge
-                                            ?.copyWith(color: Colors.brown),
+                                        style: Theme.of(context).textTheme.titleLarge,
                                       ),
                                       const SizedBox(height: 24),
                                       TextFormField(
-                                        style: const TextStyle(color: Colors.black),
                                         keyboardType: TextInputType.phone,
                                         controller: _emailController,
                                         decoration: const InputDecoration(
@@ -134,7 +131,6 @@ class _LoginPageState extends State<LoginPage> {
                                             hud?.dismiss();
                                           },
                                           style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.brown,
                                             padding: const EdgeInsets.symmetric(vertical: 17),
                                             shape: RoundedRectangleBorder(
                                               borderRadius: BorderRadius.circular(10),
@@ -144,7 +140,6 @@ class _LoginPageState extends State<LoginPage> {
                                             'Login',
                                             style: TextStyle(
                                               fontSize: 16,
-                                              color: Colors.white,
                                             ),
                                           ),
                                         ),
@@ -472,7 +467,7 @@ class _LoginPageState extends State<LoginPage> {
                                     },
                                     child: const Text(
                                       'Forgot password?',
-                                      style: TextStyle(fontSize: 14,color: Colors.brown),
+                                      style: TextStyle(fontSize: 14),
                                     ),
                                   ),
                                 ),

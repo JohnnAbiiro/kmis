@@ -77,7 +77,7 @@ class _OneTicketState extends State<OneTicket> {
                 const SizedBox(height: 4),
                 const Text(
                   'Budget: 56,800',
-                  style: TextStyle(color: Colors.black54),
+                  style: TextStyle(),
                 ),
 
                 const SizedBox(height: 16),

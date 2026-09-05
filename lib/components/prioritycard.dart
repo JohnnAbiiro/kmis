@@ -74,9 +74,9 @@ class PriorityDonutChart extends StatelessWidget {
             children: [
               Padding(
                 padding: EdgeInsets.only(top: 16.0, left: 16.0),
-                child: Text(
+                child: const Text(
                   'Contestants by Level',
-                  style: TextStyle(color: colors.onSurface, fontSize: 14),
+                  style: TextStyle(fontSize: 14),
                 ),
               ),
               const SizedBox(height: 4),
