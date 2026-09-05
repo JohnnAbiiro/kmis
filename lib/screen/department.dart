@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../controller/dbmodels/departmodel.dart';
 import '../controller/myprovider.dart';
@@ -186,7 +185,7 @@ class _DepartmentState extends State<Department> {
                                     icon: const Icon(Icons.list),
                                     label: const Text("View Departments"),
                                     onPressed: () {
-                                      context.go(Routes.viewdepart);
+                                      Navigator.pushNamed(context, Routes.viewdepart);
                                     },
                                   ),
                                 ],

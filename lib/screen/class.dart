@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../controller/dbmodels/classmodel.dart';
@@ -223,7 +222,7 @@ class _ClassScreenState extends State<ClassScreen> {
                                     icon: const Icon(Icons.list),
                                     label: const Text("View Classes"),
                                     onPressed: () {
-                                      context.go(Routes.viewclass);
+                                      Navigator.pushNamed(context, Routes.viewclass);
                                     },
                                   ),
                                 ],
