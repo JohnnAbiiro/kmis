@@ -117,8 +117,8 @@ class HourMinutes extends StatelessWidget {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Icon(Icons.people_alt, color: colors.primary, size: 40),
-                                    Text("Total Students", style: TextStyle(fontSize: 12, color: colors.onSurface),),
-                                    Text(count.toString(), style: TextStyle(fontWeight: FontWeight.w600, fontSize: 30, color: colors.onSurface))
+                                    Text("Total Students", style: TextStyle(fontSize: 12),),
+                                    Text(count.toString(), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 30))
                                   ],
                                 );
                               }
@@ -230,9 +230,9 @@ class HourMinutes extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text(
+                                    const Text(
                                       "Male vs Female",
-                                      style: TextStyle(fontSize: 13, color: colors.onSurface),
+                                      style: TextStyle(fontSize: 13),
                                     ),
                                     //const SizedBox(height: 10),
                                     SizedBox(
@@ -268,7 +268,7 @@ class HourMinutes extends StatelessWidget {
                                         swapAnimationCurve: Curves.easeOutCubic,
                                       ),
                                     ),
-                                    SizedBox(height: 12),
+                                    const SizedBox(height: 12),
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
@@ -280,13 +280,13 @@ class HourMinutes extends StatelessWidget {
                                               decoration: BoxDecoration(color: colors.primary, shape: BoxShape.circle),
                                             ),
                                             const SizedBox(width: 6),
-                                            Text(
+                                            const Text(
                                               "Male",
-                                              style: TextStyle(fontSize: 12, color: colors.onSurface),
+                                              style: TextStyle(fontSize: 12),
                                             ),
                                           ],
                                         ),
-                                        SizedBox(width: 10),
+                                        const SizedBox(width: 10),
                                         Row(
                                           children: [
                                             Container(
@@ -295,9 +295,9 @@ class HourMinutes extends StatelessWidget {
                                               decoration: BoxDecoration(color: colors.primaryContainer, shape: BoxShape.circle),
                                             ),
                                             const SizedBox(width: 6),
-                                            Text(
+                                            const Text(
                                               "Female",
-                                              style: TextStyle(fontSize: 12, color: colors.onSurface),
+                                              style: TextStyle(fontSize: 12),
                                             ),
                                           ],
                                         )
