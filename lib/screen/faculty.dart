@@ -1,11 +1,8 @@
-
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_progress_hud/flutter_progress_hud.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import '../controller/dbmodels/departmodel.dart';
+
 import '../controller/dbmodels/facultymodel.dart';
 import '../controller/myprovider.dart';
 import '../controller/routes.dart';
@@ -21,6 +18,7 @@ class FacultyPage extends StatefulWidget {
 class _FacultyPageState extends State<FacultyPage> {
   final facultyController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool _saving = false;
 
   @override
   void initState() {
@@ -28,6 +26,89 @@ class _FacultyPageState extends State<FacultyPage> {
     final data = widget.faculty;
     if (data != null) {
       facultyController.text = data.name;
+    }
+  }
+
+  @override
+  void dispose() {
+    facultyController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save(Myprovider value) async {
+    if (!_formKey.currentState!.validate() || _saving) return;
+    final isEdit = widget.faculty != null;
+
+    setState(() => _saving = true);
+    try {
+      final facultyName = facultyController.text.trim();
+ final docId = isEdit
+          ? widget.faculty!.id
+          : value.db.collection('faculties').doc().id;
+
+     final nameUnchanged = isEdit && widget.faculty!.name == facultyName;
+
+      if (!nameUnchanged) {
+      final dupQuery = await value.db
+            .collection('faculties')
+            .where('schoolId', isEqualTo: value.schoolid)
+            .where('name', isEqualTo: facultyName)
+            .limit(1)
+            .get();
+     final hasClash =
+            dupQuery.docs.isNotEmpty && dupQuery.docs.first.id != docId;
+
+        if (hasClash) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('A faculty named "$facultyName" already exists'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          setState(() => _saving = false);
+          return;
+        }
+      }
+
+      final data = FacultyModel(
+        id: docId,
+        name: facultyName,
+        schoolId: value.schoolid,
+        timestamp: DateTime.now(),
+        staff: value.name,
+      ).toMap();
+
+      await value.db
+          .collection('faculties')
+          .doc(docId)
+          .set(data, SetOptions(merge: true));
+      value.upsertFaculty(FacultyModel.fromMap(data, docId));
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            isEdit
+                ? 'Faculty updated successfully'
+                : 'Faculty registered successfully',
+          ),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      if (!isEdit) {
+        facultyController.clear();
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Could not save faculty: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _saving = false);
     }
   }
 
@@ -45,7 +126,7 @@ class _FacultyPageState extends State<FacultyPage> {
                 backgroundColor: const Color(0xFF2D2F45),
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_back, color: Colors.white),
-                  onPressed: () => Navigator.pop(context,true),
+                  onPressed: () => context.go(Routes.dashboard),
                 ),
                 title: Text(
                   isEdit ? 'Edit Faculty' : 'Register Faculty',
@@ -77,6 +158,7 @@ class _FacultyPageState extends State<FacultyPage> {
                             const SizedBox(height: 20),
                             TextFormField(
                               controller: facultyController,
+                              enabled: !_saving,
                               decoration: InputDecoration(
                                 labelText: "Faculty Name",
                                 hintText: "Enter Faculty Name",
@@ -107,7 +189,7 @@ class _FacultyPageState extends State<FacultyPage> {
                               style: const TextStyle(fontSize: 16, color: Colors.black),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
-                                  return 'Department name cannot be empty';
+                                  return 'Faculty name cannot be empty';
                                 }
                                 return null;
                               },
@@ -117,49 +199,25 @@ class _FacultyPageState extends State<FacultyPage> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 ElevatedButton.icon(
-                                  onPressed: () async {
-                                    if (_formKey.currentState!.validate()) {
-                                      final progress = ProgressHUD.of(context);
-                                      progress!.show();
-
-                                      String departmentName = facultyController.text.trim();
-                                      String idd = departmentName.replaceAll(RegExp(r'\s+'), '').toLowerCase();
-                                      final id = "${value.schoolid}_$idd".replaceAll(" ", "");
-                                      final data = DepartmentModel(
-                                        id: id,
-                                        name: departmentName,
-                                        schoolId: value.schoolid,
-                                        timestamp: DateTime.now(),
-                                        staff: value.name,
-                                      ).toMap();
-
-                                      await value.db
-                                          .collection('faculties')
-                                          .doc(id)
-                                          .set(data, SetOptions(merge: true));
-
-                                      progress.dismiss();
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            isEdit
-                                                ? 'Department updated successfully'
-                                                : 'Department registered successfully',
-                                          ),
-                                          backgroundColor: Colors.green,
-                                        ),
-                                      );
-
-                                      if (!isEdit) {
-                                        facultyController.clear();
-                                      }
-                                    }
-                                  },
-                                  icon: Icon(
+                                  onPressed: _saving ? null : () => _save(value),
+                                  icon: _saving
+                                      ? const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                      : Icon(
                                     isEdit ? Icons.update : Icons.save,
                                   ),
                                   label: Text(
-                                    isEdit ? 'Update Faculty' : 'Register Faculty',
+                                    _saving
+                                        ? 'Saving...'
+                                        : isEdit
+                                        ? 'Update Faculty'
+                                        : 'Register Faculty',
                                   ),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Color(0xFF00496d),
@@ -187,7 +245,9 @@ class _FacultyPageState extends State<FacultyPage> {
                                   ),
                                   icon: const Icon(Icons.list),
                                   label: const Text("View Faculty"),
-                                  onPressed: () {
+                                  onPressed: _saving
+                                      ? null
+                                      : () {
                                     context.go(Routes.viewfaculty);
                                   },
                                 ),

@@ -509,8 +509,9 @@ class _StudentListScreenState extends State<StudentListScreen> {
                 IconButton(
                   tooltip: 'Edit student',
                   icon: const Icon(Icons.edit, color: Colors.amber),
-                  onPressed: () =>
-                      Navigator.pushNamed(context, Routes.registerstudent, arguments: student),
+                  onPressed: () =>Navigator.push(context, MaterialPageRoute(
+                      builder: (_)=>RegisterStudent(studentData: student,))),
+
                 ),
                 IconButton(
                   tooltip: 'Delete student',

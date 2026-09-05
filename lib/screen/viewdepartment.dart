@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:ksoftsms/controller/myprovider.dart';
 import '../controller/routes.dart';
@@ -30,7 +31,7 @@ class _ViewdepartmentState extends State<Viewdepartment> {
             backgroundColor: const Color(0xFF2D2F45),
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),
-              onPressed: () => Navigator.pop(context,true),
+              onPressed: () => context.go(Routes.dashboard),
             ),
           ),
           body: Align(
@@ -68,6 +69,17 @@ class _ViewdepartmentState extends State<Viewdepartment> {
                       title: Text(
                         depart.name.toUpperCase(),
                         style: const TextStyle(color: Colors.black54, fontSize: 16),
+                      ),
+                      subtitle: Text(
+                        depart.faculty?.isNotEmpty == true
+                            ? "Faculty: ${depart.faculty}"
+                            : "No faculty assigned",
+                        style: TextStyle(
+                          color: depart.faculty?.isNotEmpty == true
+                              ? Colors.black45
+                              : Colors.red,
+                          fontSize: 13,
+                        ),
                       ),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,

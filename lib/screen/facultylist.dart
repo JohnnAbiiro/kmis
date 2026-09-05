@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:ksoftsms/controller/myprovider.dart';
 import '../controller/routes.dart';
@@ -30,7 +31,7 @@ class _ViewFacultyState extends State<ViewFaculty> {
             backgroundColor: const Color(0xFF2D2F45),
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),
-              onPressed: () => Navigator.pop(context,true),
+              onPressed: () => context.go(Routes.dashboard),
             ),
           ),
           body: Align(

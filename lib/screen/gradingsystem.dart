@@ -299,6 +299,7 @@ class _GradingSystemFormPageState extends State<GradingSystemFormPage> {
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../controller/myprovider.dart';
@@ -350,7 +351,7 @@ class _GradingSystemFormPageState extends State<GradingSystemFormPage> {
                   backgroundColor: const Color(0xFF00273a),
                   leading: IconButton(
                     icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => context.go(Routes.dashboard),
                   ),
                   title: Text(
                     "Grading System${provider.name}",

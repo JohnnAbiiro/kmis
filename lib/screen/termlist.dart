@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:ksoftsms/screen/term.dart';
 import 'package:provider/provider.dart';
 import 'package:ksoftsms/controller/myprovider.dart';
@@ -47,10 +48,10 @@ class _ViewtermsState extends State<Viewterms> {
             backgroundColor: colors.primary,
             foregroundColor: colors.onPrimary,
             elevation: 0,
-            // leading: IconButton(
-            //   icon: Icon(Icons.arrow_back, color: colors.onPrimary),
-            //   onPressed: () =>Navigator.pop(context),
-            // ),
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back, color: colors.onPrimary),
+              onPressed: () => context.go(Routes.dashboard),
+            ),
           ),
           body: Center(
             child: ConstrainedBox(

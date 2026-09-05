@@ -6,6 +6,7 @@ class ClassModel {
   final String staff;
   final String? schoolId;
   final String? department;
+  final String? faculty;
   final String? status;
   final DateTime timestamp;
 
@@ -15,6 +16,7 @@ class ClassModel {
     required this.staff,
     this.schoolId,
     this.department,
+    this.faculty,
     this.status,
     DateTime? timestamp,
   }) : timestamp = timestamp ?? DateTime.now();
@@ -28,6 +30,7 @@ class ClassModel {
       'status': status,
       'schoolId': schoolId,
       'department': department,
+      'faculty': faculty,
       'timestamp': Timestamp.fromDate(timestamp),
     };
   }
@@ -54,6 +57,7 @@ class ClassModel {
       status: map['status'] ?? '',
       schoolId: map['schoolId'],
       department: map['department'],
+      faculty: map['faculty'],
       timestamp: parsedTime,
     );
   }

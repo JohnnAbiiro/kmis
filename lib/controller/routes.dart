@@ -281,69 +281,19 @@ final GoRouter router = GoRouter(
       path: Routes.employee,
       builder: (context, state) => EmployeeScreen(),
     ),
-    GoRoute(
-      path: Routes.levelreg,
-      builder: (context, state) {
-        final level = state.extra as LevelModel?;
-        return LevelListScreen(levelData: level);
-      },
-    ),
+
+    GoRoute(path: Routes.levelreg, builder: (c, s) => LevelListScreen()),
     GoRoute(path: Routes.dashboard, builder: (c, s) => DashboardLayout()),
     GoRoute(path: Routes.receipt, builder: (c, s) => SchoolReceipt()),
 
-    GoRoute(
-      path: Routes.term,
-      builder: (context, state) {
-        final term = state.extra as TermModel?;
-        return Term(term: term);
-      },
-    ),
-    GoRoute(
-      path: Routes.depart,
-      builder: (context, state) {
-        final depart = state.extra as DepartmentModel?;
-        return Department(depart: depart);
-      },
-    ),
-    GoRoute(
-      path: Routes.classes,
-      builder: (context, state) {
-        final classes = state.extra as ClassModel?;
-        return ClassScreen(classes: classes);
-      },
-    ),
-    GoRoute(
-      path: Routes.subjects,
-      builder: (context, state) {
-        final subject = state.extra is SubjectModel
-            ? state.extra as SubjectModel
-            : null;
-        return SubjectRegistration(subject: subject);
-      },
-    ),
-    GoRoute(
-      path: Routes.school,
-      builder: (context, state) {
-        final school = state.extra is SchoolModel
-            ? state.extra as SchoolModel
-            : null;
-        return RegisterSchool(school: school);
-      },
-    ),
-    GoRoute(
-      path: Routes.scoreconfig,
-      builder: (context, state) {
-        final config = state.extra as ScoremodelConfig?;
-        return ScoreConfigPage(config: config);
-      },
-    ),
-    GoRoute(
-      path: Routes.academicyr,
-      builder: (context, state) {
-        final year = state.extra as AcademicModel?;
-        return AcademicYr(year: year);
-      },
-    ),
+
+  GoRoute(path: Routes.term, builder: (c, s) => Term()),
+   GoRoute(path: Routes.depart,builder: (c, s) => Department()),
+  GoRoute(path: Routes.classes, builder: (c, s) => ClassScreen()),
+  GoRoute(path: Routes.subjects, builder: (c, s) => SubjectRegistration()),
+    GoRoute(path: Routes.school, builder: (c, s) => RegisterSchool()),
+
+    GoRoute(path: Routes.academicyr, builder: (c, s) => AcademicYr()),
 
 
     GoRoute(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../controller/routes.dart';
 
@@ -37,7 +38,7 @@ class _AcademicRecordsPageState extends State<AcademicRecordsPage> {
         leading: IconButton(
           tooltip: 'Back to dashboard',
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.go(Routes.dashboard),
         ),
       ),
       body: LayoutBuilder(

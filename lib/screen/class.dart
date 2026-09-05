@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../controller/dbmodels/classmodel.dart';
@@ -20,6 +23,13 @@ class _ClassScreenState extends State<ClassScreen> {
   final classController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   String? selecteddepart;
+  bool _isSubmitting = false;
+
+  String? _duplicateWarning;
+  bool _checkingDuplicate = false;
+  Timer? _debounce;
+
+  bool get isEdit => widget.classes != null;
 
   @override
   void initState() {
@@ -29,53 +39,125 @@ class _ClassScreenState extends State<ClassScreen> {
       provider.fetchdepart();
     });
 
-
     final data = widget.classes;
     if (data != null) {
       classController.text = data.name;
       selecteddepart = data.department;
     }
+
+    classController.addListener(_scheduleDuplicateCheck);
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    classController.removeListener(_scheduleDuplicateCheck);
+    classController.dispose();
+    super.dispose();
+  }
+
+  String _normalize(String value) =>
+      value.trim().replaceAll(RegExp(r'\s+'), '').toLowerCase();
+
+  String? _facultyForSelectedDepartment(Myprovider provider) {
+    if (selecteddepart == null) return null;
+    for (final d in provider.departments) {
+      if (d.name == selecteddepart) return d.faculty;
+    }
+    return null;
+  }
+
+  String _computeId(String schoolId, String faculty, String department, String className) {
+    final normFaculty = _normalize(faculty);
+    final normDept = _normalize(department);
+    final normName = _normalize(className);
+    return "${schoolId}_${normFaculty}_${normDept}_$normName";
+  }
+
+  void _scheduleDuplicateCheck() {
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 400), _checkDuplicate);
+  }
+
+  Future<void> _checkDuplicate() async {
+    final name = classController.text.trim();
+    if (name.isEmpty || selecteddepart == null) {
+      if (_duplicateWarning != null || _checkingDuplicate) {
+        if (mounted) {
+          setState(() {
+            _duplicateWarning = null;
+            _checkingDuplicate = false;
+          });
+        }
+      }
+      return;
+    }
+
+    final provider = context.read<Myprovider>();
+    final faculty = _facultyForSelectedDepartment(provider);
+    if (faculty == null || faculty.trim().isEmpty) {
+      if (mounted) {
+        setState(() {
+          _duplicateWarning = 'Selected department has no faculty set.';
+          _checkingDuplicate = false;
+        });
+      }
+      return;
+    }
+    final targetId = _computeId(provider.schoolid, faculty, selecteddepart!, name);
+
+    if (mounted) setState(() => _checkingDuplicate = true);
+
+    try {
+      final snap = await provider.db.collection('classes').doc(targetId).get();
+      final isSelf = isEdit && widget.classes!.id == targetId;
+      final clash = snap.exists && !isSelf;
+
+      if (!mounted) return;
+      setState(() {
+        _duplicateWarning =
+        clash ? 'A class with this name already exists in this department.' : null;
+        _checkingDuplicate = false;
+      });
+    } catch (_) {
+      if (mounted) setState(() => _checkingDuplicate = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final inputFill = const Color(0xFFffffff);
-    final isEdit = widget.classes != null;
+    final colorScheme = Theme.of(context).colorScheme;
 
-    return ProgressHUD(
-      child: Builder(
-        builder: (context) {
-          return Consumer<Myprovider>(
-            builder: (BuildContext context, Myprovider value, Widget? child) {
-              return Scaffold(
-                appBar: AppBar(
-                  backgroundColor: const Color(0xFF2D2F45),
-                  leading: IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () => Navigator.pop(context,true),
-                  ),
-                  title: Text(
-                    isEdit ? 'Edit Class' : 'Register Class',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
+    return Builder(
+      builder: (context) {
+        return Consumer<Myprovider>(
+          builder: (BuildContext context, Myprovider value, Widget? child) {
+            return Scaffold(
+              appBar: AppBar(
+                title: Text(isEdit ? 'Edit Class' : 'Register Class'),
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () {
+                    if (context.canPop()) {
+                      context.pop();
+                    } else {
+                      context.go(Routes.dashboard);
+                    }
+                  },
                 ),
-                body: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 40,
-                    horizontal: 16,
-                  ),
-                  child: Align(
-                    alignment: Alignment.topCenter,
-                    child: Container(
-                      color: const Color(0xFFffffff),
+              ),
+              body: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 16),
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 800),
+                    child: Card(
+                      color: colorScheme.surface,
                       margin: const EdgeInsets.all(30.0),
-                      constraints: const BoxConstraints(maxWidth: 800),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       child: SingleChildScrollView(
-                        padding: const EdgeInsets.all(10.0),
+                        padding: const EdgeInsets.all(20.0),
                         child: Form(
                           key: _formKey,
                           child: Column(
@@ -83,141 +165,96 @@ class _ClassScreenState extends State<ClassScreen> {
                             children: [
                               buildDropdown(
                                 value: selecteddepart,
-                                items: value.departments
-                                    .map((e) => e.name)
-                                    .toList(),
+                                items: value.departments.map((e) => e.name).toList(),
                                 label: "Department",
-                                fillColor: inputFill,
-                                onChanged: (v) =>
-                                    setState(() => selecteddepart = v),
+                                fillColor: colorScheme.surfaceContainerHighest,
+                                onChanged: (v) {
+                                  setState(() => selecteddepart = v);
+                                  _scheduleDuplicateCheck();
+                                },
                                 validatorMsg: 'Select department',
                               ),
                               const SizedBox(height: 20),
 
-                              // Class Name Input
                               TextFormField(
                                 controller: classController,
+                                enabled: !_isSubmitting,
                                 decoration: InputDecoration(
                                   labelText: "Class Name",
                                   hintText: "Enter Class Name",
-                                  labelStyle:
-                                  const TextStyle(color: Colors.black54),
-                                  hintStyle:
-                                  const TextStyle(color: Colors.grey),
+                                  filled: true,
+                                  fillColor: colorScheme.surfaceContainerHighest,
                                   border: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: Colors.grey[700]!,
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
+                                  ),
+                                  contentPadding:
+                                  const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                                  suffixIcon: _checkingDuplicate
+                                      ? const Padding(
+                                    padding: EdgeInsets.all(12),
+                                    child: SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(strokeWidth: 2),
                                     ),
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: Colors.grey[700]!,
-                                    ),
-                                  ),
-                                  focusedBorder: const OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: Color(0xFF00496d),
-                                    ),
-                                  ),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 10,
-                                    horizontal: 12,
-                                  ),
-                                  filled: false,
-                                  fillColor: inputFill,
+                                  )
+                                      : null,
                                 ),
-                                style: const TextStyle(
-                                    fontSize: 16, color: Colors.black),
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {
                                     return 'Class name cannot be empty';
                                   }
+                                  if (_duplicateWarning != null) {
+                                    return _duplicateWarning;
+                                  }
                                   return null;
                                 },
                               ),
+                              if (_duplicateWarning != null)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 6),
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      _duplicateWarning!,
+                                      style: TextStyle(color: colorScheme.error, fontSize: 12),
+                                    ),
+                                  ),
+                                ),
                               const SizedBox(height: 20),
 
-                              // Buttons
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                              Wrap(
+                                alignment: WrapAlignment.center,
+                                spacing: 20,
+                                runSpacing: 10,
                                 children: [
                                   ElevatedButton.icon(
-                                    onPressed: () async {
-                                      if (_formKey.currentState!.validate()) {
-                                        final progress =
-                                        ProgressHUD.of(context);
-                                        progress!.show();
-
-                                        String className =
-                                        classController.text.trim();
-                                        String idd = className
-                                            .replaceAll(RegExp(r'\s+'), '')
-                                            .toLowerCase();
-                                        final id = "${value.schoolid}_$idd"
-                                            .replaceAll(" ", "");
-                                        final data = ClassModel(
-                                          id: id,
-                                          name: className,
-                                          schoolId: value.schoolid,
-                                          department: selecteddepart,
-                                          timestamp: DateTime.now(),
-                                          staff: value.name,
-                                        ).toMap();
-
-                                        await value.db
-                                            .collection('classes')
-                                            .doc(id)
-                                            .set(data, SetOptions(merge: true));
-
-                                        progress.dismiss();
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          SnackBar(
-                                            content: Text(
-                                              isEdit
-                                                  ? 'Class updated successfully'
-                                                  : 'Class registered successfully',
-                                            ),
-                                            backgroundColor: Colors.green,
-                                          ),
-                                        );
-
-                                        if (!isEdit) {
-                                          classController.clear();
-                                          setState(() => selecteddepart = null);
-                                        }
-                                      }
-                                    },
-                                    icon: Icon(
-                                      isEdit ? Icons.update : Icons.save,
-                                    ),
-                                    label: Text(
-                                      isEdit ? 'Update Class' : 'Register Class',
-                                    ),
+                                    onPressed: (_isSubmitting ||
+                                        _checkingDuplicate ||
+                                        _duplicateWarning != null)
+                                        ? null
+                                        : () => _handleSubmit(context, value),
+                                    icon: Icon(isEdit ? Icons.update : Icons.save),
+                                    label: Text(isEdit ? 'Update Class' : 'Register Class'),
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: Color(0xFF00496d),
-                                      foregroundColor: Colors.white,
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 40,
-                                        vertical: 15,
-                                      ),
-                                      textStyle:
-                                      const TextStyle(fontSize: 15),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
+                                      backgroundColor: colorScheme.primary,
+                                      foregroundColor: colorScheme.onPrimary,
+                                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                                      textStyle: const TextStyle(fontSize: 15),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                                       elevation: 5,
                                     ),
                                   ),
-                                  const SizedBox(width: 20),
-
                                   OutlinedButton.icon(
                                     style: OutlinedButton.styleFrom(
-                                      side:
-                                      const BorderSide(color: Color(0xFF00496d)),
-                                      foregroundColor: Colors.black54,
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 20, vertical: 14),
+                                      side: BorderSide(color: colorScheme.primary),
+                                      foregroundColor: colorScheme.primary,
+                                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                                     ),
                                     icon: const Icon(Icons.list),
                                     label: const Text("View Classes"),
@@ -235,11 +272,98 @@ class _ClassScreenState extends State<ClassScreen> {
                     ),
                   ),
                 ),
-              );
-            },
-          );
-        },
-      ),
+              ),
+            );
+          },
+        );
+      },
     );
+  }
+
+  Future<void> _handleSubmit(BuildContext context, Myprovider value) async {
+    if (!_formKey.currentState!.validate()) return;
+    if (selecteddepart == null) return;
+
+    setState(() => _isSubmitting = true);
+
+    final progress = ProgressHUD.of(context);
+    progress?.show();
+
+    try {
+      final className = classController.text.trim();
+      final faculty = _facultyForSelectedDepartment(value);
+      if (faculty == null || faculty.trim().isEmpty) {
+        progress?.dismiss();
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Selected department has no faculty set.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        return;
+      }
+      final targetId = _computeId(value.schoolid, faculty, selecteddepart!, className);
+      final docId = isEdit ? widget.classes!.id : targetId;
+
+      final existing = await value.db.collection('classes').doc(targetId).get();
+      final hasClash = existing.exists && existing.id != docId;
+
+      if (hasClash) {
+        progress?.dismiss();
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('A class with this name already exists in this department.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        return;
+      }
+
+      final model = ClassModel(
+        id: docId,
+        name: className,
+        schoolId: value.schoolid,
+        department: selecteddepart,
+        faculty: faculty,
+        timestamp: DateTime.now(),
+        staff: value.name,
+      );
+
+      await value.db.collection('classes').doc(docId).set(model.toMap(), SetOptions(merge: true));
+
+      value.upsertClass(model);
+
+      progress?.dismiss();
+
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(isEdit ? 'Class updated successfully' : 'Class registered successfully'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      if (isEdit) {
+        Navigator.pop(context, model);
+        return;
+      }
+
+      classController.clear();
+      setState(() => selecteddepart = null);
+    } catch (e) {
+      progress?.dismiss();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to save class: $e"), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
   }
 }

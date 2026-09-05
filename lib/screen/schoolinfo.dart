@@ -8,15 +8,15 @@ import '../controller/myprovider.dart';
 import '../controller/routes.dart';
 import '../controller/dbmodels/schoolmodel.dart';
 
-class RegisterSchool extends StatefulWidget {
+class Schoolinfo extends StatefulWidget {
   final SchoolModel? school;
-  const RegisterSchool({Key? key, this.school}) : super(key: key);
+  const Schoolinfo({Key? key, this.school}) : super(key: key);
 
   @override
-  State<RegisterSchool> createState() => _RegisterSchoolState();
+  State<Schoolinfo> createState() => _SchoolinfoState();
 }
 
-class _RegisterSchoolState extends State<RegisterSchool> {
+class _SchoolinfoState extends State<Schoolinfo> {
   final _formKey = GlobalKey<FormState>();
   final schoolName = TextEditingController();
   final prefix = TextEditingController();
@@ -31,6 +31,19 @@ class _RegisterSchoolState extends State<RegisterSchool> {
   bool _isLoadingSchool = false;
 
   String? _uploadedLogoUrl = '';
+
+  // True once we have a real school record on hand — either passed in
+  // directly or found via provider.schoolid. Drives the locked/read-only
+  // default: an existing record should never be editable by accident, so
+  // the form opens locked and only unlocks when the person taps Edit.
+  bool _hasExistingSchool = false;
+
+  // Whether the locked fields are currently unlocked for editing. Always
+  // true (irrelevant, since _fieldsLocked is false) when there's no
+  // existing school to protect yet.
+  bool _unlocked = false;
+
+  bool get _fieldsLocked => _hasExistingSchool && !_unlocked;
 
   @override
   void initState() {
@@ -50,6 +63,7 @@ class _RegisterSchoolState extends State<RegisterSchool> {
         type: data.type,
         logoUrl: data.logoUrl,
       );
+      _hasExistingSchool = true;
     }
     Future.microtask(() {
       final provider = Provider.of<Myprovider>(context, listen: false);
@@ -106,6 +120,10 @@ class _RegisterSchoolState extends State<RegisterSchool> {
             type: map['type'] as String?,
             logoUrl: map['logoUrl'] as String?,
           );
+          _hasExistingSchool = true;
+          // A fresh fetch is the source of truth — drop any in-progress
+          // unsaved edits so the form reflects what's actually stored.
+          _unlocked = false;
         });
       }
     } catch (e) {
@@ -116,6 +134,107 @@ class _RegisterSchoolState extends State<RegisterSchool> {
       }
     } finally {
       if (mounted) setState(() => _isLoadingSchool = false);
+    }
+  }
+
+  /// Discards any unsaved edits and re-locks the form by reloading from
+  /// whichever source of truth is available.
+  Future<void> _cancelEdit() async {
+    final provider = Provider.of<Myprovider>(context, listen: false);
+    if (provider.schoolid.isNotEmpty) {
+      await _fetchSchool(provider.schoolid);
+    } else if (widget.school != null) {
+      _prefill(
+        schoolname: widget.school!.schoolname,
+        prefix: widget.school!.prefix,
+        address: widget.school!.address,
+        email: widget.school!.email,
+        phone: widget.school!.phone,
+        countryName: widget.school!.countryName,
+        countryCode: widget.school!.countryCode,
+        schoolId: widget.school!.schoolId,
+        agreedToTerms: widget.school!.agreedToTerms,
+        type: widget.school!.type,
+        logoUrl: widget.school!.logoUrl,
+      );
+    }
+    if (mounted) setState(() => _unlocked = false);
+  }
+
+  Future<void> _handleSave(Myprovider value) async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final progress = ProgressHUD.of(context);
+    progress?.show();
+
+    try {
+      final schoolNameTxt = schoolName.text.trim();
+      final prefixTxt = prefix.text.trim().toUpperCase();
+      final addressTxt = address.text.trim();
+      final emailTxt = email.text.trim();
+      final phoneTxt = phone.text.trim();
+      final countryNameTxt = countryName.text.trim();
+      final countryCodeTxt = countryCode.text.trim();
+      final schoolIdTxt = schoolId.text.trim();
+
+      final school = SchoolModel(
+        id: widget.school?.id ?? prefixTxt,
+        schoolname: schoolNameTxt,
+        prefix: prefixTxt,
+        address: addressTxt,
+        email: emailTxt,
+        phone: phoneTxt,
+        // Previously this always evaluated to "" (a leftover
+        // "dd".isNotEmpty placeholder), silently wiping the logo on every
+        // save. Now it actually preserves whatever was loaded/uploaded.
+        logoUrl: _uploadedLogoUrl ?? "",
+        createdAt: DateTime.now(),
+        countryName: countryNameTxt,
+        countryCode: countryCodeTxt,
+        schoolId: schoolIdTxt,
+        agreedToTerms: agreedToTerms,
+        type: schoolType,
+      );
+
+      await value.db
+          .collection("schools")
+          .doc(school.id)
+          .set(school.toMap(), SetOptions(merge: true));
+
+      final prefs = await SharedPreferences.getInstance();
+      await Future.wait([
+        prefs.setString('schoolid', school.schoolId),
+        prefs.setString('school', school.schoolname),
+        prefs.setString('schoolType', school.type),
+      ]);
+
+      progress?.dismiss();
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(_hasExistingSchool
+              ? 'School Updated Successfully'
+              : 'School Registered Successfully'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      // Saved successfully — this is now an existing record, so lock the
+      // form again rather than leaving it open for further edits.
+      setState(() {
+        _hasExistingSchool = true;
+        _unlocked = false;
+      });
+    } catch (e) {
+      progress?.dismiss();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Could not save school: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -135,11 +254,14 @@ class _RegisterSchoolState extends State<RegisterSchool> {
   @override
   Widget build(BuildContext context) {
     final inputFill = const Color(0xFF2C2C3C);
-    final isEdit = widget.school != null;
 
     return ProgressHUD(
       child: Consumer<Myprovider>(
         builder: (context, value, child) {
+          final title = !_hasExistingSchool
+              ? 'Register School'
+              : (_unlocked ? 'Edit School' : 'School Information');
+
           return Scaffold(
             appBar: AppBar(
               backgroundColor: const Color(0xFF00273a),
@@ -148,13 +270,27 @@ class _RegisterSchoolState extends State<RegisterSchool> {
                 onPressed: () => context.go(Routes.dashboard),
               ),
               title: Text(
-                isEdit ? 'Edit School' : 'Register School',
+                title,
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),
+              actions: [
+                if (_hasExistingSchool && !_unlocked)
+                  IconButton(
+                    icon: const Icon(Icons.edit, color: Colors.white),
+                    tooltip: 'Edit school details',
+                    onPressed: () => setState(() => _unlocked = true),
+                  ),
+                if (_hasExistingSchool && _unlocked)
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white),
+                    tooltip: 'Cancel editing',
+                    onPressed: _cancelEdit,
+                  ),
+              ],
             ),
             body: _isLoadingSchool
                 ? const Center(child: CircularProgressIndicator())
@@ -172,13 +308,28 @@ class _RegisterSchoolState extends State<RegisterSchool> {
                       key: _formKey,
                       child: Column(
                         children: [
-                          const SizedBox(height: 20),
+                          if (_hasExistingSchool && !_unlocked)
+                            const Padding(
+                              padding: EdgeInsets.only(bottom: 16),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.lock_outline, size: 16, color: Colors.black45),
+                                  SizedBox(width: 6),
+                                  Text(
+                                    "Tap the edit icon above to make changes",
+                                    style: TextStyle(color: Colors.black45, fontSize: 12),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          const SizedBox(height: 4),
                           _buildTextField(
                             controller: schoolName,
                             label: "School Name",
                             hint: "Enter school name",
                             validatorMsg: 'School name cannot be empty',
                             fillColor: inputFill,
+                            readOnly: _fieldsLocked,
                           ),
                           const SizedBox(height: 10),
                           _buildTextField(
@@ -186,8 +337,14 @@ class _RegisterSchoolState extends State<RegisterSchool> {
                             label: "School Prefix",
                             hint: "Enter unique prefix (e.g. lamp)",
                             validatorMsg: 'Prefix cannot be empty',
-                            fillColor: isEdit ? Colors.grey[800]! : inputFill,
-                            readOnly: isEdit,
+                            // Prefix is the record's own doc id — it stays
+                            // locked whenever a school already exists, even
+                            // while other fields are unlocked for editing,
+                            // since changing it would mean writing to a
+                            // different document rather than updating this
+                            // one.
+                            fillColor: _hasExistingSchool ? Colors.grey[300]! : inputFill,
+                            readOnly: _hasExistingSchool,
                           ),
                           const SizedBox(height: 10),
                           _buildTextField(
@@ -196,6 +353,7 @@ class _RegisterSchoolState extends State<RegisterSchool> {
                             hint: "Enter school address",
                             validatorMsg: 'Address cannot be empty',
                             fillColor: inputFill,
+                            readOnly: _fieldsLocked,
                           ),
                           const SizedBox(height: 10),
                           _buildTextField(
@@ -205,6 +363,7 @@ class _RegisterSchoolState extends State<RegisterSchool> {
                             validatorMsg: 'Email cannot be empty',
                             fillColor: inputFill,
                             keyboardType: TextInputType.emailAddress,
+                            readOnly: _fieldsLocked,
                           ),
                           const SizedBox(height: 10),
                           _buildTextField(
@@ -214,6 +373,7 @@ class _RegisterSchoolState extends State<RegisterSchool> {
                             validatorMsg: 'Phone cannot be empty',
                             fillColor: inputFill,
                             keyboardType: TextInputType.phone,
+                            readOnly: _fieldsLocked,
                           ),
                           const SizedBox(height: 10),
                           _buildTextField(
@@ -222,6 +382,7 @@ class _RegisterSchoolState extends State<RegisterSchool> {
                             hint: "Enter country (e.g. Ghana)",
                             validatorMsg: 'Country name cannot be empty',
                             fillColor: inputFill,
+                            readOnly: _fieldsLocked,
                           ),
                           const SizedBox(height: 10),
                           _buildTextField(
@@ -230,6 +391,7 @@ class _RegisterSchoolState extends State<RegisterSchool> {
                             hint: "Enter country code (e.g. +233)",
                             validatorMsg: 'Country code cannot be empty',
                             fillColor: inputFill,
+                            readOnly: _fieldsLocked,
                           ),
                           const SizedBox(height: 10),
                           _buildTextField(
@@ -237,7 +399,12 @@ class _RegisterSchoolState extends State<RegisterSchool> {
                             label: "School ID",
                             hint: "Enter school ID (e.g. KS0001)",
                             validatorMsg: 'School ID cannot be empty',
-                            fillColor: inputFill,
+                            // Same reasoning as prefix — schoolid is a
+                            // stable identifier used elsewhere in the app
+                            // (provider.schoolid), so it stays locked
+                            // whenever a school already exists.
+                            fillColor: _hasExistingSchool ? Colors.grey[300]! : inputFill,
+                            readOnly: _hasExistingSchool,
                           ),
                           const SizedBox(height: 10),
                           DropdownButtonFormField<String>(
@@ -256,7 +423,9 @@ class _RegisterSchoolState extends State<RegisterSchool> {
                                 child: Text('Tertiary'),
                               ),
                             ],
-                            onChanged: (value) {
+                            onChanged: _fieldsLocked
+                                ? null
+                                : (value) {
                               if (value != null) {
                                 setState(() => schoolType = value);
                               }
@@ -267,7 +436,9 @@ class _RegisterSchoolState extends State<RegisterSchool> {
                             children: [
                               Checkbox(
                                 value: agreedToTerms,
-                                onChanged: (val) {
+                                onChanged: _fieldsLocked
+                                    ? null
+                                    : (val) {
                                   setState(() => agreedToTerms = val ?? false);
                                 },
                                 activeColor: Color(0xFF00496d),
@@ -281,77 +452,24 @@ class _RegisterSchoolState extends State<RegisterSchool> {
                             ],
                           ),
                           const SizedBox(height: 20),
-                          const SizedBox(height: 20),
-                          ElevatedButton.icon(
-                            onPressed: () async {
-                              if (!_formKey.currentState!.validate()) return;
-
-                              final progress = ProgressHUD.of(context);
-                              progress?.show();
-
-                              String schoolNameTxt = schoolName.text.trim();
-                              String prefixTxt = prefix.text.trim().toUpperCase();
-                              String addressTxt = address.text.trim();
-                              String emailTxt = email.text.trim();
-                              String phoneTxt = phone.text.trim();
-                              String countryNameTxt = countryName.text.trim();
-                              String countryCodeTxt = countryCode.text.trim();
-                              String schoolIdTxt = schoolId.text.trim();
-
-                              final school = SchoolModel(
-                                id: widget.school?.id ?? prefixTxt,
-                                schoolname: schoolNameTxt,
-                                prefix: prefixTxt,
-                                address: addressTxt,
-                                email: emailTxt,
-                                phone: phoneTxt,
-                                logoUrl: "dd".isNotEmpty
-                                    ? ""
-                                    : _uploadedLogoUrl ?? "",
-                                createdAt: DateTime.now(),
-                                countryName: countryNameTxt,
-                                countryCode: countryCodeTxt,
-                                schoolId: schoolIdTxt,
-                                agreedToTerms: agreedToTerms,
-                                type: schoolType,
-                              );
-
-                              await value.db
-                                  .collection("schools")
-                                  .doc(school.id)
-                                  .set(school.toMap(), SetOptions(merge: true));
-
-                              final prefs = await SharedPreferences.getInstance();
-                              await Future.wait([
-                                prefs.setString('schoolid', school.schoolId),
-                                prefs.setString('school', school.schoolname),
-                                prefs.setString('schoolType', school.type),
-                              ]);
-
-                              progress?.dismiss();
-
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(isEdit
-                                      ? 'School Updated Successfully'
-                                      : 'School Registered Successfully'),
-                                  backgroundColor: Colors.green,
+                          // Locked view is read-only display — no reason to
+                          // show a Save button until Edit has been tapped.
+                          if (!_hasExistingSchool || _unlocked)
+                            ElevatedButton.icon(
+                              onPressed: () => _handleSave(value),
+                              icon: Icon(_hasExistingSchool ? Icons.update : Icons.save),
+                              label: Text(_hasExistingSchool ? 'Update School' : 'Register School'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xFF00496d),
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                                textStyle: const TextStyle(fontSize: 18),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
-                              );
-                            },
-                            icon: Icon(isEdit ? Icons.update : Icons.save),
-                            label: Text(isEdit ? 'Update School' : 'Register School'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFF00496d),
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                              textStyle: const TextStyle(fontSize: 18),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
+                                elevation: 5,
                               ),
-                              elevation: 5,
                             ),
-                          ),
                           const SizedBox(height: 20),
                         ],
                       ),

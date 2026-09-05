@@ -1,6 +1,6 @@
+import 'package:go_router/go_router.dart';
 import 'package:ksoftsms/controller/myprovider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_progress_hud/flutter_progress_hud.dart';
 import 'package:ksoftsms/screen/subject.dart';
 import 'package:provider/provider.dart';
 import '../controller/routes.dart';
@@ -13,9 +13,10 @@ class ViewSubjectPage extends StatefulWidget {
 }
 
 class _ViewSubjectPageState extends State<ViewSubjectPage> {
-  int? sortColumnIndex;
-  bool isAscending = true;
+  bool _sortAscending = true;
   String searchQuery = "";
+  bool _isLoading = true;
+  String? _deletingId;
 
   @override
   void initState() {
@@ -23,259 +24,362 @@ class _ViewSubjectPageState extends State<ViewSubjectPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final provider = Provider.of<Myprovider>(context, listen: false);
       await provider.fetchsubjects();
+      if (mounted) setState(() => _isLoading = false);
     });
+  }
+
+  Future<void> _confirmDelete(Myprovider provider, String id, String name) async {
+    final colorScheme = Theme.of(context).colorScheme;
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: colorScheme.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        title: Text("Delete Subject", style: TextStyle(color: colorScheme.onSurface)),
+        content: Text(
+          'Delete "$name"? This cannot be undone.',
+          style: TextStyle(color: colorScheme.onSurfaceVariant),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text("Cancel", style: TextStyle(color: colorScheme.onSurfaceVariant)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text("Delete", style: TextStyle(color: colorScheme.error)),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+
+    setState(() => _deletingId = id);
+    try {
+      await provider.deleteSubject(id);
+      provider.removeSubjectLocal(id);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Subject deleted successfully"), backgroundColor: Colors.green),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to delete subject: $e"), backgroundColor: Colors.red),
+      );
+    } finally {
+      if (mounted) setState(() => _deletingId = null);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.sizeOf(context).width;
-    double maxWidth = 900;
-    double colSpacing =
-    screenWidth > 800 ? 35 : screenWidth > 600 ? 25 : 10;
+    final colorScheme = Theme.of(context).colorScheme;
 
-    return ProgressHUD(
-      child: Consumer<Myprovider>(
-        builder: (context, provider, _) {
-          final subjects = provider.subjectList;
-          final filteredSubjects = subjects.where((subj) {
-            final query = searchQuery.toLowerCase();
-            return subj.name.toLowerCase().contains(query) ||
-                (subj.code ?? "").toLowerCase().contains(query) ||
-                (subj.level ?? "").toLowerCase().contains(query);
-          }).toList();
+    return Consumer<Myprovider>(
+      builder: (context, provider, _) {
+        final subjects = List.of(provider.subjectList);
+        final filteredSubjects = subjects.where((subj) {
+          final query = searchQuery.toLowerCase();
+          return subj.name.toLowerCase().contains(query) ||
+              (subj.code ?? "").toLowerCase().contains(query) ||
+              (subj.level ?? "").toLowerCase().contains(query);
+        }).toList()
+          ..sort((a, b) =>
+          _sortAscending ? a.name.compareTo(b.name) : b.name.compareTo(a.name));
 
-          return Scaffold(
-            //backgroundColor: const Color(0xFF2D2F45),
-            appBar: AppBar(
-              backgroundColor: const Color(0xFF2D2F45),
-              iconTheme: const IconThemeData(color: Colors.white),
-              title: const Text(
-                "Subjects List",
-                style: TextStyle(color: Colors.white),
-              ),
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () => Navigator.pop(context),
-              ),
+        return Scaffold(
+          // No explicit backgroundColor — inherits scaffoldBackgroundColor
+          // from the app theme in main.dart.
+          appBar: AppBar(
+            title: const Text("Subjects List"),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () {
+                if (context.canPop()) {
+                  context.pop();
+                } else {
+                  context.go(Routes.dashboard);
+                }
+              },
             ),
-            body: Align(
-              alignment: Alignment.topCenter,
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    /// Search bar
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      child: SizedBox(
-                        width: maxWidth,
+          ),
+          floatingActionButton: FloatingActionButton.extended(
+            backgroundColor: colorScheme.primary,
+            foregroundColor: colorScheme.onPrimary,
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const SubjectRegistration()),
+            ),
+            icon: const Icon(Icons.add),
+            label: const Text('New subject'),
+          ),
+          body: _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : LayoutBuilder(
+            builder: (context, constraints) {
+              final isWideScreen = constraints.maxWidth > 700;
+
+              return Align(
+                alignment: Alignment.topCenter,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 900),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                         child: TextField(
                           decoration: InputDecoration(
                             hintText: "Search subject, code, or level...",
                             prefixIcon: const Icon(Icons.search),
+                            filled: true,
+                            fillColor: colorScheme.surfaceContainerHighest,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
                             ),
-                            fillColor: Colors.white,
-                            filled: true,
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
+                            ),
                           ),
-                          onChanged: (value) =>
-                              setState(() => searchQuery = value),
+                          onChanged: (value) => setState(() => searchQuery = value),
                         ),
                       ),
-                    ),
-
-                    /// Table
-                    Container(
-                      width: maxWidth,
-                      color: const Color(0xFF2D2F45),
-                      child: filteredSubjects.isEmpty
-                          ? const Padding(
-                        padding: EdgeInsets.all(20),
-                        child: Text(
-                          "No matching results",
-                          style: TextStyle(
-                              fontSize: 16, color: Colors.grey),
-                        ),
-                      )
-                          : SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(minWidth: maxWidth),
-                          child: DataTable(
-                            columnSpacing: colSpacing,
-                            sortColumnIndex: sortColumnIndex,
-                            sortAscending: isAscending,
-                            headingRowColor:
-                            MaterialStateProperty.resolveWith(
-                                    (states) =>
-                                const Color(0xFF2D2F45)),
-                            border: TableBorder.all(color: Colors.grey.shade300),
-                            columns: [
-                              const DataColumn(
-                                label: Text("#",
-                                    style:
-                                    TextStyle(color: Colors.white)),
-                              ),
-                              DataColumn(
-                                label: const Text("Subject",
-                                    style:
-                                    TextStyle(color: Colors.white)),
-                                onSort: (index, ascending) {
-                                  setState(() {
-                                    sortColumnIndex = index;
-                                    isAscending = ascending;
-                                    filteredSubjects.sort((a, b) =>
-                                    ascending
-                                        ? a.name.compareTo(b.name)
-                                        : b.name.compareTo(a.name));
-                                  });
-                                },
-                              ),
-                              const DataColumn(
-                                label: Text("Code",
-                                    style:
-                                    TextStyle(color: Colors.white)),
-                              ),
-                              const DataColumn(
-                                label: Text("Level",
-                                    style:
-                                    TextStyle(color: Colors.white)),
-                              ),
-                              const DataColumn(
-                                label: Text("Actions",
-                                    style:
-                                    TextStyle(color: Colors.white)),
-                              ),
-                            ],
-                            rows: filteredSubjects
-                                .asMap()
-                                .entries
-                                .map((entry) {
-                              final index = entry.key + 1;
-                              final subj = entry.value;
-                              return DataRow(
-                                color: MaterialStateProperty.resolveWith(
-                                        (states) =>
-                                    const Color(0xFFffffff)),
-                                cells: [
-                                  DataCell(Text("$index",
-                                      style: const TextStyle(
-                                          color: Colors.black54))),
-                                  DataCell(Text(subj.name,
-                                      style: const TextStyle(
-                                          color: Colors.black54))),
-                                  DataCell(Text(subj.code ?? "-",
-                                      style: const TextStyle(
-                                          color: Colors.black54))),
-                                  DataCell(Text(subj.level ?? "-",
-                                      style: const TextStyle(
-                                          color: Colors.black54))),
-                                  DataCell(Row(
-                                    children: [
-                                      /// EDIT BUTTON
-                                      IconButton(
-                                        icon: const Icon(Icons.edit, color: Colors.amber),
-                                        onPressed: () {
-                                          Navigator.push(context,MaterialPageRoute(builder: (context) => SubjectRegistration(subject: subj)));
-                                        },
-                                      ),
-
-                                      /// DELETE BUTTON
-                                      IconButton(
-                                        icon: const Icon(Icons.delete,
-                                            color: Colors.red),
-                                        onPressed: () async {
-                                          final confirm =
-                                          await showDialog<bool>(
-                                            context: context,
-                                            builder: (ctx) =>
-                                                AlertDialog(
-                                                  backgroundColor:
-                                                  const Color(0xFF2D2F45),
-                                                  title: const Text(
-                                                    "Delete Subject",
-                                                    style: TextStyle(
-                                                        color: Colors.white),
-                                                  ),
-                                                  content: const Text(
-                                                    "Are you sure you want to delete this subject?",
-                                                    style: TextStyle(
-                                                        color:
-                                                        Colors.white70),
-                                                  ),
-                                                  actions: [
-                                                    TextButton(
-                                                      onPressed: () =>
-                                                          Navigator.pop(
-                                                              ctx, false),
-                                                      child: const Text(
-                                                        "Cancel",
-                                                        style: TextStyle(
-                                                            color: Colors
-                                                                .white70),
-                                                      ),
-                                                    ),
-                                                    TextButton(
-                                                      onPressed: () =>
-                                                          Navigator.pop(
-                                                              ctx, true),
-                                                      child: const Text(
-                                                        "Delete",
-                                                        style: TextStyle(
-                                                            color: Colors
-                                                                .redAccent),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                          );
-
-                                          if (confirm == true) {
-                                            try {
-                                              await provider.deleteSubject(subj.id);
-                                              if (mounted) {
-                                                ScaffoldMessenger.of(context).showSnackBar(
-                                                  const SnackBar(
-                                                    content: Text(
-                                                        "Subject deleted successfully"),
-                                                    backgroundColor:
-                                                    Colors.green,
-                                                  ),
-                                                );
-                                              }
-                                            } catch (e) {
-                                              if (mounted) {
-                                                ScaffoldMessenger.of(
-                                                    context)
-                                                    .showSnackBar(
-                                                  SnackBar(
-                                                    content: Text(
-                                                        "Failed to delete subject: $e"),
-                                                    backgroundColor:
-                                                    Colors.red,
-                                                  ),
-                                                );
-                                              }
-                                            }
-                                          }
-                                        },
-                                      ),
-                                    ],
-                                  )),
-                                ],
-                              );
-                            }).toList(),
+                      Expanded(
+                        child: filteredSubjects.isEmpty
+                            ? Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(20),
+                            child: Text(
+                              "No matching results",
+                              style: TextStyle(fontSize: 16, color: colorScheme.onSurfaceVariant),
+                            ),
                           ),
-                        ),
+                        )
+                            : isWideScreen
+                            ? _buildTableList(provider, filteredSubjects)
+                            : _buildCardList(provider, filteredSubjects),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  /// Wide-screen "table" — a header row plus a ListView.builder of rows,
+  /// laid out with Expanded columns instead of a DataTable.
+  Widget _buildTableList(Myprovider provider, List filteredSubjects) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    const flexIndex = 1;
+    const flexSubject = 4;
+    const flexCode = 2;
+    const flexLevel = 2;
+    const flexActions = 2;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Card(
+        color: colorScheme.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          children: [
+            // Header row
+            Container(
+              color: colorScheme.primary,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: flexIndex,
+                    child: Text("#", style: TextStyle(color: colorScheme.onPrimary, fontWeight: FontWeight.bold)),
+                  ),
+                  Expanded(
+                    flex: flexSubject,
+                    child: InkWell(
+                      onTap: () => setState(() => _sortAscending = !_sortAscending),
+                      child: Row(
+                        children: [
+                          Text("Subject",
+                              style: TextStyle(color: colorScheme.onPrimary, fontWeight: FontWeight.bold)),
+                          const SizedBox(width: 4),
+                          Icon(
+                            _sortAscending ? Icons.arrow_upward : Icons.arrow_downward,
+                            size: 14,
+                            color: colorScheme.onPrimary,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    flex: flexCode,
+                    child: Text("Code", style: TextStyle(color: colorScheme.onPrimary, fontWeight: FontWeight.bold)),
+                  ),
+                  Expanded(
+                    flex: flexLevel,
+                    child: Text("Level", style: TextStyle(color: colorScheme.onPrimary, fontWeight: FontWeight.bold)),
+                  ),
+                  Expanded(
+                    flex: flexActions,
+                    child: Text("Actions",
+                        textAlign: TextAlign.end,
+                        style: TextStyle(color: colorScheme.onPrimary, fontWeight: FontWeight.bold)),
+                  ),
+                ],
               ),
             ),
-          );
-        },
+            // Rows
+            Flexible(
+              child: ListView.separated(
+                shrinkWrap: true,
+                itemCount: filteredSubjects.length,
+                separatorBuilder: (context, index) => Divider(height: 1, color: colorScheme.outlineVariant),
+                itemBuilder: (context, index) {
+                  final subj = filteredSubjects[index];
+                  final isBusy = _deletingId == subj.id;
+
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: flexIndex,
+                          child: Text("${index + 1}", style: TextStyle(color: colorScheme.onSurfaceVariant)),
+                        ),
+                        Expanded(
+                          flex: flexSubject,
+                          child: Text(subj.name, style: TextStyle(color: colorScheme.onSurface)),
+                        ),
+                        Expanded(
+                          flex: flexCode,
+                          child: Text(subj.code ?? "-", style: TextStyle(color: colorScheme.onSurfaceVariant)),
+                        ),
+                        Expanded(
+                          flex: flexLevel,
+                          child: _levelChip(subj.level),
+                        ),
+                        Expanded(
+                          flex: flexActions,
+                          child: isBusy
+                              ? const Align(
+                            alignment: Alignment.centerRight,
+                            child: SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                          )
+                              : Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.edit),
+                                color: Colors.amber,
+                                onPressed: () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => SubjectRegistration(subject: subj))),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete),
+                                color: colorScheme.error,
+                                onPressed: () => _confirmDelete(provider, subj.id, subj.name),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
+    );
+  }
+
+  /// Mobile card list — unchanged in spirit, still ListView.builder.
+  Widget _buildCardList(Myprovider provider, List filteredSubjects) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return ListView.builder(
+      padding: const EdgeInsets.fromLTRB(12, 4, 12, 90),
+      itemCount: filteredSubjects.length,
+      itemBuilder: (context, index) {
+        final subj = filteredSubjects[index];
+        final isBusy = _deletingId == subj.id;
+
+        return Card(
+          color: colorScheme.surface,
+          margin: const EdgeInsets.only(bottom: 10),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          child: ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            leading: CircleAvatar(
+              backgroundColor: colorScheme.primary,
+              child: Text(
+                subj.name.isNotEmpty ? subj.name[0].toUpperCase() : '?',
+                style: TextStyle(color: colorScheme.onPrimary),
+              ),
+            ),
+            title: Text(
+              subj.name,
+              style: TextStyle(fontWeight: FontWeight.w600, color: colorScheme.onSurface),
+            ),
+            subtitle: Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                children: [
+                  Text(subj.code ?? "-", style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12)),
+                  _levelChip(subj.level),
+                ],
+              ),
+            ),
+            trailing: isBusy
+                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                : PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert),
+              onSelected: (choice) {
+                if (choice == 'edit') {
+                  Navigator.push(
+                      context, MaterialPageRoute(builder: (context) => SubjectRegistration(subject: subj)));
+                } else if (choice == 'delete') {
+                  _confirmDelete(provider, subj.id, subj.name);
+                }
+              },
+              itemBuilder: (context) => const [
+                PopupMenuItem(value: 'edit', child: Text('Edit')),
+                PopupMenuItem(value: 'delete', child: Text('Delete')),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _levelChip(String? level) {
+    final colorScheme = Theme.of(context).colorScheme;
+    if (level == null || level.isEmpty) {
+      return Text('-', style: TextStyle(color: colorScheme.onSurfaceVariant));
+    }
+    return Chip(
+      label: Text(level, style: TextStyle(fontSize: 11, color: colorScheme.onSecondaryContainer)),
+      backgroundColor: colorScheme.secondaryContainer,
+      visualDensity: VisualDensity.compact,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
   }
 }

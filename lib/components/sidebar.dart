@@ -105,13 +105,21 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                       context.go(Routes.setupWizard),
                                 ),
                               ),
-
+                              /*
+                              SizedBox(
+                                child: _drawerTile(
+                                  icon: Icons.military_tech,
+                                  title: value.schoolType.toLowerCase()=='tertiary' ? 'Current Semesters' : 'Current Terms',
+                                  onTap: () =>
+                                      context.go(Routes.currenterm),
+                                ),
+                              ),
                               SizedBox(
                                 child: _drawerTile(
                                   icon: Icons.military_tech,
                                   title: value.schoolType.toLowerCase()=='tertiary' ? 'Semesters' : 'Terms',
                                   onTap: () =>
-                                      context.go(Routes.currenterm),
+                                      context.go(Routes.term),
                                 ),
                               ),
                               SizedBox(
@@ -139,7 +147,14 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                 ),
                               ),
 
-
+                              SizedBox(
+                                child: _drawerTile(
+                                  icon: Icons.military_tech,
+                                  title: 'Departments',
+                                  onTap: () =>
+                                      context.go(Routes.depart),
+                                ),
+                              ),
 
                               SizedBox(
                                 child: _drawerTile(
@@ -286,6 +301,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                       context.go(Routes.singlepromotion),
                                 ),
                               ),
+                              */
                             ],
                           ),
                         ),

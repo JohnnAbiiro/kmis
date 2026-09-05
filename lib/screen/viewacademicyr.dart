@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../components/academicyrmodel.dart';
@@ -50,7 +51,7 @@ class _ViewAcademicyrState extends State<ViewAcademicyr> {
             elevation: 0,
             leading: IconButton(
               icon: Icon(Icons.arrow_back, color: colors.onPrimary),
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => context.go(Routes.dashboard),
             ),
           ),
           body: Center(

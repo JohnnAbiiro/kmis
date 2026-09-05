@@ -1618,8 +1618,62 @@ class Myprovider extends LoginProvider {
     loadIdFormats = false;
     notifyListeners();
   }
+  void upsertIdFormat(IdformatModel model) {
+    final index = idFormats.indexWhere((f) => f.id == model.id);
+    if (index != -1) {
+      idFormats[index] = model;
+    } else {
+      idFormats.add(model);
+    }
+    notifyListeners();
+  }
+  void upsertAcademicYear(AcademicModel model) {
+    final index = academicyears.indexWhere((y) => y.id == model.id);
+    if (index != -1) {
+      academicyears[index] = model;
+    } else {
+      academicyears.add(model);
+    }
+    notifyListeners();
+  }
   Map<String, dynamic>? selectedEntry ={};
+  void upsertClass(ClassModel model) {
+    final index = classdata.indexWhere((c) => c.id == model.id);
+    if (index != -1) {
+      classdata[index] = model;
+    } else {
+      classdata.add(model);
+    }
+    notifyListeners();
+  }
+  void upsertDepartment(DepartmentModel model) {
+    final index = departments.indexWhere((c) => c.id == model.id);
+    if (index != -1) {
+      departments[index] = model;
+    } else {
+      departments.add(model);
+    }
+    notifyListeners();
+  }
 
+  void upsertFaculty(FacultyModel model) {
+    final index = faculties.indexWhere((c) => c.id == model.id);
+    if (index != -1) {
+      faculties[index] = model;
+    } else {
+      faculties.add(model);
+    }
+    notifyListeners();
+  }
+  void upsertStudent(StudentModel model) {
+    final index = studentlist.indexWhere((s) => s.id == model.id);
+    if (index != -1) {
+      studentlist[index] = model;
+    } else {
+      studentlist.add(model);
+    }
+    notifyListeners();
+  }
   Future<void> setSelectedEntry(Map<String, dynamic> entry) async {
     selectedEntry = entry;
     notifyListeners();
@@ -2713,4 +2767,37 @@ class Myprovider extends LoginProvider {
     }
   }
 
+
+  void upsertSubjectLocal(SubjectModel subject) {
+    final index = subjectList.indexWhere((s) => s.id == subject.id);
+    if (index >= 0) {
+      subjectList[index] = subject;
+    } else {
+      subjectList.add(subject);
+    }
+    notifyListeners();
+  }
+
+  void removeSubjectLocal(String id) {
+    subjectList.removeWhere((s) => s.id == id);
+    notifyListeners();
+  }
+  void removeAcademicYear(String id) {
+    academicyears.removeWhere((y) => y.id == id);
+    notifyListeners();
+  }
+
+  void upsertTerm(TermModel term) {
+    final index = terms.indexWhere((t) => t.id == term.id);
+    if (index == -1) {
+      terms.add(term);
+    } else {
+      terms[index] = term;
+    }
+    notifyListeners();
+  }
+  void removeTerm(String id) {
+    terms.removeWhere((t) => t.id == id);
+    notifyListeners();
+  }
 }
