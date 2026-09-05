@@ -94,6 +94,7 @@ import '../screen/viewpromotionsetting.dart';
 import '../screen/viewschool.dart';
 import '../screen/viewsubject.dart';
 import '../screen/viewteachersetup.dart';
+import '../screen/feespayment.dart';
 import 'dbmodels/componentmodel.dart';
 import 'dbmodels/departmodel.dart';
 import 'dbmodels/levelmodel.dart';
@@ -109,7 +110,6 @@ class Routes {
   static const employee = "/employee";
   static const payroll = "/payroll";
   static const assessmentcomponents = "/assessmentcomponents";
-
   static const registerstudent = "/registerstudent";
   static const idformat = "/idformat";
   static const term = "/term";
@@ -379,7 +379,7 @@ final GoRouter router = GoRouter(
       path: Routes.paymentmethods,
       builder: (c, s) => PaymentMethodForm(),
     ),
-    GoRoute(path: Routes.feepayment, builder: (c, s) => FeePayment()),
+    GoRoute(path: Routes.feepayment, builder: (c, s) =>Feepayment()),
     GoRoute(path: Routes.feesetup, builder: (c, s) => FeesSetup()),
     GoRoute(path: Routes.singlebilling, builder: (c, s) => SingleBilling()),
     GoRoute(path: Routes.terminalreport, builder: (c, s) => ReportSheet()),
