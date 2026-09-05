@@ -20,8 +20,7 @@ import 'package:printing/printing.dart';
 
 import '../components/academicyrmodel.dart';
 import '../components/terminalreportsheetprinter.dart';
-import '../reportpdf/subjectprinter.dart';
-import '../reportpdf/totalprinter.dart';
+
 import '../reportpdf/transcript_printer.dart';
 import 'dbmodels/classmodel.dart';
 import 'dbmodels/componentmodel.dart';
@@ -2011,268 +2010,6 @@ class Myprovider extends LoginProvider {
       print("Error updating Remarks: $e");
     }
   }
-  Future<void> generatetotal(Map<String, dynamic> info, BuildContext context) async {
-    try {
-      final String academicYear = info['academicYear'];
-      final String term = info['term'];
-      final String className = info['className'];
-      final snapshot = await db
-          .collection('subjectScoring')
-          .where('schoolId', isEqualTo: schoolid)
-          .where('academicYear', isEqualTo: academicYear)
-          .where('term', isEqualTo: term)
-          .where('class', isEqualTo: className)
-          .get();
-
-      if (snapshot.docs.isEmpty) {
-        throw ("No subject records found.");
-      }
-      final List<Map<String, String>> rows = [];
-      final Set<String> subjectSet = {};
-
-      for (final doc in snapshot.docs) {
-        final data = doc.data();
-        if (data.containsKey('subjects')) {
-          final subjects = Map<String, dynamic>.from(data['subjects']);
-          for (final s in subjects.values) {
-            final subjectName = s['subjectName']?.toString() ?? "";
-            if (subjectName.isNotEmpty) subjectSet.add(subjectName);
-          }
-        }
-      }
-
-      final List<String> subjectOrder = subjectSet.toList()..sort();
-      final Map<String, double> subjectMaxMap = {};
-
-      // Build rows
-      for (final doc in snapshot.docs) {
-        final data = doc.data();
-
-        final studentName = data['studentName'] ?? "";
-        final studentId = data['studentId'] ?? "";
-
-        if (!data.containsKey('subjects')) continue;
-
-        final subjects = Map<String, dynamic>.from(data['subjects']);
-
-        double studentTotal = 0;
-
-        final row = <String, String>{
-          "name": studentName,
-          "code": studentId,
-        };
-
-        for (final key in subjectOrder) {
-          final match = subjects.values.firstWhere(
-                (s) => s['subjectName'] == key,
-            orElse: () => null,
-          );
-
-          double total = 0;
-
-          if (match != null) {
-            total = double.tryParse(match['totalScore']?.toString() ?? "0") ?? 0;
-            row[key] = total.toString();
-          } else {
-            row[key] = "0";
-          }
-
-          studentTotal += total;
-
-          if ((subjectMaxMap[key] ?? 0) < total) {
-            subjectMaxMap[key] = total;
-          }
-        }
-
-        row["total"] = studentTotal.toString();
-        rows.add(row);
-      }
-
-      // Compute overall maximum total
-      final double totalMarks =
-      subjectMaxMap.values.fold(0, (a, b) => a + b);
-
-      // -------------------------------------------------------------------
-      // SORT STUDENTS — Highest total first
-      // -------------------------------------------------------------------
-      rows.sort((a, b) {
-        double ta = double.tryParse(a["total"] ?? "0") ?? 0;
-        double tb = double.tryParse(b["total"] ?? "0") ?? 0;
-        return tb.compareTo(ta);
-      });
-
-      int rank = 1;
-      double? lastScore;
-      int count = 0;
-
-      for (final r in rows) {
-        count++;
-        double score = double.tryParse(r["total"] ?? "0") ?? 0;
-
-        if (lastScore != null && score < lastScore!) {
-          rank = count;   // next rank starts at current position
-        }
-
-        r["rank"] = rank.toString();
-        lastScore = score;
-      }
-
-      // HEADERS
-      final criteriaHeaders = {
-        for (final s in subjectOrder) s: s.toUpperCase(),
-        "rank": "RANK",
-        "total": "TOTAL",
-
-      };
-
-      final doctitle =
-      "${info['academicYear']}_${info['term']}_${info['className']}"
-          .toUpperCase();
-
-      // PRINT
-      final printer = SubjectscorePrinter(
-        schoolName: currentschool,
-        reportTitle1: doctitle,
-        reportTitle: "TERM SCORE SHEET ($term - $academicYear)",
-        className: className,
-        rows: rows, // now sorted + ranked
-        totalMarks: totalMarks.toString(),
-        logoAssetPathLeft: "assets/logo.png",
-        logoAssetPathRight: "assets/logo.png",
-        criteriaHeaders: criteriaHeaders,
-      );
-
-      printer.printOrPreview(context);
-
-    } catch (e) {
-      throw ("Error generating total scoresheet or no record found");
-    }
-  }
-  Future<void> generatebestsubject({required String subject, required String? subjectcode,required List<String> years, required List<String> terms,required BuildContext context,}) async {
-    try {
-      final snap = await db.collection("subjectScoring").get();
-      if (snap.docs.isEmpty) {
-        throw("NO STUDENTS FOUND!");
-
-      }
-      final filtered = snap.docs.where((doc) {
-        final data = doc.data();
-
-        final dbYear = data["academicYear"]?.toString() ?? "";
-        final dbTerm = data["term"]?.toString() ?? "";
-        final scoresMap = data["scores"] ?? {};
-
-        Map<String, dynamic>? subjectEntry;
-
-        scoresMap.forEach((key, value) {
-          if (value is Map) {
-            final m = Map<String, dynamic>.from(value);
-
-            if (m["subjectName"] == subject || m["code"] == subjectcode) {
-              subjectEntry = m;
-            }
-          }
-        });
-
-        if (subjectEntry == null) return false;
-
-        return years.contains(dbYear) && terms.contains(dbTerm);
-      }).toList();
-
-      if (filtered.isEmpty) {
-        throw("NO MATCHING SUBJECT RECORDS FOUND!");
-
-      }
-
-      List<Map<String, dynamic>> rows = [];
-
-      for (final doc in filtered) {
-        final data = doc.data() as Map<String, dynamic>;
-
-        final studentName = data["studentName"];
-        final studentId = data["studentId"];
-        final academicYear = data["academicYear"];
-        final term = data["term"];
-        final scoresMap = data["scores"] ?? {};
-
-        Map<String, dynamic>? entry;
-
-        scoresMap.forEach((key, value) {
-          if (value is Map) {
-            final m = Map<String, dynamic>.from(value);
-
-            if (m["subjectName"] == subject || m["code"] == subjectcode) {
-              entry = m;
-            }
-          }
-        });
-
-        if (entry == null) continue;
-
-        double total = double.tryParse(entry!["totalScore"] ?? "0") ?? 0;
-
-        rows.add({
-          "studentName": studentName,
-          "studentId": studentId,
-          "academicYear": academicYear,
-          "term": term,
-          "total": total.toString(),
-        });
-      }
-
-
-      rows.sort((a, b) =>
-          double.parse(b["total"]).compareTo(double.parse(a["total"])));
-
-
-      int rank = 1;
-      double? lastScore;
-      int count = 0;
-
-      for (final r in rows) {
-        count++;
-        double score = double.tryParse(r["total"] ?? "0") ?? 0;
-
-        if (lastScore != null && score < lastScore!) {
-          rank = count;
-        }
-
-        r["rank"] = rank.toString();
-        lastScore = score;
-      }
-
-
-      final rowsStringMap = rows.map((r) =>
-          r.map((key, value) => MapEntry(key, value.toString()))
-      ).toList();
-
-      final doctitle = "${subject.toUpperCase()} (${years.join(", ")})";
-
-      final criteriaHeaders = {
-        "studentId": "ID",
-        "studentName": "STUDENT NAME",
-        "total": "TOTAL",
-        "rank": "RANK",
-      };
-
-      final printer = SubjectscorebestPrinter(
-        schoolName: currentschool,
-        reportTitle: "BEST SUBJECT REPORT",
-        reportTitle1: "SUBJECT: $subject   CODE: $subjectcode",
-        className: "YEARS: ${years.join(", ")} | TERMS: ${terms.join(", ")}",
-        rows: rowsStringMap,
-
-        logoAssetPathLeft: "assets/logo.png",
-        logoAssetPathRight: "assets/logo.png",
-      );
-      printer.printOrPreview(context);
-
-      print("✓ Report Generated Successfully");
-
-    } catch (e) {
-      throw ("$e");
-    }
-  }
 
   Future<void> generateStudentDetailReport({required String student,required String studentid, required List<String> termIds,required List<String> academicYears, }) async {
     try {
@@ -2798,6 +2535,15 @@ class Myprovider extends LoginProvider {
   }
   void removeTerm(String id) {
     terms.removeWhere((t) => t.id == id);
+    notifyListeners();
+  }
+  void removeDepartment(String id) {
+    departments.removeWhere((d) => d.id == id);
+    notifyListeners();
+  }
+
+  void removeClass(String id) {
+    classdata.removeWhere((c) => c.id == id);
     notifyListeners();
   }
 }

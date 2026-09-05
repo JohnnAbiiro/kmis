@@ -41,12 +41,12 @@ class _BillingState extends State<Billing> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = Provider.of<Myprovider>(context, listen: false);
-       provider.getdata();
-       provider.getfetchRegions();
-       provider.fetchdepart();
-       provider.fetchclass();
-       provider.fetchterms();
-       provider.fetchFess();
+      provider.getdata();
+      provider.getfetchRegions();
+      provider.fetchdepart();
+      provider.fetchclass();
+      provider.fetchterms();
+      provider.fetchFess();
     });
   }
 

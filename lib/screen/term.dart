@@ -9,8 +9,7 @@ import '../controller/routes.dart';
 class Term extends StatefulWidget {
   final TermModel? term;
   final bool embedded;
-  /// Called after a successful delete, before the dialog is popped —
-  /// lets the caller (e.g. a setup wizard) clear its own cached state.
+
   final VoidCallback? onDeleted;
   const Term({super.key, this.term, this.embedded = false, this.onDeleted});
 

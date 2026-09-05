@@ -258,17 +258,17 @@ class _SingleBillingState extends State<SingleBilling> {
                                             }
 
                                             final data = SingleBilledModel(
-                                              level: student.level,
-                                              yeargroup: student.yeargroup,
-                                              amount: amount,
-                                              activityType: "Fee Billing",
-                                              term: selectedTerm.toString(),
-                                              schoolId: value.schoolid,
-                                              dateCreated: DateTime.now(),
-                                              feeName: selectedfee.toString(),
-                                              studentId: student.studentid,
-                                              studentName: student.name,
-                                              ledgerid: id
+                                                level: student.level,
+                                                yeargroup: student.yeargroup,
+                                                amount: amount,
+                                                activityType: "Fee Billing",
+                                                term: selectedTerm.toString(),
+                                                schoolId: value.schoolid,
+                                                dateCreated: DateTime.now(),
+                                                feeName: selectedfee.toString(),
+                                                studentId: student.studentid,
+                                                studentName: student.name,
+                                                ledgerid: id
                                             ).toJson();
 
                                             await value.db
