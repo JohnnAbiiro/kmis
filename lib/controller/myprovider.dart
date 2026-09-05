@@ -82,6 +82,22 @@ class Myprovider extends LoginProvider {
     return text[0].toUpperCase() + text.substring(1).toLowerCase();
   }
 
+  ThemeMode _themeMode = ThemeMode.light;
+  ThemeMode get themeMode => _themeMode;
+
+  Future<void> loadThemeMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    final index = prefs.getInt('themeMode') ?? ThemeMode.light.index;
+    _themeMode = ThemeMode.values[index];
+    notifyListeners();
+  }
+
+  void setThemeMode(ThemeMode mode) async {
+    _themeMode = mode;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('themeMode', mode.index);
+  }
 
   loadSelectedGradingSystem({required String level}) async {
     try {

@@ -15,9 +15,9 @@ class HourMinutes extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-
     final male = 60;
     final female = 40;
+
     return Consumer<Myprovider>(
       builder: (context, value, child) {
         return Container(
@@ -25,7 +25,7 @@ class HourMinutes extends StatelessWidget {
           height: 250,
           decoration: BoxDecoration(
             color: colors.surface,
-              borderRadius: BorderRadius.all(Radius.circular(12)),
+            borderRadius: BorderRadius.all(Radius.circular(12)),
             boxShadow: [
               BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
             ],
@@ -35,7 +35,8 @@ class HourMinutes extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Student Information', style: TextStyle(fontSize: 18, color: colors.primary)),
+                Text('Student Information',
+                    style: TextStyle(fontSize: 18, color: colors.primary)),
                 SizedBox(height: 30),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -45,22 +46,24 @@ class HourMinutes extends StatelessWidget {
                         height: 150,
                         width: 150,
                         decoration: BoxDecoration(
-                          color: colors.surface,
-                          border: Border.all(
-                            color: Colors.black12
-                          ),
-                          borderRadius: BorderRadius.all(Radius.circular(6))
-                        ),
+                            color: colors.surface,
+                            border: Border.all(color: Colors.black12),
+                            borderRadius: BorderRadius.all(Radius.circular(6))),
                         child: Center(
                           child: StreamBuilder(
-                              stream: FirebaseFirestore.instance.collection('students').snapshots(),
-                              builder: (context, snapshot){
+                              stream: FirebaseFirestore.instance
+                                  .collection('students')
+                                  .snapshots(),
+                              builder: (context, snapshot) {
                                 if (!snapshot.hasData) {
                                   return Shimmer.fromColors(
-                                    baseColor: const Color(0xFF00b377).withOpacity(0.2),
-                                    highlightColor: const Color(0xFF00d7c4).withOpacity(0.4),
+                                    baseColor: const Color(0xFF00b377)
+                                        .withOpacity(0.2),
+                                    highlightColor: const Color(0xFF00d7c4)
+                                        .withOpacity(0.4),
                                     child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         // Title shimmer
                                         Container(
@@ -68,11 +71,11 @@ class HourMinutes extends StatelessWidget {
                                           width: 100,
                                           decoration: BoxDecoration(
                                             color: Colors.white,
-                                            borderRadius: BorderRadius.circular(4),
+                                            borderRadius:
+                                                BorderRadius.circular(4),
                                           ),
                                         ),
                                         const SizedBox(height: 16),
-
                                         // Shimmer pie circle
                                         Container(
                                           height: 50,
@@ -83,17 +86,18 @@ class HourMinutes extends StatelessWidget {
                                           ),
                                         ),
                                         const SizedBox(height: 20),
-
                                         // Male & Female legend shimmer
                                         Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
                                           children: [
                                             Container(
                                               height: 12,
                                               width: 50,
                                               decoration: BoxDecoration(
                                                 color: Colors.white,
-                                                borderRadius: BorderRadius.circular(4),
+                                                borderRadius:
+                                                    BorderRadius.circular(4),
                                               ),
                                             ),
                                             const SizedBox(width: 20),
@@ -102,7 +106,8 @@ class HourMinutes extends StatelessWidget {
                                               width: 50,
                                               decoration: BoxDecoration(
                                                 color: Colors.white,
-                                                borderRadius: BorderRadius.circular(4),
+                                                borderRadius:
+                                                    BorderRadius.circular(4),
                                               ),
                                             ),
                                           ],
@@ -113,16 +118,24 @@ class HourMinutes extends StatelessWidget {
                                 }
                                 final count = snapshot.data!.docs.length;
                                 return Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.center,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.center,
                                   children: [
-                                    Icon(Icons.people_alt, color: colors.primary, size: 40),
-                                    Text("Total Students", style: TextStyle(fontSize: 12, color: colors.onSurface),),
-                                    Text(count.toString(), style: TextStyle(fontWeight: FontWeight.w600, fontSize: 30, color: colors.onSurface))
+                                    Icon(Icons.people_alt,
+                                        color: Color(0xFF00b377), size: 40),
+                                    Text(
+                                      "Total Students",
+                                      style: TextStyle(fontSize: 12),
+                                    ),
+                                    Text(count.toString(),
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 30))
                                   ],
                                 );
-                              }
-                          ),
+                              }),
                         ),
                       ),
                     ),
@@ -133,50 +146,56 @@ class HourMinutes extends StatelessWidget {
                         width: 150,
                         decoration: BoxDecoration(
                             color: colors.surface,
-                            borderRadius: BorderRadius.all(Radius.circular(6))
-                        ),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(6))),
                         child: StreamBuilder(
-                            stream: FirebaseFirestore.instance.collection('students').snapshots(),
-                            builder: (context, snapshot){
+                            stream: FirebaseFirestore.instance
+                                .collection('students')
+                                .snapshots(),
+                            builder: (context, snapshot) {
                               if (!snapshot.hasData) {
                                 return Shimmer.fromColors(
-                                  baseColor: colors.primary.withOpacity(0.2),
-                                  highlightColor: colors.primaryContainer.withOpacity(0.4),
+                                  baseColor: const Color(0xFF00b377)
+                                      .withOpacity(0.2),
+                                  highlightColor: const Color(0xFF00d7c4)
+                                      .withOpacity(0.4),
                                   child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.center,
                                     children: [
                                       // Title shimmer
                                       Container(
                                         height: 12,
                                         width: 100,
                                         decoration: BoxDecoration(
-                                          color: colors.primary.withOpacity(0.1),
-                                          borderRadius: BorderRadius.circular(4),
+                                          color: Colors.white,
+                                          borderRadius:
+                                              BorderRadius.circular(4),
                                         ),
                                       ),
                                       const SizedBox(height: 16),
-
                                       // Shimmer pie circle
                                       Container(
                                         height: 50,
                                         width: 50,
-                                        decoration: BoxDecoration(
-                                          color: colors.primary.withOpacity(0.1),
+                                        decoration: const BoxDecoration(
+                                          color: Colors.white,
                                           shape: BoxShape.circle,
                                         ),
                                       ),
                                       const SizedBox(height: 20),
-
                                       // Male & Female legend shimmer
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         children: [
                                           Container(
                                             height: 12,
                                             width: 50,
                                             decoration: BoxDecoration(
-                                              color: colors.primary.withOpacity(0.1),
-                                              borderRadius: BorderRadius.circular(4),
+                                              color: Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
                                             ),
                                           ),
                                           const SizedBox(width: 20),
@@ -185,7 +204,8 @@ class HourMinutes extends StatelessWidget {
                                             width: 50,
                                             decoration: BoxDecoration(
                                               color: Colors.white,
-                                              borderRadius: BorderRadius.circular(4),
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
                                             ),
                                           ),
                                         ],
@@ -194,21 +214,31 @@ class HourMinutes extends StatelessWidget {
                                   ),
                                 );
                               }
-
                               final docs = snapshot.data!.docs;
-                              int male = docs.where((doc) => (doc['sex']?.toString().toLowerCase() == 'male')).length;
-                              int female = docs.where((doc) => (doc['sex']?.toString().toLowerCase() == 'female')).length;
+                              int male = docs
+                                  .where((doc) => (doc['sex']
+                                          ?.toString()
+                                          .toLowerCase() ==
+                                      'male'))
+                                  .length;
+                              int female = docs
+                                  .where((doc) => (doc['sex']
+                                          ?.toString()
+                                          .toLowerCase() ==
+                                      'female'))
+                                  .length;
 
                               if (male == 0 && female == 0) {
-                                return const Center(child: Text('No data'));
+                                return const Center(
+                                    child: Text('No data'));
                               }
 
                               int maleCount = 0;
                               int femaleCount = 0;
 
                               for (var doc in snapshot.data!.docs) {
-                                String sex = doc['sex'].toString().toLowerCase();
-
+                                String sex =
+                                    doc['sex'].toString().toLowerCase();
                                 if (sex == 'male') {
                                   maleCount++;
                                 } else if (sex == 'female') {
@@ -217,24 +247,24 @@ class HourMinutes extends StatelessWidget {
                               }
 
                               int total = maleCount + femaleCount;
-
-                              double malePercentage = total > 0 ? (maleCount / total) * 100 : 0;
-                              double femalePercentage = total > 0 ? (femaleCount / total) * 100 : 0;
-
-                              //print(maleCount);
-                              //print(malePercentage.toStringAsFixed(1) + "%");
-                              //print(femalePercentage.toStringAsFixed(1) + "%");
+                              double malePercentage = total > 0
+                                  ? (maleCount / total) * 100
+                                  : 0;
+                              double femalePercentage = total > 0
+                                  ? (femaleCount / total) * 100
+                                  : 0;
 
                               return Center(
                                 child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.center,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.center,
                                   children: [
-                                    Text(
+                                    const Text(
                                       "Male vs Female",
-                                      style: TextStyle(fontSize: 13, color: colors.onSurface),
+                                      style: TextStyle(fontSize: 13),
                                     ),
-                                    //const SizedBox(height: 10),
                                     SizedBox(
                                       height: 60,
                                       child: PieChart(
@@ -244,45 +274,53 @@ class HourMinutes extends StatelessWidget {
                                           sections: [
                                             PieChartSectionData(
                                               value: male.toDouble(),
-                                              color: colors.primary,
-                                              title: "${malePercentage.toStringAsFixed(1)}%",
+                                              color: Color(0xFF00b377),
+                                              title:
+                                                  "${malePercentage.toStringAsFixed(1)}%",
                                               radius: 30,
-                                              titleStyle: TextStyle(
+                                              titleStyle: const TextStyle(
                                                   fontSize: 10,
                                                   fontWeight: FontWeight.bold,
-                                                  color: colors.onPrimary),
+                                                  color: Colors.white),
                                             ),
                                             PieChartSectionData(
                                               value: female.toDouble(),
-                                              color: colors.primaryContainer,
-                                              title: "${femalePercentage.toStringAsFixed(1)}%",
+                                              color: Color(0xFF00d7c4),
+                                              title:
+                                                  "${femalePercentage.toStringAsFixed(1)}%",
                                               radius: 28,
-                                              titleStyle: TextStyle(
+                                              titleStyle: const TextStyle(
                                                   fontSize: 10,
                                                   fontWeight: FontWeight.bold,
-                                                  color: colors.onPrimaryContainer),
+                                                  color: Colors.white),
                                             ),
                                           ],
                                         ),
-                                        swapAnimationDuration: const Duration(milliseconds: 1200),
-                                        swapAnimationCurve: Curves.easeOutCubic,
+                                        swapAnimationDuration:
+                                            const Duration(milliseconds: 1200),
+                                        swapAnimationCurve:
+                                            Curves.easeOutCubic,
                                       ),
                                     ),
                                     SizedBox(height: 12),
                                     Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         Row(
                                           children: [
                                             Container(
                                               width: 12,
                                               height: 12,
-                                              decoration: BoxDecoration(color: colors.primary, shape: BoxShape.circle),
+                                              decoration: BoxDecoration(
+                                                  color: Color(0xFF00b377),
+                                                  shape: BoxShape.circle),
                                             ),
                                             const SizedBox(width: 6),
                                             Text(
                                               "Male",
-                                              style: TextStyle(fontSize: 12, color: colors.onSurface),
+                                              style: const TextStyle(
+                                                  fontSize: 12),
                                             ),
                                           ],
                                         ),
@@ -292,12 +330,15 @@ class HourMinutes extends StatelessWidget {
                                             Container(
                                               width: 12,
                                               height: 12,
-                                              decoration: BoxDecoration(color: colors.primaryContainer, shape: BoxShape.circle),
+                                              decoration: BoxDecoration(
+                                                  color: Color(0xFF00d7c4),
+                                                  shape: BoxShape.circle),
                                             ),
                                             const SizedBox(width: 6),
                                             Text(
                                               "Female",
-                                              style: TextStyle(fontSize: 12, color: colors.onSurface),
+                                              style: const TextStyle(
+                                                  fontSize: 12),
                                             ),
                                           ],
                                         )
@@ -306,8 +347,7 @@ class HourMinutes extends StatelessWidget {
                                   ],
                                 ),
                               );
-                            }
-                        )
+                            }),
                       ),
                     ),
                   ],
