@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../controller/dbmodels/subjectmodel.dart';
@@ -45,7 +44,7 @@ class _Termtotal1SheetState extends State<Termtotal1Sheet> {
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => context.go(Routes.dashboard),
+          onPressed: () => Navigator.pushNamed(context, Routes.dashboard),
         ),
       ),
 

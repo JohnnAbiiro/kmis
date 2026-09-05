@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../controller/dbmodels/scoremodel.dart';
 import '../controller/myprovider.dart';
@@ -99,7 +98,7 @@ class _MarksEntryPageState extends State<MarksEntryPage> {
               backgroundColor: const Color(0xFF2D2F45),
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () => context.go(Routes.staffscoring),
+                onPressed: () => Navigator.pushNamed(context, Routes.staffscoring),
               ),
               title: Text(
                 "${value.name} ~ ${value.studentId} ~ ${value.year} ~ ${value.term} - ${value.subject}",
@@ -263,7 +262,7 @@ class _MarksEntryPageState extends State<MarksEntryPage> {
                                 ),
                               );
 
-                              // context.go(Routes.scores);
+                              // Navigator.pushNamed(context, Routes.scores);
                             }
                             catch (e) {
                               if (!mounted) return;

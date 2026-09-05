@@ -34,7 +34,7 @@ class SchoolModel {
     this.countryCode = "+233",
     this.countryName = "Ghana",
     this.schoolId = "",
-    this.type = "customer",
+    this.type = "Pre-tertiary",
   });
 
   Map<String, dynamic> toMap() => {
@@ -74,7 +74,7 @@ class SchoolModel {
       countryCode: map["countrycode"] ?? "+233",
       countryName: map["countryname"] ?? "Ghana",
       schoolId: map["schoolid"] ?? "",
-      type: map["type"] ?? "customer",
+      type: map["type"] ?? "Pre-tertiary",
     );
   }
 }

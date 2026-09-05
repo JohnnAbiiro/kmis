@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../controller/dbmodels/teachermodel.dart';
 import '../controller/myprovider.dart';
@@ -109,7 +108,7 @@ class _TeacherListPageState extends State<TeacherListPage> {
           appBar: AppBar(
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),
-              onPressed: () => context.go(Routes.dashboard),
+              onPressed: () => Navigator.pop(context),
             ),
             backgroundColor: const Color(0xFF2D2F45),
             title: const Text(
@@ -254,7 +253,7 @@ class _TeacherListPageState extends State<TeacherListPage> {
                                     IconButton(
                                       icon: const Icon(Icons.edit, color: Colors.blueAccent),
                                       onPressed: () {
-                                        context.go(Routes.setupteacher, extra: item);
+                                        Navigator.pushNamed(context, Routes.setupteacher, arguments: item);
                                       },
                                     ),
                                     IconButton(

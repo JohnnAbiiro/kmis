@@ -7,6 +7,8 @@ class SummaryDonutChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       // constraints: BoxConstraints(
       //   maxWidth:
@@ -17,8 +19,8 @@ class SummaryDonutChart extends StatelessWidget {
       decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color(0xFFe8fbf0),
-              Colors.white,
+              isDark ? colors.surfaceContainer : const Color(0xFFe8fbf0),
+              colors.surface,
 
             ],
             begin: Alignment.topRight,
@@ -34,7 +36,10 @@ class SummaryDonutChart extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Admissions', style: TextStyle(fontSize: 15)),
+              const Text(
+                'Admissions',
+                style: TextStyle(fontSize: 15),
+              ),
               Center(
                 child: CircularPercentIndicator(
                   radius: 70.0,
@@ -42,7 +47,7 @@ class SummaryDonutChart extends StatelessWidget {
                   percent: 0.7,
                   circularStrokeCap: CircularStrokeCap.round,
                   backgroundColor: Color(0xFFfb7d5b).withOpacity(0.3),
-                  progressColor: Color(0xFF00496d),
+                  progressColor: colors.primary,
                   center: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -51,12 +56,12 @@ class SummaryDonutChart extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 24.0,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF00273a),
+                          color: colors.onSurface,
                         ),
                       ),
                       Text(
                         "of 100%",
-                        style: TextStyle(color: Color(0xFF00496d), fontSize: 14),
+                        style: const TextStyle(fontSize: 14),
                       ),
                     ],
                   ),
@@ -64,7 +69,7 @@ class SummaryDonutChart extends StatelessWidget {
               ),
               SizedBox(height: 10),
               Container(
-                decoration: BoxDecoration(color: Color(0xFFb0bcc2)),
+                decoration: BoxDecoration(color: colors.surfaceContainerHighest),
                 child: Padding(
                   padding: const EdgeInsets.all(4.0),
                   child: Row(
@@ -95,15 +100,16 @@ class SummaryItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(color: Colors.black, fontSize: 10)),
+        Text(label, style: TextStyle(color: colors.onSurfaceVariant, fontSize: 10)),
         SizedBox(height: 4),
         Text(
           value,
           style: TextStyle(
-            color: Colors.white,
+            color: colors.onSurface,
             fontWeight: FontWeight.bold,
             fontSize: 14,
           ),

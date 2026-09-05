@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:go_router/go_router.dart';
 import 'package:ksoftsms/controller/dbmodels/itemCategoryModel.dart';
 import 'package:provider/provider.dart';
 import '../controller/dbmodels/termmodel.dart';
@@ -44,7 +43,7 @@ class _ItemCategoryState extends State<ItemCategory> {
                   backgroundColor: const Color(0xFF00273a),
                   leading: IconButton(
                     icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () => context.go(Routes.dashboard),
+                    onPressed: () => Navigator.pop(context),
                   ),
                   title: Text(
                     isEdit ? 'Edit Term' : 'Register Term',
@@ -162,7 +161,7 @@ class _ItemCategoryState extends State<ItemCategory> {
                                       //const SizedBox(width: 20),
                                       ElevatedButton.icon(
                                         onPressed: () {
-                                          context.go(Routes.viewterm);
+                                          Navigator.pushNamed(context, Routes.viewterm);
                                         },
                                         icon: const Icon(
                                           Icons.list,

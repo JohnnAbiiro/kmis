@@ -17,6 +17,7 @@ class _MasspromotionState extends State<Masspromotion> {
   void initState() {
     super.initState();
     Future.microtask(() async {
+      if (!mounted) return;
       final p = context.read<Myprovider>();
       await p.fetchPromotionSettings();
     });
@@ -176,7 +177,7 @@ class _MasspromotionState extends State<Masspromotion> {
                WriteBatch batch = db.batch();
                 for (var s in studentsSnap.docs) {
                 final student = s.data();
-               final String level = student["level"]?.toString()?.trim() ?? "";
+               final String level = student["level"]?.toString().trim() ?? "";
                final String academic = student["academicyear"]?.toString() ?? "";
                final int cycle = int.tryParse(student["promotioncycle"]?.toString() ?? "0") ?? 0;
 
@@ -208,7 +209,7 @@ class _MasspromotionState extends State<Masspromotion> {
 
                     else {
                       batch.update(s.reference, {
-                        "previousclass": current ?? current,
+                        "previousclass": current,
                         "currentclass": next,
                         "level": next,
                         "nextclass": "",
@@ -282,7 +283,7 @@ class _MasspromotionState extends State<Masspromotion> {
 
                   for (var s in studentsSnap.docs) {
                     final student = s.data();
-                    final String level = student["level"]?.toString()?.trim() ?? "";
+                    final String level = student["level"]?.toString().trim() ?? "";
                     final int cycle = int.tryParse(student["promotioncycle"]?.toString() ?? "0") ?? 0;
                    final rule = rules.firstWhere(
                           (r) => r["next"].toString().trim().toLowerCase() == level.toLowerCase(),

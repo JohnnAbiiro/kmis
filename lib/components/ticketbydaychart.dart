@@ -7,11 +7,12 @@ class TicketsByDayChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Container(
       width: cwidth,
       height: 250,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colors.surface,
         borderRadius: BorderRadius.all(Radius.circular(10)),
         boxShadow: [
           BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
@@ -22,9 +23,9 @@ class TicketsByDayChart extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'School Performance',
-              style: TextStyle(color: Color(0xFF00273a), fontSize: 16),
+              style: TextStyle(fontSize: 16),
             ),
             SizedBox(height: 10),
             SizedBox(
@@ -32,7 +33,7 @@ class TicketsByDayChart extends StatelessWidget {
               width: 650,
               child: LineChart(
                 LineChartData(
-                  backgroundColor: Color(0xFFffffff),
+                  backgroundColor: colors.surface,
                   titlesData: FlTitlesData(
                     bottomTitles: AxisTitles(
                       sideTitles: SideTitles(
@@ -49,8 +50,7 @@ class TicketsByDayChart extends StatelessWidget {
                           ];
                           return Text(
                             days[value.toInt()],
-                            style: TextStyle(
-                              color: Color(0xFF00496d),
+                            style: const TextStyle(
                               fontSize: 10,
                             ),
                           );
@@ -63,7 +63,7 @@ class TicketsByDayChart extends StatelessWidget {
                         showTitles: true,
                         getTitlesWidget: (value, _) => Text(
                           '${value.toInt()}',
-                          style: TextStyle(color: Color(0xFF00496d), fontSize: 10),
+                          style: const TextStyle(fontSize: 10),
                         ),
                         interval: 2,
                       ),
@@ -146,7 +146,7 @@ class LegendDot extends StatelessWidget {
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         SizedBox(width: 4),
-        Text(label, style: TextStyle(color: Color(0xFF00273a), fontSize: 12)),
+        Text(label, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 12)),
       ],
     );
   }

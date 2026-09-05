@@ -1,6 +1,6 @@
 import 'package:go_router/go_router.dart';
 import 'package:ksoftsms/controller/dbmodels/classmodel.dart';
-import 'package:ksoftsms/screen/expenseForm.dart';
+import 'package:ksoftsms/screen/expense_form.dart';
 import 'package:ksoftsms/screen/itemCategory.dart';
 import 'package:ksoftsms/screen/itemreg.dart';
 import 'package:ksoftsms/screen/sales.dart';
@@ -33,11 +33,16 @@ import '../screen/assessmentcomponents.dart';
 import '../screen/attendance.dart';
 import '../screen/billing.dart';
 import '../screen/class.dart';
+import '../screen/classpromotion.dart';
+import '../screen/courseallocation.dart';
+import '../screen/coursemounting.dart';
 import '../screen/currentacademicyrterm.dart';
 import '../screen/department.dart';
 
 import '../screen/employee_screen.dart';
 import '../screen/entermarks.dart';
+import '../screen/faculty.dart';
+import '../screen/facultylist.dart';
 import '../screen/feesSetup.dart';
 import '../screen/feespayment.dart';
 import '../screen/gradingsystem.dart';
@@ -63,7 +68,8 @@ import '../screen/remarks.dart';
 import '../screen/reopening.dart';
 import '../screen/scoreconfig.dart';
 import '../screen/scoringhome.dart';
-import '../screen/singleBilling.dart';
+import '../screen/setupwizard.dart';
+import '../screen/single_billing.dart';
 import '../screen/singlepromotion.dart';
 import '../screen/staffhomepage.dart';
 import '../screen/studentdashboard.dart';
@@ -71,7 +77,6 @@ import '../screen/studentp.dart';
 import '../screen/studentsetup.dart';
 import '../screen/subject.dart';
 import '../screen/systemActivity.dart';
-import '../screen/teachersetup.dart';
 import '../screen/term.dart';
 import '../screen/terminalreport.dart';
 import '../screen/termlist.dart';
@@ -217,13 +222,20 @@ class Routes {
   static const transcript = "/transcript";
   static const currenterm = "/currenterm";
   static const masspromotion = "/masspromotion";
+  static const classpromotion = "/classpromotion";
   static const totalattend = "/totalattend";
   static const nextfees = "/nextfees";
   static const reopening = "/reopening";
   static const headremarks = "/headremarks";
   static const enterAssessmentMarks = "/enterAssessmentMarks";
   static const studentportal = "/studentportal";
-  static const ledger_report = "/ledger_report";
+  static const ledgerReport = "/ledger_report";
+  static const registerschool = "/registerschool";
+  static const setupWizard = "/setupWizard";
+  static const courseallocation = "/courseallocation";
+  static const coursemounting = "/coursemounting";
+  static const faculty = "/faculty";
+  static const viewfaculty = "/viewfaculty";
 
   // Role → Allowed routes mapping
   static const roleAllowedRoutes = {
@@ -244,7 +256,7 @@ final GoRouter router = GoRouter(
   routes: [
     GoRoute(path: Routes.enterAssessmentMarks, builder: (c, s) => AssessmentEntryPage()),
     GoRoute(path: Routes.studentportal, builder: (c, s) => StudentPortalApp()),
-    GoRoute(path: Routes.ledger_report, builder: (c, s) => LedgerReportPage()),
+    GoRoute(path: Routes.ledgerReport, builder: (c, s) => LedgerReportPage()),
     GoRoute(path: Routes.sales, builder: (c, s) => Sales()),
     GoRoute(path: Routes.stock, builder: (c, s) => StockForm()),
     //GoRoute(path: Routes.stockStatement, builder: (c, s) => StockStatement()),
@@ -267,10 +279,6 @@ final GoRouter router = GoRouter(
       builder: (context, state) => EmployeeScreen(),
     ),
     GoRoute(path: Routes.payroll, builder: (context, state) => PayrollScreen()),
-    GoRoute(
-      path: Routes.employee,
-      builder: (context, state) => EmployeeScreen(),
-    ),
     GoRoute(
       path: Routes.levelreg,
       builder: (context, state) {
@@ -334,13 +342,7 @@ final GoRouter router = GoRouter(
         return AcademicYr(year: year);
       },
     ),
-    GoRoute(
-      path: Routes.setupteacher,
-      builder: (context, state) {
-        final setupData = state.extra as TeacherSetup?; // Optional
-        return TeacherSetupPage(setupData: setupData);
-      },
-    ),
+
 
     GoRoute(
       path: Routes.gradingsystem,
@@ -377,7 +379,7 @@ final GoRouter router = GoRouter(
       path: Routes.paymentmethods,
       builder: (c, s) => PaymentMethodForm(),
     ),
-    GoRoute(path: Routes.feepayment, builder: (c, s) => Feepayment()),
+    GoRoute(path: Routes.feepayment, builder: (c, s) => FeePayment()),
     GoRoute(path: Routes.feesetup, builder: (c, s) => FeesSetup()),
     GoRoute(path: Routes.singlebilling, builder: (c, s) => SingleBilling()),
     GoRoute(path: Routes.terminalreport, builder: (c, s) => ReportSheet()),
@@ -405,11 +407,18 @@ final GoRouter router = GoRouter(
     GoRoute(path: Routes.transcript, builder: (c, s) => TranscriptReport()),
     GoRoute(path: Routes.currenterm, builder: (c, s) => Currenttermyr()),
     GoRoute(path: Routes.masspromotion, builder: (c, s) => Masspromotion()),
+    GoRoute(path: Routes.classpromotion, builder: (c, s) => ClassPromotion()),
     GoRoute(path: Routes.studentsetup, builder: (c, s) => StudentSetupPage()),
     GoRoute(path: Routes.viewmarks,builder: (c,s)=> ViewScorePage()),
     GoRoute(path: Routes.totalattend,builder: (c,s)=> Totalattend()),
     GoRoute(path: Routes.nextfees,builder: (c,s)=> NextFees()),
     GoRoute(path: Routes.reopening,builder: (c,s)=> Reopening()),
     GoRoute(path: Routes.headremarks,builder: (c,s)=> HeadremarkPage()),
+    GoRoute(path: Routes.registerschool,builder: (c,s)=> RegisterSchool()),
+    GoRoute(path: Routes.setupWizard,builder: (c,s)=> SetupWizardPage()),
+    GoRoute(path: Routes.courseallocation,builder: (c,s)=> CourseAllocationPage()),
+    GoRoute(path: Routes.coursemounting,builder: (c,s)=> CourseMountingPage()),
+    GoRoute(path: Routes.faculty,builder: (c,s)=> FacultyPage()),
+    GoRoute(path: Routes.viewfaculty,builder: (c,s)=> ViewFaculty()),
   ],
 );

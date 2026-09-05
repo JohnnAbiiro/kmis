@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:ksoftsms/controller/myprovider.dart';
 import 'package:provider/provider.dart';
 
@@ -126,7 +125,7 @@ class _SchoolListState extends State<SchoolList> {
                                       await value.setSchool(schoolnameTxt,schoolidTxt);
                                       print("${value.schoolid} selected");
                                       print("${value.currentschool} selected");
-                                      context.go(Routes.dashboard);
+                                      Navigator.pop(context);
                                     },
                                       child: _schoolCard(schoolnameTxt)
                                   );

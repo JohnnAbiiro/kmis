@@ -35,682 +35,153 @@ class _CustomDrawerState extends State<CustomDrawer> {
   }
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Consumer<Myprovider>(
       builder: (BuildContext context, value, Widget? child) {
         return Drawer(
-          backgroundColor: Color(0xFF00273a),
+          backgroundColor: colors.surface,
           child: SafeArea(
             child: Column(
               children: [
                 Container(
                   width: double.infinity,
-                  padding: EdgeInsets.all(20),
-                  decoration: BoxDecoration(color: Color(0xFF00273a)),
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: isDark ? colors.surfaceContainer : colors.primary.withOpacity(0.05),
+                  ),
                   child: Column(
                     children: [
-                      CircleAvatar(
-                        radius: 70,
-                        backgroundColor: Colors.white,
-                        child: Image(
-                          image: AssetImage('assets/images/logo.png'),
-                          width: 80,
-                          height: 80,
-                        ),
+                      const CircleAvatar(
+                        radius: 60,
+                        backgroundImage: AssetImage('assets/images/logo.png'),
+                        backgroundColor: Colors.transparent,
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 12),
                       Text(
                         schoolname,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
+                        textAlign: TextAlign.center,
+                        style: textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
+                          color: colors.onSurface,
                         ),
                       ),
                     ],
                   ),
                 ),
-                SizedBox(height: 10),
-               Flexible(
-                    child: ListView(
-                      padding: EdgeInsets.symmetric(horizontal: 8),
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.only(left: 8.0, top: 10, bottom: 4),
-                          child: Text(
-                            "STUDENTS REGISTRATION",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              letterSpacing: 1.2,
-                            ),
+                const SizedBox(height: 8),
+                Flexible(
+                  child: ListView(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 12, top: 16, bottom: 8),
+                        child: Text(
+                          "ACADEMICS",
+                          style: textTheme.labelSmall?.copyWith(
+                            color: colors.primary,
+                            letterSpacing: 1.5,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                        Card(
-                          color: Colors.transparent,
-                          elevation: 0,
-                          child: ExpansionTile(
-                            collapsedIconColor: Colors.white,
-                            iconColor: Colors.white,
-                            leading: Icon(Icons.settings, color: Colors.white60, size: 17,),
-                            title: Text(
-                              'Configurations',
-                              style: TextStyle(color: Colors.white54, fontSize: 14),
-                            ),
-                            children: [
-                              SizedBox(
-                                child: _drawerTile(
-                                  icon: Icons.military_tech,
-                                  title: 'Term',
-                                  onTap: () =>
-                                      context.go(Routes.term),
-                                ),
-                              ),
-                              SizedBox(
-                                child: _drawerTile(
-                                  icon: Icons.military_tech,
-                                  title: 'current term',
-                                  onTap: () =>
-                                      context.go(Routes.currenterm),
-                                ),
-                              ),
-                              SizedBox(
-                                child: _drawerTile(
-                                  icon: Icons.military_tech,
-                                  title: 'Id format',
-                                  onTap: () =>
-                                      context.go(Routes.idformat),
-                                ),
-                              ),
-                              SizedBox(
-                                child: _drawerTile(
-                                  icon: Icons.military_tech,
-                                  title: 'Academic year',
-                                  onTap: ()=>context.go(Routes.academicyr),
-                                ),
-                              ),
-                              SizedBox(
-                                child: _drawerTile(
-                                  icon: Icons.military_tech,
-                                  title: 'Component',
-                                  onTap: () =>
-                                      context.go(Routes.accesscomponent),
-                                ),
-                              ),
-                              SizedBox(
-                                child: _drawerTile(
-                                  icon: Icons.military_tech,
-                                  title: 'mass promotion',
-                                  onTap: () =>
-                                      context.go(Routes.masspromotion),
-                                ),
-                              ),
-                              SizedBox(
-                                child: _drawerTile(
-                                  icon: Icons.military_tech,
-                                  title: 'promotion setting',
-                                  onTap: () =>
-                                      context.go(Routes.promotionsetting),
-                                ),
-                              ),
-                              SizedBox(
-                                child: _drawerTile(
-                                  icon: Icons.military_tech,
-                                  title: 'Single promotion',
-                                  onTap: () =>
-                                      context.go(Routes.singlepromotion),
-                                ),
-                              ),
-                              SizedBox(
-                                child: _drawerTile(
-                                  icon: Icons.military_tech,
-                                  title: 'Depart',
-                                  onTap: () =>
-                                      context.go(Routes.depart),
-                                ),
-                              ),
-                              SizedBox(
-                                child: _drawerTile(
-                                  icon: Icons.military_tech,
-                                  title: 'Class',
-                                  onTap: () =>
-                                      context.go(Routes.classes),
-                                ),
-                              ),
-                              SizedBox(
-                                child: _drawerTile(
-                                  icon: Icons.military_tech,
-                                  title: 'Grading system',
-                                  onTap: () =>
-                                      context.go(Routes.gradingsystem),
-                                ),
-                              ),
-                              SizedBox(
-                                child: _drawerTile(
-                                  icon: Icons.military_tech,
-                                  title: 'subject',
-                                  onTap: () =>
-                                      context.go(Routes.subjects),
-                                ),
-                              ),
-                              SizedBox(
-                                child: _drawerTile(
-                                  icon: Icons.assignment,
-                                  title: 'Students ',
-                                  onTap: () => context.go(Routes.registerstudent,),
-                                ),
-                              ),
-                              SizedBox(
-                                child: _drawerTile(
-                                  icon: Icons.military_tech,
-                                  title: 'Region Registration',
-                                  onTap: () => context.go(Routes.regionreg),
-                                ),
-                              ),
-                              SizedBox(
-                                child: _drawerTile(
-                                  icon: Icons.military_tech,
-                                  title: 'school',
-                                  onTap: () => context.go(Routes.school),
-                                ),
-                              ),
-                              SizedBox(
-                                child: _drawerTile(
-                                  icon: Icons.military_tech,
-                                  title: 'score config',
-                                  onTap: () => context.go(Routes.scoreconfig),
-                                ),
-                              ),
-                              SizedBox(
-                                child: _drawerTile(
-                                  icon: Icons.military_tech,
-                                  title: 'Remarks',
-                                  onTap: () => context.go(Routes.remark),
-                                ),
-                              ),
-                              SizedBox(
-                                child: _drawerTile(icon: Icons.macro_off_sharp,
-                                    title: "Total Attendance",
-                                    onTap:() => context.go(Routes.totalattend)),
-                              ),
-                              SizedBox(
-                                child: _drawerTile(
-                                  icon: Icons.military_tech,
-                                  title: 'Attendance',
-                                  onTap: () => context.go(Routes.attendance),
-                                ),
-                              ),
-                              SizedBox(
-                                child: _drawerTile(
-                                  icon: Icons.military_tech,
-                                  title: 'Reopening',
-                                  onTap: () => context.go(Routes.reopening),
-                                ),
-                              ),
+                      ),
+                      _buildExpansionTile(
+                        context,
+                        icon: Icons.settings_outlined,
+                        title: 'Configurations',
+                        children: [
+                          _drawerTile(context, title: 'Setup Wizard', icon: Icons.auto_fix_high, onTap: () => context.go(Routes.setupWizard)),
+                          _drawerTile(context, title: value.schoolType.toLowerCase() == 'tertiary' ? 'Semesters' : 'Terms', icon: Icons.calendar_today, onTap: () => context.go(Routes.currenterm)),
+                          _drawerTile(context, title: 'ID Format', icon: Icons.badge_outlined, onTap: () => context.go(Routes.idformat)),
+                          _drawerTile(context, title: 'Academic Year', icon: Icons.history_edu, onTap: () => context.go(Routes.academicyr)),
+                          _drawerTile(context, title: 'Faculty', icon: Icons.account_balance_outlined, onTap: () => context.go(Routes.faculty)),
+                          _drawerTile(context, title: value.schoolType.toLowerCase() == 'tertiary' ? 'Levels' : 'Classes', icon: Icons.class_outlined, onTap: () => context.go(Routes.classes)),
+                          _drawerTile(context, title: 'Subjects', icon: Icons.book_outlined, onTap: () => context.go(Routes.subjects)),
+                          _drawerTile(context, title: 'Grading System', icon: Icons.grading, onTap: () => context.go(Routes.gradingsystem)),
+                        ],
+                      ),
+                      _drawerTile(context, icon: Icons.people_outline, title: 'View Students', onTap: () => context.go(Routes.viewstudentlist)),
+                      
+                      Padding(
+                        padding: const EdgeInsets.only(left: 12, top: 20, bottom: 8),
+                        child: Text(
+                          "MANAGEMENT",
+                          style: textTheme.labelSmall?.copyWith(
+                            color: colors.primary,
+                            letterSpacing: 1.5,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      _buildExpansionTile(
+                        context,
+                        icon: Icons.person_search_outlined,
+                        title: 'User Management',
+                        children: [
+                          _drawerTile(context, icon: Icons.person_add_alt, title: 'Add Staff', onTap: () => context.go(Routes.regstaff)),
+                          _drawerTile(context, icon: Icons.view_list_outlined, title: 'View Staff', onTap: () => context.go(Routes.staffview)),
+                        ],
+                      ),
+                      _buildExpansionTile(
+                        context,
+                        icon: Icons.account_balance_wallet_outlined,
+                        title: 'Finance & Billing',
+                        children: [
+                          _drawerTile(context, icon: Icons.add_chart, title: 'Add Account', onTap: () => context.go(Routes.coa)),
+                          _drawerTile(context, icon: Icons.settings_accessibility, title: 'System Activity', onTap: () => context.go(Routes.accountActivity)),
+                          _drawerTile(context, icon: Icons.payments_outlined, title: 'Fees Names', onTap: () => context.go(Routes.feesetup)),
+                          _drawerTile(context, icon: Icons.receipt_long_outlined, title: 'Bulk Billing', onTap: () => context.go(Routes.billing)),
+                          _drawerTile(context, icon: Icons.person_outline, title: 'Single Billing', onTap: () => context.go(Routes.singlebilling)),
+                          _drawerTile(context, icon: Icons.payment_outlined, title: 'Fee Payment', onTap: () => context.go(Routes.feepayment)),
+                          _drawerTile(context, icon: Icons.money_off_outlined, title: 'Expenses', onTap: () => context.go(Routes.expense)),
+                          _drawerTile(context, icon: Icons.local_shipping_outlined, title: 'Suppliers', onTap: () => context.go(Routes.supplier)),
+                        ],
+                      ),
+                      
+                      Padding(
+                        padding: const EdgeInsets.only(left: 12, top: 20, bottom: 8),
+                        child: Text(
+                          "REPORTS",
+                          style: textTheme.labelSmall?.copyWith(
+                            color: colors.primary,
+                            letterSpacing: 1.5,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      _buildExpansionTile(
+                        context,
+                        icon: Icons.bar_chart_outlined,
+                        title: 'Financial Reports',
+                        children: [
+                          _drawerTile(context, icon: Icons.summarize_outlined, title: 'Ledger Report', onTap: () => context.go(Routes.ledgerReport)),
+                        ],
+                      ),
+                      _buildExpansionTile(
+                        context,
+                        icon: Icons.assignment_outlined,
+                        title: 'Academic Reports',
+                        children: [
+                          _drawerTile(context, icon: Icons.description_outlined, title: 'Terminal Report', onTap: () => context.go(Routes.terminalreport)),
+                          _drawerTile(context, icon: Icons.list_alt_outlined, title: 'Term Total Report', onTap: () => context.go(Routes.termtotal)),
+                          _drawerTile(context, icon: Icons.subject_outlined, title: 'Subject Report', onTap: () => context.go(Routes.subjectreport)),
+                          _drawerTile(context, icon: Icons.person_pin_outlined, title: 'Individual Report', onTap: () => context.go(Routes.individualreport)),
+                          _drawerTile(context, icon: Icons.history_outlined, title: 'Transcript', onTap: () => context.go(Routes.transcript)),
+                        ],
+                      ),
 
-                              SizedBox(
-                                child: _drawerTile(
-                                  icon: Icons.cleaning_services_rounded,
-                                  title: 'Next fees',
-                                  onTap: () => context.go(Routes.nextfees,),
-                                ),
-                              ),
-                              SizedBox(
-                                child: _drawerTile(
-                                  icon: Icons.cleaning_services_rounded,
-                                  title: 'Head remarks',
-                                  onTap: () =>context.go(Routes.headremarks,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          child: _drawerTile(
-                            icon: Icons.vpn_key,
-                            title: 'Assess Components',
-                            onTap: () =>context.go(Routes.assessmentcomponents,
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          child: _drawerTile(
-                            icon: Icons.vpn_key,
-                            title: 'Contestants List',
-                            onTap: () async{
-                              context.go(Routes.viewstudentlist);
-                            }
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 8.0, top: 20, bottom: 4),
-                          child: Text(
-                            "Teacher Setup",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              letterSpacing: 1.2,
-                            ),
-                          ),
-                        ),
-                        Card(
-                          color: Colors.transparent,
-                          elevation: 0,
-                          child: ExpansionTile(
-                            collapsedIconColor: Colors.white,
-                            iconColor: Colors.white,
-                            leading: Icon(Icons.people, color: Colors.white60, size: 17,),
-                            title: Text(
-                              'Assessment Data',
-                              style: TextStyle(color: Colors.white54, fontSize: 14),
-                            ),
-                            children: [
-                              SizedBox(
-                                child: _drawerTile(
-                                  icon: Icons.person_add,
-                                  title: 'Teacher set up',
-                                  onTap: () async {
-                                    try {
-                                      context.go(Routes.setupteacher,
-                                      );
-                                    } catch (e) {
-                                      print(e);
-                                    }
-                                  },
-                                ),
-                              ),
-                              SizedBox(
-                                child: _drawerTile(
-                                  icon: Icons.person_add,
-                                  title: 'View Teachers',
-                                  onTap: () async {
-                                    try {
-                                      context.go(Routes.viewteachersetup,
-                                      );
-                                    } catch (e) {
-                                      print(e);
-                                    }
-                                  },
-                                ),
-                              ),
-                              SizedBox(
-                                child: _drawerTile(
-                                  icon: Icons.person_add,
-                                  title: 'Student set up',
-                                  onTap: () async {
-                                    try {
-                                      context.go(Routes.studentsetup,
-                                      );
-                                    } catch (e) {
-                                      print(e);
-                                    }
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 8.0, top: 20, bottom: 4),
-                          child: Text(
-                            "User Management",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              letterSpacing: 1.2,
-                            ),
-                          ),
-                        ),
-                        Card(
-                          color: Colors.transparent,
-                          elevation: 0,
-                          child: ExpansionTile(
-                            collapsedIconColor: Colors.white,
-                            iconColor: Colors.white,
-                            leading: Icon(Icons.people, color: Colors.white60, size: 17,),
-                            title: Text(
-                              'User Management',
-                              style: TextStyle(color: Colors.white54, fontSize: 14),
-                            ),
-                            children: [
-                              _drawerTile(
-                                icon: Icons.person_add,
-                                title: 'Add Staff',
-                                onTap: () async {
-                                  try {
-                                    context.go(Routes.regstaff);
-                                  } catch (e) {
-                                    print(e);
-                                  }
-                                },
-                              ),
-                              _drawerTile(
-                                icon: Icons.view_list,
-                                title: 'View Staff',
-                                onTap: () async {
-                                  try {
-                                    context.go(Routes.staffview);
-                                  } catch (e) {
-                                    print(e);
-                                  }
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 8.0, top: 20, bottom: 4),
-                          child: Text(
-                            "Financial Account",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              letterSpacing: 1.2,
-                            ),
-                          ),
-                        ),
-
-                        //==============
-                        Card(
-                          color: Colors.transparent,
-                          elevation: 0,
-                          child: ExpansionTile(
-                            collapsedIconColor: Colors.white,
-                            iconColor: Colors.white,
-                            leading: Icon(Icons.people, color: Colors.white60, size: 17,),
-                            title: Text(
-                              'Accounts Setup',
-                              style: TextStyle(color: Colors.white54, fontSize: 14),
-                            ),
-                            children: [
-                              _drawerTile(
-                                icon: Icons.person_add,
-                                title: 'Add Account',
-                                onTap: () async {
-                                  try {
-                                    context.go(Routes.coa);
-                                  } catch (e) {
-                                    print(e);
-                                  }
-                                },
-                              ),
-
-                              _drawerTile(
-                                icon: Icons.view_list,
-                                title: 'System Activity',
-                                onTap: () async {
-                                  try {
-                                    context.go(Routes.accountActivity);
-                                  } catch (e) {
-                                    print(e);
-                                  }
-                                },
-                              ),
-                              _drawerTile(
-                                icon: Icons.account_balance_wallet,
-                                title: 'Fees Names',
-                                onTap: () async {
-                                  try {
-                                    context.go(Routes.feesetup);
-                                  } catch (e) {
-                                    print(e);
-                                  }
-                                },
-                              ),
-                              _drawerTile(icon: Icons.account_balance_wallet, title: 'Billing',
-                                onTap: () async {
-                                  try {
-                                    context.go(Routes.billing);
-                                  } catch (e) {
-                                    print(e);
-                                  }
-                                },
-                              ),
-                              _drawerTile(icon: Icons.account_balance_wallet, title: 'Single Billing',
-                                onTap: () async {
-                                  try {
-                                    context.go(Routes.singlebilling);
-                                  } catch (e) {
-                                    print(e);
-                                  }
-                                },
-                              ),
-                              _drawerTile(icon: Icons.account_balance_wallet, title: 'Payment Methods',
-                                onTap: () async {
-                                  try {
-                                    context.go(Routes.paymentmethods);
-                                  } catch (e) {
-                                    print(e);
-                                  }
-                                },
-                              ),
-                              _drawerTile(icon: Icons.account_balance_wallet, title: 'Fee Payment',
-                                onTap: () async {
-                                  try {
-                                    context.go(Routes.feepayment);
-                                  } catch (e) {
-                                    print(e);
-                                  }
-                                },
-                              ),
-                              _drawerTile(icon: Icons.account_balance_wallet, title: 'Expense',
-                                onTap: () async {
-                                  try {
-                                    context.go(Routes.expense);
-                                  } catch (e) {
-                                    print(e);
-                                  }
-                                },
-                              ),
-                              _drawerTile(icon: Icons.account_balance_wallet, title: 'Supplier',
-                                onTap: () async {
-                                  try {
-                                    context.go(Routes.supplier);
-                                  } catch (e) {
-                                    print(e);
-                                  }
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 8.0, top: 20, bottom: 4),
-                          child: Text(
-                            "Item Management",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              letterSpacing: 1.2,
-                            ),
-                          ),
-                        ),
-                        Card(
-                          color: Colors.transparent,
-                          elevation: 0,
-                          child: ExpansionTile(
-                            collapsedIconColor: Colors.white,
-                            iconColor: Colors.white,
-                            leading: Icon(Icons.description_outlined, color: Colors.white60, size: 17,),
-                            title: Text(
-                              'Items Management',
-                              style: TextStyle(color: Colors.white54, fontSize: 14),
-                            ),
-                            children: [
-
-                              SizedBox(
-                                child: _drawerTile(
-                                  icon: Icons.grid_view_sharp,
-                                  title: 'Add Suppliers',
-                                  onTap: () async {
-                                    try {
-                                      context.go(Routes.supplier);
-                                    } catch (e) {
-                                      print(e);
-                                    }
-                                  },
-                                ),
-                              ),
-                              SizedBox(
-                                child: _drawerTile(
-                                  icon: Icons.grid_view_sharp,
-                                  title: 'Add Categories',
-                                  onTap: () async {
-                                    try {
-                                      context.go(Routes.itemcategory);
-                                    } catch (e) {
-                                      print(e);
-                                    }
-                                  },
-                                ),
-                              ),
-                              SizedBox(
-                                child: _drawerTile(
-                                  icon: Icons.grid_view_sharp,
-                                  title: 'Item Registration',
-                                  onTap: () async {
-                                    try {
-                                      context.go(Routes.itemreg);
-                                    } catch (e) {
-                                      print(e);
-                                    }
-                                  },
-                                ),
-                              ),
-                              SizedBox(
-                                child: _drawerTile(
-                                  icon: Icons.grid_view_sharp,
-                                  title: 'Stock',
-                                  onTap: () async {
-                                    try {
-                                      context.go(Routes.stock);
-                                    } catch (e) {
-                                      print(e);
-                                    }
-                                  },
-                                ),
-                              ),
-                              SizedBox(
-                                child: _drawerTile(
-                                  icon: Icons.grid_view_sharp,
-                                  title: 'Sales',
-                                  onTap: () async {
-                                    try {
-                                      context.go(Routes.sales);
-                                    } catch (e) {
-                                      print(e);
-                                    }
-                                  },
-                                ),
-                              ),
-
-
-
-
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 8.0, top: 20, bottom: 4),
-                          child: Text(
-                            "Reports",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              letterSpacing: 1.2,
-                            ),
-                          ),
-                        ),
-                        Card(
-                          color: Colors.transparent,
-                          elevation: 0,
-                          child: ExpansionTile(
-                            collapsedIconColor: Colors.white,
-                            iconColor: Colors.white,
-                            leading: Icon(
-                              Icons.insert_chart,
-                              color: Colors.white60,
-                              size: 17,
-                            ),
-                            title: Text(
-                              'Reports',
-                              style: TextStyle(color: Colors.white54),
-                            ),
-                            children: [
-                              SizedBox(
-                                child: _drawerTile(
-                                  icon: Icons.calendar_month,
-                                  title: 'Terminal report',
-                                  onTap: () =>context.go(Routes.terminalreport,
-                                  ),
-                                ),
-                              ),
-                              SizedBox(
-                                child: _drawerTile(
-                                  icon: Icons.calendar_month,
-                                  title: 'Term total report',
-                                  onTap: () =>context.go(Routes.termtotal,
-                                  ),
-                                ),
-                              ),
-                              SizedBox(
-                                child: _drawerTile(
-                                  icon: Icons.calendar_month,
-                                  title: 'Subject report',
-                                  onTap: () =>context.go(Routes.subjectreport,
-                                  ),
-                                ),
-                              ),
-                              SizedBox(
-                                child: _drawerTile(
-                                  icon: Icons.calendar_month,
-                                  title: 'Student report',
-                                  onTap: () =>context.go(Routes.individualreport,
-                                  ),
-                                ),
-                              ),
-                              SizedBox(
-                                child: _drawerTile(
-                                  icon: Icons.calendar_month,
-                                  title: 'Transcript',
-                                  onTap: () =>context.go(Routes.transcript,
-                                  ),
-                                ),
-                              ),
-                              SizedBox(
-                                child: _drawerTile(
-                                  icon: Icons.supervised_user_circle,
-                                  title: 'Student portal',
-                                  onTap: () =>context.go(Routes.studentportal,
-                                  ),
-                                ),
-                              ),
-                              SizedBox(
-                                child: _drawerTile(
-                                  icon: Icons.supervised_user_circle,
-                                  title: 'Ledger Report',
-                                  onTap: () =>context.go(Routes.ledger_report,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        Divider(color: Colors.white24, height: 30),
-                        SizedBox(
-                          child: _drawerTile(
-                            icon: Icons.logout,
-                            title: 'Logout',
-                            onTap: () async {
-                             await value.logout(context);
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
+                      const Divider(indent: 12, endIndent: 12, height: 32),
+                      _drawerTile(
+                        context,
+                        icon: Icons.logout_rounded,
+                        title: 'Logout',
+                        onTap: () async => await value.logout(context),
+                      ),
+                    ],
                   ),
-
+                ),
               ],
             ),
           ),
@@ -718,22 +189,33 @@ class _CustomDrawerState extends State<CustomDrawer> {
       },
     );
   }
+
+  Widget _buildExpansionTile(BuildContext context, {required IconData icon, required String title, required List<Widget> children}) {
+    final colors = Theme.of(context).colorScheme;
+    return Theme(
+      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+      child: ExpansionTile(
+        leading: Icon(icon, color: colors.onSurfaceVariant, size: 22),
+        title: Text(title, style: TextStyle(color: colors.onSurface, fontSize: 14)),
+        iconColor: colors.primary,
+        collapsedIconColor: colors.onSurfaceVariant,
+        children: children,
+      ),
+    );
+  }
+
+  Widget _drawerTile(BuildContext context, {required IconData icon, required String title, required VoidCallback onTap}) {
+    final colors = Theme.of(context).colorScheme;
+    return ListTile(
+      leading: Icon(icon, color: colors.onSurfaceVariant, size: 20),
+      title: Text(title, style: TextStyle(color: colors.onSurface, fontSize: 14)),
+      onTap: onTap,
+      dense: true,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+    );
+  }
 }
 
-Widget _drawerTile({
-  required IconData icon,
-  required String title,
-  required VoidCallback onTap,
-}) {
-  return ListTile(
-    contentPadding: EdgeInsets.only(left: 24.0),
-    leading: Icon(icon, color: Colors.white60, size: 17),
-    title: Text(title, style: TextStyle(color: Colors.white54, fontSize: 14)),
-    onTap: onTap,
-    hoverColor: Colors.white10,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-  );
-}
 
 
 

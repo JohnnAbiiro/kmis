@@ -1,6 +1,5 @@
 
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../controller/myprovider.dart';
 import '../controller/routes.dart';
@@ -91,7 +90,7 @@ class _StaffScoringPageState extends State<StaffScoringPage> {
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () {
-                context.go(Routes.staffhome);
+                Navigator.pushNamed(context, Routes.staffhome);
               },
             ),
             actions: [
@@ -99,7 +98,7 @@ class _StaffScoringPageState extends State<StaffScoringPage> {
                 icon: const Icon(Icons.grade, color: Colors.white),
                 tooltip: "View Marks",
                 onPressed: () {
-                 context.go(Routes.viewmarks);
+                 Navigator.pushNamed(context, Routes.viewmarks);
                 },
               ),
             ],
@@ -238,7 +237,7 @@ class _StaffScoringPageState extends State<StaffScoringPage> {
           subjectkey,
           label,
         );
-        context.go(Routes.enterAssessmentMarks,);
+        Navigator.pushNamed(context, Routes.enterAssessmentMarks,);
       },
       child: Text(
         label,

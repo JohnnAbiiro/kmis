@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ksoftsms/screen/term.dart';
 import 'package:provider/provider.dart';
 import 'package:ksoftsms/controller/myprovider.dart';
+import '../controller/dbmodels/termmodel.dart';
 import '../controller/routes.dart';
 
 class Viewterms extends StatefulWidget {
@@ -12,141 +14,195 @@ class Viewterms extends StatefulWidget {
 }
 
 class _ViewtermsState extends State<Viewterms> {
+  final Set<String> _deletingIds = {};
+  late List<TermModel> _terms;
+  bool _initialized = false;
+
   @override
   void initState() {
     super.initState();
-    Future.microtask(
-          () => Provider.of<Myprovider>(context, listen: false).fetchterms(),
-    );
+    Future.microtask(() async {
+      final provider = Provider.of<Myprovider>(context, listen: false);
+      await provider.fetchterms();
+      if (mounted) {
+        setState(() {
+          _terms = List<TermModel>.from(provider.terms);
+          _initialized = true;
+        });
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
     return Consumer<Myprovider>(
       builder: (BuildContext context, Myprovider provider, Widget? child) {
-        return Scaffold(
-          backgroundColor: const Color(0xFFF5F6FA),
+        final isLoading = !_initialized && provider.loadterms;
 
+        return Scaffold(
+          backgroundColor: colors.surface,
           appBar: AppBar(
-            title: const Text('All Terms', style: TextStyle(color: Colors.white)),
-            backgroundColor: const Color(0xFF2D2F45),
+            title: Text('All Terms', style: TextStyle(color: colors.onPrimary)),
+            backgroundColor: colors.primary,
+            foregroundColor: colors.onPrimary,
             elevation: 0,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              icon: Icon(Icons.arrow_back, color: colors.onPrimary),
               onPressed: () => context.go(Routes.dashboard),
             ),
           ),
-
           body: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 900),
-              child: provider.loadterms
-                  ? const Center(
-                child: CircularProgressIndicator(color: Color(0xFF2D2F45)),
+              child: isLoading
+                  ? Center(
+                child: CircularProgressIndicator(color: colors.primary),
               )
-                  : provider.terms.isEmpty
-                  ? const Center(
+                  : (!_initialized || _terms.isEmpty)
+                  ? Center(
                 child: Text(
                   "No terms found",
-                  style: TextStyle(fontSize: 17, color: Colors.black54),
+                  style: TextStyle(fontSize: 17, color: colors.onSurfaceVariant),
                 ),
               )
                   : ListView.builder(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 20, vertical: 10),
-                itemCount: provider.terms.length,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                itemCount: _terms.length,
                 itemBuilder: (context, index) {
-                  final term = provider.terms[index];
+                  final term = _terms[index];
+                  final isDeleting = _deletingIds.contains(term.id);
 
                   return Card(
-                    elevation: 3,
-                    color: Colors.white,
+                    elevation: 2,
+                    color: colors.surfaceContainer,
                     margin: const EdgeInsets.symmetric(vertical: 10),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(color: colors.outlineVariant),
                     ),
                     child: ListTile(
                       contentPadding: const EdgeInsets.symmetric(
                           horizontal: 20, vertical: 10),
-
                       leading: CircleAvatar(
                         radius: 22,
-                        backgroundColor: Color(0xFF2D2F45),
+                        backgroundColor: colors.primary,
                         child: Text(
                           "${index + 1}",
-                          style: const TextStyle(
-                              color: Colors.white, fontSize: 16),
+                          style: TextStyle(color: colors.onPrimary, fontSize: 16),
                         ),
                       ),
-
                       title: Text(
                         term.name.toUpperCase(),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w600,
-                          color: Colors.black87,
+                          color: colors.onSurface,
                         ),
                       ),
-
                       subtitle: Text(
                         "Term ID: ${term.id}",
-                        style: TextStyle(
-                            color: Colors.grey.shade600, fontSize: 13),
+                        style: TextStyle(color: colors.onSurfaceVariant, fontSize: 13),
                       ),
-
-                      trailing: Row(
+                      trailing: isDeleting
+                          ? SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: colors.primary,
+                        ),
+                      )
+                          : Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.edit,
-                                color: Colors.amber),
+                            icon: Icon(Icons.edit, color: colors.tertiary),
                             tooltip: "Edit ${term.name}",
-                            onPressed: () {
-                              context.go(Routes.term, extra: term);
+                            onPressed: () async {
+
+                              final result = await Navigator.push(context,MaterialPageRoute(builder: (context) => Term(term: term)));
+                              if (result != null && mounted) {
+                                setState(() {
+                                  final idx = _terms.indexWhere((t) => t.id == result.id);
+                                  if (idx != -1) {
+                                    _terms[idx] = result;
+                                  }
+                                });
+                              }
                             },
                           ),
                           IconButton(
-                            icon: const Icon(Icons.delete,
-                                color: Colors.red),
+                            icon: Icon(Icons.delete, color: colors.error),
                             tooltip: 'Delete ${term.name}',
                             onPressed: () async {
                               final confirm = await showDialog<bool>(
                                 context: context,
                                 builder: (context) => AlertDialog(
-                                  title: const Text("Confirm Delete"),
+                                  backgroundColor: colors.surfaceContainerHigh,
+                                  title: Text(
+                                    "Confirm Delete",
+                                    style: TextStyle(color: colors.onSurface),
+                                  ),
                                   content: Text(
-                                      "Are you sure you want to delete '${term.name}'?"),
+                                    "Are you sure you want to delete '${term.name}'?",
+                                    style: TextStyle(color: colors.onSurfaceVariant),
+                                  ),
                                   actions: [
                                     TextButton(
-                                      onPressed: () =>
-                                          Navigator.pop(context, false),
-                                      child: const Text("Cancel"),
+                                      onPressed: () => Navigator.pop(context, false),
+                                      child: Text(
+                                        "Cancel",
+                                        style: TextStyle(color: colors.onSurfaceVariant),
+                                      ),
                                     ),
                                     TextButton(
-                                      onPressed: () =>
-                                          Navigator.pop(context, true),
-                                      child: const Text(
+                                      onPressed: () => Navigator.pop(context, true),
+                                      child: Text(
                                         "Delete",
-                                        style: TextStyle(
-                                            color: Colors.red),
+                                        style: TextStyle(color: colors.error),
                                       ),
                                     ),
                                   ],
                                 ),
                               );
 
-                              if (confirm == true) {
-                                await provider.deleteData(
-                                    "terms", term.id);
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
+                              if (confirm != true) return;
+                              if (!context.mounted) return;
+
+                              setState(() => _deletingIds.add(term.id));
+                              try {
+                                await provider.deleteTerms(term.id);
+                                if (mounted) {
+                                  setState(() {
+                                    _terms.removeWhere((t) => t.id == term.id);
+                                  });
+                                }
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: const Text(
                                         "Term deleted successfully",
-                                        textAlign: TextAlign.center),
-                                    backgroundColor: Colors.red,
-                                  ),
-                                );
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      backgroundColor: Colors.green.shade600,
+                                    ),
+                                  );
+                                }
+                              } catch (e) {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text("Failed to delete term: $e"),
+                                      backgroundColor: colors.error,
+                                    ),
+                                  );
+                                }
+                              } finally {
+                                if (mounted) {
+                                  setState(() => _deletingIds.remove(term.id));
+                                }
                               }
                             },
                           ),

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:ksoftsms/controller/myprovider.dart';
 import '../controller/routes.dart';
+import 'department.dart';
 
 class Viewdepartment extends StatefulWidget {
   const Viewdepartment({super.key});
@@ -69,13 +70,26 @@ class _ViewdepartmentState extends State<Viewdepartment> {
                         depart.name.toUpperCase(),
                         style: const TextStyle(color: Colors.black54, fontSize: 16),
                       ),
+                      subtitle: Text(
+                        depart.faculty?.isNotEmpty == true
+                            ? "Faculty: ${depart.faculty}"
+                            : "No faculty assigned",
+                        style: TextStyle(
+                          color: depart.faculty?.isNotEmpty == true
+                              ? Colors.black45
+                              : Colors.red,
+                          fontSize: 13,
+                        ),
+                      ),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           IconButton(
                             icon: const Icon(Icons.edit, color: Colors.amber),
                             onPressed: () {
-                              context.go(Routes.depart, extra: depart);
+                             Navigator.push(context,
+                                 MaterialPageRoute(
+                                     builder: (context) => Department(depart: depart)));
                             },
                           ),
                           IconButton(
@@ -105,7 +119,7 @@ class _ViewdepartmentState extends State<Viewdepartment> {
                               );
 
                               if (confirm == true) {
-                                await provider.deleteData("department", depart.id);
+                                await provider.deleteDepartment(depart.id);
 
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(

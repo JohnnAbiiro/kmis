@@ -18,13 +18,14 @@ class _OneTicketState extends State<OneTicket> {
   final List<String> years = ['2025', '2024', '2023', '2022', '2021'];
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Consumer<StatsProvider>(
       builder: (BuildContext context,  value, Widget? child) {
         return  Container(
           width: widget.cwidth,
           height: 400,
           decoration: BoxDecoration(
-            color: Color(0xFFffffff),
+            color: colors.surface,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
@@ -45,9 +46,9 @@ class _OneTicketState extends State<OneTicket> {
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
                       value: selectedYear,
-                      icon: const Icon(Icons.keyboard_arrow_down, color: Colors.black54),
-                      dropdownColor: Colors.white,
-                      style: const TextStyle(color: Colors.black87),
+                      icon: Icon(Icons.keyboard_arrow_down, color: colors.onSurfaceVariant),
+                      dropdownColor: colors.surface,
+                      style: TextStyle(color: colors.onSurface),
                       items: years.map((String year) {
                         return DropdownMenuItem<String>(
                           value: year,
@@ -76,7 +77,7 @@ class _OneTicketState extends State<OneTicket> {
                 const SizedBox(height: 4),
                 const Text(
                   'Budget: 56,800',
-                  style: TextStyle(color: Colors.black54),
+                  style: TextStyle(),
                 ),
 
                 const SizedBox(height: 16),

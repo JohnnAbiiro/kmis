@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../controller/myprovider.dart';
 import '../controller/routes.dart';
@@ -108,7 +107,7 @@ class _AssessmentEntryPageState extends State<AssessmentEntryPage> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => context.go(Routes.staffscoring),
+          onPressed: () => Navigator.pushNamed(context, Routes.staffscoring),
         ),
         title: Text("${provider.assessmentType}",style: const TextStyle(color: Colors.white),),
         backgroundColor:const Color(0xFF2D2F45),

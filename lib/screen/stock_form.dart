@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_search/dropdown_search.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../controller/dbmodels/iteRegModel.dart';
 import '../controller/myprovider.dart';
@@ -159,7 +158,7 @@ class _StockFormState extends State<StockForm> {
         backgroundColor: const Color(0xFF00273a),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => context.go(Routes.dashboard),
+          onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,
         title: ConstrainedBox(
@@ -483,7 +482,7 @@ class _StockFormState extends State<StockForm> {
                                                 padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 14),
                                               ),
                                               onPressed: (){
-                                                context.go(Routes.stockview);
+                                                Navigator.pushNamed(context, Routes.stockview);
                                               },
                                               child: const Text("View", style: TextStyle(color: Colors.white)),
                                             ),
@@ -585,7 +584,7 @@ class _StockFormState extends State<StockForm> {
                                                 padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 14),
                                               ),
                                               onPressed: (){
-                                                context.go(Routes.stockview);
+                                                Navigator.pushNamed(context, Routes.stockview);
                                               },
                                               child: const Text("View", style: TextStyle(color: Colors.white)),
                                             ),

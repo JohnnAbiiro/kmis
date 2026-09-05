@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:go_router/go_router.dart';
-import 'package:ksoftsms/controller/dbmodels/accountsModel.dart';
 import 'package:ksoftsms/controller/dbmodels/iteRegModel.dart';
 import 'package:provider/provider.dart';
 
 import '../controller/dbmodels/componentmodel.dart';
 import '../controller/myprovider.dart';
 import '../controller/routes.dart';
-import '../widgets/dropdown.dart';
+import 'package:ksoftsms/widgets/dropdown.dart';
 
 class ItemReg extends StatefulWidget {
   final ComponentModel? component;
@@ -28,11 +26,9 @@ class _RevenueGridPageState extends State<ItemReg> {
 
   String? _selectedCategory;
 
-
-
-
   @override
   void dispose() {
+    barcodeController.dispose();
     itemController.dispose();
     costPriceController.dispose();
     sellingPriceController.dispose();
@@ -44,14 +40,16 @@ class _RevenueGridPageState extends State<ItemReg> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<Myprovider>().getdata();
-      context.read<Myprovider>().fetchtemCategory();
+      final provider = Provider.of<Myprovider>(context, listen: false);
+      provider.getdata();
+      provider.fetchtemCategory();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final inputFill = const Color(0xFFffffff);
+    final colors = Theme.of(context).colorScheme;
+    final inputFill = colors.surface;
     return ProgressHUD(
       child: Builder(
         builder: (context) {
@@ -59,22 +57,27 @@ class _RevenueGridPageState extends State<ItemReg> {
             builder: (BuildContext context, Myprovider value, Widget? child) {
               return Scaffold(
                 appBar: AppBar(
-                  backgroundColor: const Color(0xFF00273a),
-                  leading: IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () => context.go(Routes.dashboard),
-                  ),
-                  title: Text(
+                  title: const Text(
                     'Register Item',
-                    style: const TextStyle(color: Colors.white, fontSize: 18),
+                    style: TextStyle(fontSize: 18),
                   ),
                 ),
                 body: Align(
                   alignment: Alignment.topCenter,
                   child: ConstrainedBox(
-                    constraints: BoxConstraints(maxWidth: 600),
+                    constraints: const BoxConstraints(maxWidth: 600),
                     child: Container(
-                      color: const Color(0xFFffffff),
+                      decoration: BoxDecoration(
+                        color: colors.surface,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.1),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
                       margin: const EdgeInsets.all(20),
                       child: SingleChildScrollView(
                         padding: const EdgeInsets.all(20),
@@ -84,12 +87,10 @@ class _RevenueGridPageState extends State<ItemReg> {
                             children: [
                               TextFormField(
                                 controller: barcodeController,
-                                decoration: InputDecoration(
+                                decoration: const InputDecoration(
                                   labelText: "Input Barcode/Code",
                                   hintText: "Enter Product Code",
-                                  border: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.grey[700]!),
-                                  ),
+                                  border: OutlineInputBorder(),
                                 ),
                                 validator: (value) =>
                                 value == null || value.trim().isEmpty ? "Enter Item Barcode/Code" : null,
@@ -97,12 +98,10 @@ class _RevenueGridPageState extends State<ItemReg> {
                               const SizedBox(height: 10),
                               TextFormField(
                                 controller: itemController,
-                                decoration: InputDecoration(
+                                decoration: const InputDecoration(
                                   labelText: "Item Name ",
                                   hintText: "Enter Product",
-                                  border: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.grey[700]!),
-                                  ),
+                                  border: OutlineInputBorder(),
                                 ),
                                 validator: (value) =>
                                 value == null || value.trim().isEmpty ? "Account Name is required" : null,
@@ -110,12 +109,10 @@ class _RevenueGridPageState extends State<ItemReg> {
                               const SizedBox(height: 10),
                               TextFormField(
                                 controller: sellingPriceController,
-                                decoration: InputDecoration(
+                                decoration: const InputDecoration(
                                   labelText: "Selling Price ",
                                   hintText: "Enter Selling Price",
-                                  border: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.grey[700]!),
-                                  ),
+                                  border: OutlineInputBorder(),
                                 ),
                                 validator: (value) =>
                                 value == null || value.trim().isEmpty ? "Selling Price is required" : null,
@@ -123,86 +120,108 @@ class _RevenueGridPageState extends State<ItemReg> {
                               const SizedBox(height: 10),
                               TextFormField(
                                 controller: costPriceController,
-                                decoration: InputDecoration(
+                                decoration: const InputDecoration(
                                   labelText: "Cost Price ",
                                   hintText: "Enter Cost Price",
-                                  border: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.grey[700]!),
-                                  ),
+                                  border: OutlineInputBorder(),
                                 ),
                                 validator: (value) =>
                                 value == null || value.trim().isEmpty ? "Selling Price is required" : null,
                               ),
                               const SizedBox(height: 10),
-                              buildDropdown(value: _selectedCategory, items: value.itemCategorList.map((e)=>e.name).toList(), label: "Item Category", fillColor: inputFill, onChanged: (v) => setState(() => _selectedCategory = v), validatorMsg: "Select Item Category"),
+                              DropdownWidget.buildDropdown(dropdownContext: context,
+                                value: _selectedCategory, 
+                                items: value.itemCategorList.map((e)=>e.name).toList(), 
+                                label: "Item Category", 
+                                fillColor: inputFill, 
+                                onChanged: (v) => setState(() => _selectedCategory = v), 
+                                validatorMsg: "Select Item Category"
+                              ),
                               const SizedBox(height: 10),
                               TextFormField(
                                 keyboardType: TextInputType.number,
                                 controller: openingStockController,
-                                decoration: InputDecoration(
+                                decoration: const InputDecoration(
                                   labelText: "Opening Stock ",
                                   hintText: "Enter opening Stock",
-                                  border: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.grey[700]!),
-                                  ),
+                                  border: OutlineInputBorder(),
                                 ),
                                 validator: (value) =>
                                 value == null || value.trim().isEmpty ? "Selling" : null,
                               ),
-                              const SizedBox(height: 10),
+                              const SizedBox(height: 32),
                               Row(
                                 children: [
-                                  ElevatedButton.icon(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF00496d),
-                                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                                    ),
-                                    onPressed: () async {
-                                      if (_formKey.currentState!.validate()) {
-                                        final progress = ProgressHUD.of(context);
-                                        progress!.show();
+                                  Expanded(
+                                    child: ElevatedButton.icon(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: colors.primary,
+                                        foregroundColor: colors.onPrimary,
+                                        padding: const EdgeInsets.symmetric(vertical: 16),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                      ),
+                                      onPressed: () async {
+                                        if (_formKey.currentState!.validate()) {
+                                          final progress = ProgressHUD.of(context);
+                                          progress!.show();
 
-                                        try {
-                                          String barcodeTxt = barcodeController.text.trim();
-                                          String nameTxt = itemController.text.trim();
-                                          String costPrice = costPriceController.text.trim();
-                                          String sellingPrice = sellingPriceController.text.trim();
-                                          String openingStock = openingStockController.text.trim();
-                                          String ids = "${value.schoolid.toString().toLowerCase()}";
-                                          String id = "$ids${nameTxt.replaceAll(' ', '').toLowerCase()}";
-                                          final data = ItemRegModel(name: nameTxt, costPrice: costPrice, sellingPrice: sellingPrice, openningStock: openingStock, category: _selectedCategory.toString(), staff: value.name, schioolid:value.schoolid, barcode: barcodeTxt);
-                                          await value.db.collection("itemReg").doc(id).set(data.toJson());
-                                          progress.dismiss();
-                                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Data Saved Successfully"), backgroundColor: Colors.green,));
-                                          itemController.clear();
-                                          costPriceController.clear();
-                                          sellingPriceController.clear();
-                                          openingStockController.clear();
+                                          try {
+                                            String barcodeTxt = barcodeController.text.trim();
+                                            String nameTxt = itemController.text.trim();
+                                            String costPrice = costPriceController.text.trim();
+                                            String sellingPrice = sellingPriceController.text.trim();
+                                            String openingStock = openingStockController.text.trim();
+                                            String ids = value.schoolid.toString().toLowerCase();
+                                            String id = "$ids${nameTxt.replaceAll(' ', '').toLowerCase()}";
+                                            final data = ItemRegModel(name: nameTxt, costPrice: costPrice, sellingPrice: sellingPrice, openningStock: openingStock, category: _selectedCategory.toString(), staff: value.name, schioolid:value.schoolid, barcode: barcodeTxt);
+                                            await value.db.collection("itemReg").doc(id).set(data.toJson());
+                                            progress.dismiss();
+                                            if (context.mounted) {
+                                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Data Saved Successfully"), backgroundColor: Colors.green,));
+                                            }
+                                            itemController.clear();
+                                            costPriceController.clear();
+                                            sellingPriceController.clear();
+                                            openingStockController.clear();
+                                            barcodeController.clear();
+                                            setState(() {
+                                              _selectedCategory = null;
+                                            });
 
-                                        } catch (e) {
-                                          progress.dismiss();
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(
-                                              content: Text("Failed to save data: $e"),
-                                              backgroundColor: Colors.red,
-                                            ),
-                                          );
+                                          } catch (e) {
+                                            progress.dismiss();
+                                            if (context.mounted) {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(
+                                                  content: Text("Failed to save data: $e"),
+                                                  backgroundColor: Colors.red,
+                                                ),
+                                              );
+                                            }
+                                          }
                                         }
-                                      }
-                                    },
-                                    icon: const Icon(Icons.save, color: Colors.white),
-                                    label: const Text("Save Account", style: TextStyle(color: Colors.white)),
-                                  ),
-                                  ElevatedButton.icon(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF00496d),
-                                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                                      },
+                                      icon: const Icon(Icons.save),
+                                      label: const Text("Save Item", style: TextStyle(fontWeight: FontWeight.bold)),
                                     ),
-                                    onPressed: () {
-                                      context.go(Routes.itemregview);
-                                    },
-                                    icon: const Icon(Icons.save, color: Colors.white),
-                                    label: const Text("View Account", style: TextStyle(color: Colors.white)),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: OutlinedButton.icon(
+                                      style: OutlinedButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(vertical: 16),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                      ),
+                                      onPressed: () {
+                                        Navigator.pushNamed(context, Routes.itemregview);
+                                      },
+                                      icon: const Icon(Icons.list_alt),
+                                      label: const Text("View Items"),
+                                    ),
                                   ),
                                 ],
                               ),

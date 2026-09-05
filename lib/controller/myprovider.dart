@@ -4,6 +4,7 @@ import 'dart:core';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:ksoftsms/controller/dbmodels/expenseModel.dart';
+import 'package:ksoftsms/controller/dbmodels/facultymodel.dart';
 import 'package:ksoftsms/controller/dbmodels/itemCategoryModel.dart';
 import 'package:ksoftsms/controller/dbmodels/termmodel.dart';
 import 'package:ksoftsms/controller/routes.dart';
@@ -42,6 +43,7 @@ class Myprovider extends LoginProvider {
   List<itemCategoryModel> itemCategorList = [];
   List<AcademicModel> academicyears = [];
   List<DepartmentModel> departments = [];
+  List<FacultyModel> faculties = [];
   List<ClassModel> classdata = [];
   List<SubjectModel> subjectList = [];
   List<StudentModel> studentlist = [];
@@ -80,6 +82,22 @@ class Myprovider extends LoginProvider {
     return text[0].toUpperCase() + text.substring(1).toLowerCase();
   }
 
+  ThemeMode _themeMode = ThemeMode.light;
+  ThemeMode get themeMode => _themeMode;
+
+  Future<void> loadThemeMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    final index = prefs.getInt('themeMode') ?? ThemeMode.light.index;
+    _themeMode = ThemeMode.values[index];
+    notifyListeners();
+  }
+
+  void setThemeMode(ThemeMode mode) async {
+    _themeMode = mode;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('themeMode', mode.index);
+  }
 
   loadSelectedGradingSystem({required String level}) async {
     try {
@@ -187,6 +205,24 @@ class Myprovider extends LoginProvider {
       loaddepart = false;
       notifyListeners();
       print("Failed to fetch departments: $e");
+    }
+  }
+  bool loadfaculty =false;
+  Future<void> fetchFaculty() async {
+    try {
+      loadfaculty = true;
+      notifyListeners();
+      final snapshot = await db.collection("faculties").where("schoolId", isEqualTo: schoolid).get();
+      faculties = snapshot.docs.map((doc) {
+        return FacultyModel.fromMap(doc.data(), doc.id);
+      }).toList();
+
+      loadfaculty = false;
+      notifyListeners();
+    } catch (e) {
+      loadfaculty = false;
+      notifyListeners();
+      print("Failed to fetch faculties: $e");
     }
   }
   Future<void> fetchclass() async {
@@ -376,6 +412,43 @@ class Myprovider extends LoginProvider {
       print('Unexpected error: $e');
       rethrow;
     }
+  }
+    Future<void> deleteFaculties(String id) async {
+    await db.collection('faculties').doc(id).delete();
+    faculties.removeWhere((c) => c.id == id);
+    notifyListeners();
+  }
+  Future<void> deleteDepartment(String id) async {
+    await db.collection('department').doc(id).delete();
+    departments.removeWhere((c) => c.id == id);
+    notifyListeners();
+  }
+  Future<void> deleteClass(String id) async {
+    await db.collection('classes').doc(id).delete();
+    classdata.removeWhere((c) => c.id == id);
+    notifyListeners();
+  }
+  Future<void> deleteSubject(String id) async {
+    await db.collection('subjects').doc(id).delete();
+    subjectList.removeWhere((c) => c.id == id);
+    notifyListeners();
+  }
+  Future<void> deleteStudents(String id) async {
+    await db.collection('students').doc(id).delete();
+    studentlist.removeWhere((c) => c.id == id);
+    notifyListeners();
+  }
+
+  Future<void> deleteAcademicyr(String id) async {
+    await db.collection('academicyears').doc(id).delete();
+    academicyears.removeWhere((c) => c.id == id);
+    notifyListeners();
+  }
+
+  Future<void> deleteTerms(String id) async {
+    await db.collection('terms').doc(id).delete();
+    terms.removeWhere((c) => c.id == id);
+    notifyListeners();
   }
   showform(bool show, String type) {
     if (type == 'login') {
@@ -1545,8 +1618,62 @@ class Myprovider extends LoginProvider {
     loadIdFormats = false;
     notifyListeners();
   }
+  void upsertIdFormat(IdformatModel model) {
+    final index = idFormats.indexWhere((f) => f.id == model.id);
+    if (index != -1) {
+      idFormats[index] = model;
+    } else {
+      idFormats.add(model);
+    }
+    notifyListeners();
+  }
+  void upsertAcademicYear(AcademicModel model) {
+    final index = academicyears.indexWhere((y) => y.id == model.id);
+    if (index != -1) {
+      academicyears[index] = model;
+    } else {
+      academicyears.add(model);
+    }
+    notifyListeners();
+  }
   Map<String, dynamic>? selectedEntry ={};
+  void upsertClass(ClassModel model) {
+    final index = classdata.indexWhere((c) => c.id == model.id);
+    if (index != -1) {
+      classdata[index] = model;
+    } else {
+      classdata.add(model);
+    }
+    notifyListeners();
+  }
+  void upsertDepartment(DepartmentModel model) {
+    final index = departments.indexWhere((c) => c.id == model.id);
+    if (index != -1) {
+      departments[index] = model;
+    } else {
+      departments.add(model);
+    }
+    notifyListeners();
+  }
 
+  void upsertFaculty(FacultyModel model) {
+    final index = faculties.indexWhere((c) => c.id == model.id);
+    if (index != -1) {
+      faculties[index] = model;
+    } else {
+      faculties.add(model);
+    }
+    notifyListeners();
+  }
+  void upsertStudent(StudentModel model) {
+    final index = studentlist.indexWhere((s) => s.id == model.id);
+    if (index != -1) {
+      studentlist[index] = model;
+    } else {
+      studentlist.add(model);
+    }
+    notifyListeners();
+  }
   Future<void> setSelectedEntry(Map<String, dynamic> entry) async {
     selectedEntry = entry;
     notifyListeners();
@@ -2640,4 +2767,37 @@ class Myprovider extends LoginProvider {
     }
   }
 
+
+  void upsertSubjectLocal(SubjectModel subject) {
+    final index = subjectList.indexWhere((s) => s.id == subject.id);
+    if (index >= 0) {
+      subjectList[index] = subject;
+    } else {
+      subjectList.add(subject);
+    }
+    notifyListeners();
+  }
+
+  void removeSubjectLocal(String id) {
+    subjectList.removeWhere((s) => s.id == id);
+    notifyListeners();
+  }
+  void removeAcademicYear(String id) {
+    academicyears.removeWhere((y) => y.id == id);
+    notifyListeners();
+  }
+
+  void upsertTerm(TermModel term) {
+    final index = terms.indexWhere((t) => t.id == term.id);
+    if (index == -1) {
+      terms.add(term);
+    } else {
+      terms[index] = term;
+    }
+    notifyListeners();
+  }
+  void removeTerm(String id) {
+    terms.removeWhere((t) => t.id == id);
+    notifyListeners();
+  }
 }

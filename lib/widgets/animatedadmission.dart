@@ -39,16 +39,18 @@ class _AnimatedAdmissionsReportCardState
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    
     return Container(
       width: widget.cwidth,
       height: 250,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
+            color: colors.outline.withOpacity(0.1),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -63,28 +65,27 @@ class _AnimatedAdmissionsReportCardState
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
+              Text(
                 "Admissions",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: colors.onSurface),
               ),
-              const Text(
+              Text(
                 "Termly Report",
-                style: TextStyle(fontSize: 13, color: Colors.grey),
+                style: TextStyle(fontSize: 13, color: colors.onSurfaceVariant),
               ),
               const SizedBox(height: 10),
-              const Text(
+              Text(
                 "1,350",
-                style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: colors.onSurface),
               ),
               const SizedBox(height: 4),
               Row(
-                children: const [
-                  Icon(Icons.keyboard_arrow_up_sharp, color: Colors.green, size: 16),
-                  SizedBox(width: 4),
+                children: [
+                  Icon(Icons.keyboard_arrow_up_sharp, color: colors.primary, size: 16),
+                  const SizedBox(width: 4),
                   Text(
                     "10.8%",
-                    style: TextStyle(
-                      color: Colors.green,
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -114,13 +115,13 @@ class _AnimatedAdmissionsReportCardState
                             centerSpaceRadius: 40,
                             sections: [
                               PieChartSectionData(
-                                color: Colors.green,
+                                color: colors.primary,
                                 value: _animation.value,
                                 radius: 10,
                                 showTitle: false,
                               ),
                               PieChartSectionData(
-                                color: Colors.green.shade200,
+                                color: colors.primaryContainer,
                                 value: 100 - _animation.value,
                                 radius: 10,
                                 showTitle: false,
@@ -128,7 +129,7 @@ class _AnimatedAdmissionsReportCardState
                             ],
                           ),
                         ),
-                        const Column(
+                        Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
@@ -136,13 +137,14 @@ class _AnimatedAdmissionsReportCardState
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
+                                color: colors.onSurface,
                               ),
                             ),
                             Text(
                               "Total",
                               style: TextStyle(
                                 fontSize: 13,
-                                color: Colors.grey,
+                                color: colors.onSurfaceVariant,
                               ),
                             ),
                           ],
@@ -152,17 +154,17 @@ class _AnimatedAdmissionsReportCardState
                   );
                 },
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircleAvatar(radius: 5, backgroundColor: Colors.green),
-                  SizedBox(width: 6),
-                  Text('Male'),
-                  SizedBox(width: 16),
-                  CircleAvatar(radius: 5, backgroundColor: Colors.green.shade200),
-                  SizedBox(width: 6),
-                  Text('Female'),
+                  CircleAvatar(radius: 5, backgroundColor: colors.primary),
+                  const SizedBox(width: 6),
+                  Text('Male', style: TextStyle(color: colors.onSurface)),
+                  const SizedBox(width: 16),
+                  CircleAvatar(radius: 5, backgroundColor: colors.primaryContainer),
+                  const SizedBox(width: 6),
+                  Text('Female', style: TextStyle(color: colors.onSurface)),
                 ],
               ),
             ],

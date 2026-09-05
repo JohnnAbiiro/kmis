@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:go_router/go_router.dart';
 import 'package:ksoftsms/controller/dbmodels/singleBilledModel.dart';
 import 'package:provider/provider.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'package:ksoftsms/controller/dbmodels/billedModel.dart';
 import 'package:ksoftsms/controller/myprovider.dart';
 import 'package:ksoftsms/controller/routes.dart';
-import '../widgets/dropdown.dart';
+import 'package:ksoftsms/widgets/dropdown.dart';
 
 class SingleBilling extends StatefulWidget {
   const SingleBilling({super.key});
@@ -56,7 +53,7 @@ class _SingleBillingState extends State<SingleBilling> {
                 backgroundColor: const Color(0xFF00273a),
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_back, color: Colors.white),
-                  onPressed: () => context.go(Routes.dashboard),
+                  onPressed: () => Navigator.pop(context),
                 ),
                 title: Text(
                   '${value.currentschool.toUpperCase()} MULTI STUDENT BILLING',
@@ -112,7 +109,7 @@ class _SingleBillingState extends State<SingleBilling> {
                                         ),
                                       ),
                                       child: ListTile(
-                                        title: Text(student.name ?? ""),
+                                        title: Text(student.name),
                                         subtitle:
                                         Text("ID: ${student.studentid}"),
                                         trailing: Icon(
@@ -145,7 +142,7 @@ class _SingleBillingState extends State<SingleBilling> {
                                       margin: const EdgeInsets.symmetric(
                                           vertical: 5),
                                       child: ListTile(
-                                        title: Text(s.name ?? ""),
+                                        title: Text(s.name),
                                         subtitle: Text(
                                             "Class: ${s.level}, Year: ${s.yeargroup}"),
                                         trailing: IconButton(
@@ -188,7 +185,8 @@ class _SingleBillingState extends State<SingleBilling> {
                               const SizedBox(height: 20),
 
                               // fees dropdown
-                              buildDropdown(
+                              DropdownWidget.buildDropdown(
+                                dropdownContext: context,
                                 value: selectedfee,
                                 items: value.fees.map((e) => e.name).toList(),
                                 label: "FEES",
@@ -200,7 +198,8 @@ class _SingleBillingState extends State<SingleBilling> {
                               const SizedBox(height: 20),
 
                               // term dropdown
-                              buildDropdown(
+                              DropdownWidget.buildDropdown(
+                                dropdownContext: context,
                                 value: selectedTerm,
                                 items: value.terms.map((e) => e.name).toList(),
                                 label: "Term",
@@ -236,25 +235,24 @@ class _SingleBillingState extends State<SingleBilling> {
                                           in value.selectedStudents) {
                                             String yearGroup=student.yeargroup;
                                             String department=student.department;
-                                            String Level=student.level;
+                                            String level=student.level;
                                             String sid=student.studentid;
-                                            String ids="single-${value.schoolid}$yearGroup$selectedTerm$department$Level$selectedfee$sid";
+                                            String ids="single-${value.schoolid}$yearGroup$selectedTerm$department$level$selectedfee$sid";
                                             String id = ids.replaceAll(RegExp(r'\s+'), '').toLowerCase();
-                                            //String ids="${value.schoolid}$selectedYearGroup$selectedTerm$selecteddepart$selectedLevel$selectedfee";
-
-                                           // String id = "${value.schoolid}${student.studentid}$selectedTerm$selectedfee".replaceAll(RegExp(r'\s+'), '').toLowerCase();
 
                                             final dataexist = await value.db.collection("singlebilled").doc(id).get();
 
                                             if (dataexist.exists) {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
-                                                SnackBar(
-                                                  content: Text(
-                                                      "${student.name} already billed for $selectedfee"),
-                                                  backgroundColor: Colors.orange,
-                                                ),
-                                              );
+                                              if (context.mounted) {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(
+                                                        "${student.name} already billed for $selectedfee"),
+                                                    backgroundColor: Colors.orange,
+                                                  ),
+                                                );
+                                              }
                                               progress.dismiss();
                                               return;
                                             }
@@ -269,7 +267,7 @@ class _SingleBillingState extends State<SingleBilling> {
                                               dateCreated: DateTime.now(),
                                               feeName: selectedfee.toString(),
                                               studentId: student.studentid,
-                                              studentName: student.name ?? "",
+                                              studentName: student.name,
                                               ledgerid: id
                                             ).toJson();
 
@@ -280,14 +278,16 @@ class _SingleBillingState extends State<SingleBilling> {
                                           }
 
                                           progress.dismiss();
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            const SnackBar(
-                                              content:
-                                              Text("Billing completed"),
-                                              backgroundColor: Colors.green,
-                                            ),
-                                          );
+                                          if (context.mounted) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              const SnackBar(
+                                                content:
+                                                Text("Billing completed"),
+                                                backgroundColor: Colors.green,
+                                              ),
+                                            );
+                                          }
 
                                           value.clearSelectedStudents();
                                           accountController.clear();
@@ -296,13 +296,15 @@ class _SingleBillingState extends State<SingleBilling> {
                                           setState(() {}); // refresh dropdowns
                                         } catch (e) {
                                           progress.dismiss();
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                              content: Text("Failed: $e"),
-                                              backgroundColor: Colors.red,
-                                            ),
-                                          );
+                                          if (context.mounted) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                content: Text("Failed: $e"),
+                                                backgroundColor: Colors.red,
+                                              ),
+                                            );
+                                          }
                                         }
                                       }
                                     },
@@ -320,7 +322,7 @@ class _SingleBillingState extends State<SingleBilling> {
                                       ),
                                     ),
                                     onPressed: () {
-                                      context.go(Routes.singlebillingview);
+                                      Navigator.pushNamed(context, Routes.singlebillingview);
                                     },
                                     icon: const Icon(Icons.save,
                                         color: Colors.white),

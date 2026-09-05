@@ -7,6 +7,7 @@ class AttendanceTracking extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return LayoutBuilder(
         builder: (context, constraints){
           final isWide = constraints.maxWidth > 400;
@@ -19,7 +20,7 @@ class AttendanceTracking extends StatelessWidget {
             width: cwidth,
             padding: EdgeInsets.all(innerPadding),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: colors.surface,
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
@@ -31,14 +32,14 @@ class AttendanceTracking extends StatelessWidget {
                 Text(
                   "Attendance Tracking",
                   style: TextStyle(
-                      fontSize: fontSize, color: Color(0xFF00496d)
+                      fontSize: fontSize
                   ),
                 ),
                 const SizedBox(height: 30),
                 Container(
                   padding: EdgeInsets.all(innerPadding),
                   decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: colors.surface,
                       border: Border.all(
                           color: Colors.black12
                       ),
@@ -163,3 +164,4 @@ class AttendanceTracking extends StatelessWidget {
     );
   }
 }
+

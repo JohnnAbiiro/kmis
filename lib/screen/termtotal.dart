@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../controller/myprovider.dart';
 import '../controller/routes.dart';
@@ -59,15 +58,13 @@ class _TermScoreSheetState extends State<TermScoreSheet> {
     return Scaffold(
       backgroundColor: const Color(0xFF1B1D2A),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF2D2F45),
         title: const Text(
           "Terminal Sheet Student",
-          style: TextStyle(color: Colors.white60),
         ),
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => context.go(Routes.dashboard),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
       body: Consumer<Myprovider>(

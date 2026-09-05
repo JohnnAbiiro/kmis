@@ -9,6 +9,7 @@ class PriorityDonutChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return FutureBuilder<Map<String, int>>(
       future: null,
       builder: (context, snapshot) {
@@ -21,8 +22,8 @@ class PriorityDonutChart extends StatelessWidget {
                 gradient: LinearGradient(
                   colors: [
                     // very light cyan
-                    Colors.white,
-                    Color(0xFFf0f5fe),
+                    colors.surface,
+                    colors.surfaceContainer,
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -32,10 +33,10 @@ class PriorityDonutChart extends StatelessWidget {
               //       offset: Offset(0.5, 0.5), spreadRadius: 1, blurRadius: 1),
               // ],
             ),
-            child: const Center(
+            child: Center(
               child: Text(
                 "Loading Contestant Data...",
-                style: TextStyle(color: Color(0xFF00273a), fontSize: 14),
+                style: TextStyle(color: colors.onSurface, fontSize: 14),
               ),
             ),
           );
@@ -62,7 +63,7 @@ class PriorityDonutChart extends StatelessWidget {
           width: cwidth,
           height: 250,
           decoration: BoxDecoration(
-            color: const Color(0xFF1C1D2A),
+            color: colors.surface,
             boxShadow: const [
               BoxShadow(
                   offset: Offset(0.5, 0.5), spreadRadius: 1, blurRadius: 1),
@@ -71,11 +72,11 @@ class PriorityDonutChart extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Padding(
+              Padding(
                 padding: EdgeInsets.only(top: 16.0, left: 16.0),
-                child: Text(
+                child: const Text(
                   'Contestants by Level',
-                  style: TextStyle(color: Colors.white, fontSize: 14),
+                  style: TextStyle(fontSize: 14),
                 ),
               ),
               const SizedBox(height: 4),
@@ -106,10 +107,10 @@ class PriorityDonutChart extends StatelessWidget {
                           ),
                           Text(
                             '$total',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 32,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: colors.onSurface,
                             ),
                           ),
                         ],
@@ -136,8 +137,8 @@ class PriorityDonutChart extends StatelessWidget {
                                 FittedBox(
                                   child: Text(
                                     item.label,
-                                    style: const TextStyle(
-                                      color: Colors.white,
+                                    style: TextStyle(
+                                      color: colors.onSurface,
                                       fontSize: 9,
                                     ),
                                   ),
@@ -147,8 +148,8 @@ class PriorityDonutChart extends StatelessWidget {
                                   fit: BoxFit.scaleDown,
                                   child: Text(
                                     item.value.toString(),
-                                    style: const TextStyle(
-                                      color: Colors.white54,
+                                    style: TextStyle(
+                                      color: colors.onSurfaceVariant,
                                       fontSize: 9,
                                     ),
                                   ),

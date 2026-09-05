@@ -7,12 +7,13 @@ class AcademicPerformanceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Container(
       height: 250,
       width: cwidth,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
@@ -24,10 +25,8 @@ class AcademicPerformanceCard extends StatelessWidget {
           // Title
           Text(
             "Academic Performance",
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
             ),
           ),
           const SizedBox(height: 8),
@@ -35,7 +34,7 @@ class AcademicPerformanceCard extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               border: Border.all(
-                color: Colors.black12
+                color: colors.outlineVariant
               ),
               borderRadius: BorderRadius.all(Radius.circular(8))
             ),
@@ -44,10 +43,8 @@ class AcademicPerformanceCard extends StatelessWidget {
               children: [
                 Text(
                   "Recent Exam Results",
-                  style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87),
+                  style: const TextStyle(
+                      fontSize: 14),
                 ),
                 const SizedBox(height: 12),
 

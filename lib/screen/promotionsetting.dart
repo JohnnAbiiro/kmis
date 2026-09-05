@@ -1,7 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../controller/myprovider.dart';
@@ -27,6 +25,7 @@ class _PromotionScreenState extends State<PromotionScreen> {
     super.initState();
 
     Future.microtask(() async {
+      if (!mounted) return;
       final provider = context.read<Myprovider>();
 
       await provider.fetchclass();
@@ -37,8 +36,8 @@ class _PromotionScreenState extends State<PromotionScreen> {
           selectedClass = data["current"];
           selectedNextClass = data["next"];
           selectedpreviousClass = data["previous"];
-          print("Editing current: ${data['current']}");
-          print("Editing next: ${data['next']}");
+          // print("Editing current: ${data['current']}");
+          // print("Editing next: ${data['next']}");
          // print("Available classes: $classes");
         });
       } else {
@@ -63,7 +62,7 @@ class _PromotionScreenState extends State<PromotionScreen> {
               icon: const Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () {
                 provider.setEditPromotionData(null);
-                context.go(Routes.viewpromotionsetting);
+                Navigator.pushNamed(context, Routes.viewpromotionsetting);
               },
             ),
           ),
@@ -87,7 +86,7 @@ class _PromotionScreenState extends State<PromotionScreen> {
                       child: Text(c),
                     ))
                         .toList(),
-                    value: selectedpreviousClass,
+                    initialValue: selectedpreviousClass,
                     onChanged: (value) {
                       setState(() => selectedpreviousClass = value);
                     },
@@ -200,7 +199,7 @@ class _PromotionScreenState extends State<PromotionScreen> {
 
                         provider.setEditPromotionData(null);
 
-                        context.go(Routes.viewpromotionsetting);
+                        Navigator.pushNamed(context, Routes.viewpromotionsetting);
                       } catch (e) {
                         progress.dismiss();
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -234,7 +233,7 @@ class _PromotionScreenState extends State<PromotionScreen> {
                     icon: const Icon(Icons.list),
                     label: const Text("View Promotion Settings"),
                     onPressed: () {
-                      context.go(Routes.viewpromotionsetting);
+                      Navigator.pushNamed(context, Routes.viewpromotionsetting);
                     },
                   ),
                 ],

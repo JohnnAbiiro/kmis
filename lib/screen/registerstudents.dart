@@ -13,7 +13,7 @@ import '../widgets/dropdown.dart';
 
 class RegisterStudent extends StatefulWidget {
   final StudentModel? studentData;
-  const RegisterStudent({Key? key, this.studentData}) : super(key: key);
+  const RegisterStudent({super.key, this.studentData});
 
   @override
   State<RegisterStudent> createState() => _RegisterStudentState();
@@ -28,7 +28,6 @@ class _RegisterStudentState extends State<RegisterStudent> {
   final email = TextEditingController();
   final phone = TextEditingController();
 
-  // allow multiple guardians/parents
   final List<TextEditingController> parentNames = [TextEditingController()];
   final List<TextEditingController> guardianContacts = [TextEditingController()];
 
@@ -47,7 +46,8 @@ class _RegisterStudentState extends State<RegisterStudent> {
   bool showStudentId = false;
   String? _uploadedImageUrl = '';
 
-  // 🔹 DOB dropdowns
+  String? selectedIdFormat;
+
   int? selectedDay;
   String? selectedMonth;
   int? selectedYear;
@@ -61,10 +61,12 @@ class _RegisterStudentState extends State<RegisterStudent> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
       final provider = Provider.of<Myprovider>(context, listen: false);
       await provider.getfetchRegions();
       await provider.fetchdepart();
       await provider.fetchclass();
+      await provider.fetchIdFormats();
     });
 
     final now = DateTime.now().year;
@@ -78,11 +80,15 @@ class _RegisterStudentState extends State<RegisterStudent> {
       address.text = data.address;
       email.text = data.email ?? '';
       phone.text = data.phone;
-      selectedSex = data.sex;
-      selectedLevel = data.level;
-      selectedRegion = data.region;
-      selectedStatus = data.status;
+
       selectedTerm = data.term;
+      selecteddepart = (data.department.isNotEmpty) ? data.department : null;
+      selectedYearGroup = (data.yeargroup.isNotEmpty) ? data.yeargroup : null;
+      selectedRegion = (data.region.isNotEmpty) ? data.region : null;
+      selectedLevel = (data.level.isNotEmpty) ? data.level : null;
+      selectedStatus = (data.status.isNotEmpty) ? data.status : null;
+      selectedSex = (data.sex.isNotEmpty) ? data.sex : null;
+
       _uploadedImageUrl = data.photourl;
       if (dob.text.isNotEmpty) {
         try {
@@ -114,8 +120,12 @@ class _RegisterStudentState extends State<RegisterStudent> {
     address.dispose();
     email.dispose();
     phone.dispose();
-    for (var c in parentNames) c.dispose();
-    for (var c in guardianContacts) c.dispose();
+    for (var c in parentNames) {
+      c.dispose();
+    }
+    for (var c in guardianContacts) {
+      c.dispose();
+    }
     super.dispose();
   }
 
@@ -126,9 +136,170 @@ class _RegisterStudentState extends State<RegisterStudent> {
     }
   }
 
+  Future<void> _handleSubmit(Myprovider value, bool isEdit) async {
+    if (!_formKey.currentState!.validate()) return;
+
+    if (!isEdit && !showStudentId) {
+      final formatCount = value.idFormats.length;
+      if (formatCount > 1 && selectedIdFormat == null) {
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Select an ID format'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+      if (formatCount == 0) {
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('No ID format found for school ${value.schoolid}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+    }
+
+    final progress = ProgressHUD.of(context);
+    progress?.show();
+
+    try {
+      String finalStudentId;
+      String finalId;
+
+      if (isEdit) {
+        finalStudentId = widget.studentData!.studentid;
+        finalId = widget.studentData!.id;
+      } else if (showStudentId) {
+        final sid = studentId.text.trim().toUpperCase();
+        final candidateId = "${value.schoolid}_$sid".toUpperCase();
+
+        final existing = await value.db.collection('students').doc(candidateId).get();
+        if (existing.exists) {
+          progress?.dismiss();
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('A student with ID "$sid" already exists'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+
+        finalStudentId = sid;
+        finalId = candidateId;
+      } else {
+        final available = value.idFormats;
+        final format = available.length == 1
+            ? available.first
+            : available.firstWhere(
+              (f) => f.name == selectedIdFormat,
+          orElse: () => throw Exception('Select an ID format'),
+        );
+        final formatRef = value.db.collection('idformats').doc(format.id);
+        final generatedId = await value.db.runTransaction((transaction) async {
+          final snapshot = await transaction.get(formatRef);
+          final data = snapshot.data() as Map<String, dynamic>;
+          final prefix = data['name'] as String;
+          final lastNumber = (data['lastnumber'] ?? 0) as int;
+          final newNumber = lastNumber + 1;
+          final newId = '$prefix${newNumber.toString().padLeft(4, '0')}';
+          transaction.update(formatRef, {"lastnumber": newNumber});
+          return newId;
+        });
+        finalStudentId = generatedId.toUpperCase();
+        finalId = "${value.schoolid}_$generatedId".toUpperCase();
+      }
+
+      final nextclass = await value.getnextclass(currentLevel: selectedLevel!);
+      await value.uploadImage(finalStudentId);
+      final student = StudentModel(
+        id: finalId,
+        studentid: finalStudentId,
+        name: studentName.text.trim(),
+        sex: selectedSex ?? "",
+        school: value.currentschool,
+        region: selectedRegion ?? "",
+        guardiancontact: guardianContacts.map((c) => c.text.trim()).toList(),
+        parentname: parentNames.map((c) => c.text.trim()).toList(),
+        level: selectedLevel ?? "",
+        previousclass: nextclass['previous'] ?? '',
+        nextclass: nextclass["next"] ?? "",
+        currentclass: selectedLevel ?? "",
+        term: value.term,
+        schoolId: value.schoolid,
+        dob: dob.text.trim(),
+        address: address.text.trim(),
+        email: email.text.trim().isEmpty ? null : email.text.trim(),
+        phone: phone.text.trim(),
+        timestamp: DateTime.now().toIso8601String(),
+        photourl: value.imageUrl.isNotEmpty ? value.imageUrl : _uploadedImageUrl ?? "",
+        status: selectedStatus ?? "active",
+        accessLevel: "student",
+        department: selecteddepart ?? "",
+        yeargroup: DateTime.now().year.toString(),
+        academicyr: value.year,
+      );
+
+      await value.db
+          .collection("students")
+          .doc(student.id)
+          .set(student.toMap(), SetOptions(merge: true));
+
+      value.upsertStudent(student);
+
+      progress?.dismiss();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(isEdit
+              ? 'Student Updated Successfully'
+              : 'Student Registered Successfully'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      value.imagefile = null;
+
+      if (!isEdit) {
+        setState(() {
+          value.imageUrl = "";
+          _uploadedImageUrl = "";
+        });
+        studentName.clear();
+        studentId.clear();
+        dob.clear();
+        address.clear();
+        email.clear();
+        phone.clear();
+        parentNames.clear();
+        guardianContacts.clear();
+        parentNames.add(TextEditingController());
+        guardianContacts.add(TextEditingController());
+        selectedDay = null;
+        selectedMonth = null;
+        selectedYear = null;
+      }
+    } catch (e) {
+      progress?.dismiss();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Could not save student: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final inputFill = const Color(0xFFffffff);
+    final colors = Theme.of(context).colorScheme;
+    final inputFill = colors.surface;
     final isEdit = widget.studentData != null;
 
     return ProgressHUD(
@@ -166,14 +337,16 @@ class _RegisterStudentState extends State<RegisterStudent> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Switch(
-                            value: showStudentId,
-                            onChanged: (val) {
+                            value: isEdit ? true : showStudentId,
+                            onChanged: isEdit
+                                ? null
+                                : (val) {
                               setState(() {
                                 showStudentId = val;
                               });
                             },
                           ),
-                          if (showStudentId)
+                          if (showStudentId || isEdit)
                             SizedBox(
                               child: _buildTextField(
                                 controller: studentId,
@@ -181,10 +354,24 @@ class _RegisterStudentState extends State<RegisterStudent> {
                                 hint: "Auto-generated or enter manually",
                                 validatorMsg: 'Student ID required',
                                 fillColor: inputFill,
+                                enabled: !isEdit,
+                              ),
+                            ),
+                          if (!isEdit && !showStudentId && value.idFormats.length > 1)
+                            SizedBox(
+                              child: DropdownWidget.buildDropdown(
+                                dropdownContext: context,
+                                value: selectedIdFormat,
+                                items: value.idFormats.map((f) => f.name).toList(),
+                                label: "ID Format",
+                                fillColor: inputFill,
+                                onChanged: (v) => setState(() => selectedIdFormat = v),
+                                validatorMsg: 'Select an ID format',
                               ),
                             ),
                           const SizedBox(height: 10),
-                          buildDropdown(
+                          DropdownWidget.buildDropdown(
+                            dropdownContext: context,
                             value: selectedYearGroup,
                             items: _yeargroup,
                             label: "Year Group",
@@ -203,13 +390,11 @@ class _RegisterStudentState extends State<RegisterStudent> {
                             ),
                           ),
                           const SizedBox(height: 10),
-                          // 🔹 DOB Dropdowns
                           Row(
                             children: [
-                              // Day
                               Expanded(
                                 child: DropdownButtonFormField<int>(
-                                  value: selectedDay,
+                                  initialValue: selectedDay,
                                   items: List.generate(31, (i) => i + 1)
                                       .map((d) => DropdownMenuItem(
                                     value: d,
@@ -226,7 +411,6 @@ class _RegisterStudentState extends State<RegisterStudent> {
                                   decoration: InputDecoration(
                                     labelText: "Day",
                                     labelStyle: const TextStyle(color: Colors.black54),
-
                                     border: const OutlineInputBorder(),
                                     filled: false,
                                     fillColor: inputFill,
@@ -236,11 +420,9 @@ class _RegisterStudentState extends State<RegisterStudent> {
                                 ),
                               ),
                               const SizedBox(width: 8),
-
-                              // Month
                               Expanded(
                                 child: DropdownButtonFormField<String>(
-                                  value: selectedMonth,
+                                  initialValue: selectedMonth,
                                   items: _months
                                       .map((m) => DropdownMenuItem(
                                     value: m,
@@ -266,11 +448,9 @@ class _RegisterStudentState extends State<RegisterStudent> {
                                 ),
                               ),
                               const SizedBox(width: 8),
-
-                              // Year
                               Expanded(
                                 child: DropdownButtonFormField<int>(
-                                  value: selectedYear,
+                                  initialValue: selectedYear,
                                   items: _years
                                       .map((y) => DropdownMenuItem(
                                     value: y,
@@ -299,9 +479,10 @@ class _RegisterStudentState extends State<RegisterStudent> {
                           ),
 
                           const SizedBox(height: 10),
-                          buildDropdown(value: selectedSex, items: _sex, label: "Sex", fillColor: inputFill, onChanged: (v) => setState(() => selectedSex = v), validatorMsg: 'Select sex',),
+                          DropdownWidget.buildDropdown(dropdownContext: context, value: selectedSex, items: _sex, label: "Sex", fillColor: inputFill, onChanged: (v) => setState(() => selectedSex = v), validatorMsg: 'Select sex',),
                           const SizedBox(height: 10),
-                          buildDropdown(
+                          DropdownWidget.buildDropdown(
+                            dropdownContext: context,
                             value: selectedRegion,
                             items: value.regionList.map((c) => c.regionname).toList(),
                             label: "Region",
@@ -310,7 +491,8 @@ class _RegisterStudentState extends State<RegisterStudent> {
                             validatorMsg: 'Select region',
                           ),
                           const SizedBox(height: 10),
-                          buildDropdown(
+                          DropdownWidget.buildDropdown(
+                            dropdownContext: context,
                             value: selectedLevel,
                             items: value.classdata.map((e) => e.name).toList(),
                             label: "Class",
@@ -319,7 +501,8 @@ class _RegisterStudentState extends State<RegisterStudent> {
                             validatorMsg: 'Select class',
                           ),
                           const SizedBox(height: 10),
-                          buildDropdown(
+                          DropdownWidget.buildDropdown(
+                            dropdownContext: context,
                             value: selecteddepart,
                             items: value.departments.map((e) => e.name).toList(),
                             label: "Department",
@@ -328,7 +511,8 @@ class _RegisterStudentState extends State<RegisterStudent> {
                             validatorMsg: 'Select department',
                           ),
                           const SizedBox(height: 10),
-                          buildDropdown(
+                          DropdownWidget.buildDropdown(
+                            dropdownContext: context,
                             value: selectedStatus,
                             items: _status,
                             label: "Status",
@@ -346,7 +530,6 @@ class _RegisterStudentState extends State<RegisterStudent> {
                           ),
                           const SizedBox(height: 10),
 
-                          // multiple parent names
                           Column(
                             children: [
                               for (int i = 0; i < parentNames.length; i++)
@@ -371,7 +554,6 @@ class _RegisterStudentState extends State<RegisterStudent> {
                             ],
                           ),
 
-                          // multiple guardian phones
                           Column(
                             children: [
                               for (int i = 0; i < guardianContacts.length; i++)
@@ -422,104 +604,15 @@ class _RegisterStudentState extends State<RegisterStudent> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               ElevatedButton.icon(
-                                onPressed: () async {
-                                  if (!_formKey.currentState!.validate()) return;
-                                  final progress = ProgressHUD.of(context);
-                                  progress?.show();
-                                  final query = await value.db .collection('idformats').where('schoolId', isEqualTo: value.schoolid).limit(1).get();
-                                 if (query.docs.isEmpty) {
-                                    throw Exception("No ID format found for school ${value.schoolid}");
-                                  }
-                                  final formatRef = query.docs.first.reference;
-                                  final generatedId = await value.db.runTransaction((transaction) async {
-                                    final snapshot = await transaction.get(formatRef);
-                                    final data = snapshot.data() as Map<String, dynamic>;
-                                    final prefix = data['name'] as String;
-                                    final lastNumber = (data['lastnumber'] ?? 0) as int;
-                                    final newNumber = lastNumber + 1;
-                                    final newId = '$prefix${newNumber.toString().padLeft(4, '0')}';
-                                    transaction.update(formatRef, {"lastnumber": newNumber});
-                                    return newId;
-                                  });
-                                  final nextclass = await value.getnextclass(currentLevel: selectedLevel!);
-                                  final sid = showStudentId
-                                      ? studentId.text.trim() // use typed ID
-                                      : generatedId;
-                                  //final id = "${value.schoolid}_$generatedId";
-                                  final id = "${value.schoolid}_$sid".toUpperCase();
-                                  await value.uploadImage(sid);
-                                  final student = StudentModel(
-                                    id: widget.studentData?.id ?? id,
-                                    studentid: generatedId.toUpperCase(),
-                                    name: studentName.text.trim(),
-                                    sex: selectedSex ?? "",
-                                    school: value.currentschool,
-                                    region: selectedRegion ?? "",
-                                    guardiancontact: guardianContacts.map((c) => c.text.trim()).toList(),
-                                    parentname: parentNames.map((c) => c.text.trim()).toList(),
-                                    level: selectedLevel ?? "",
-                                    previousclass: nextclass['previous']??'',
-                                    nextclass: nextclass["next"] ?? "",
-                                    currentclass: selectedLevel ?? "",
-                                    term: value.term,
-                                    schoolId: value.schoolid,
-                                    dob: dob.text.trim(),
-                                    address: address.text.trim(),
-                                    email: email.text.trim().isEmpty ? null : email.text.trim(),
-                                    phone: phone.text.trim(),
-                                    timestamp: DateTime.now().toIso8601String(),
-                                    photourl: value.imageUrl.isNotEmpty
-                                        ? value.imageUrl
-                                        : _uploadedImageUrl ?? "",
-                                    status: selectedStatus ?? "active",
-                                    department: selecteddepart ?? "",
-                                    yeargroup: DateTime.now().year.toString(),
-                                    academicyr: value.year,
-
-                                  );
-                                  await value.db.collection("students")
-                                      .doc(student.id)
-                                      .set(student.toMap(), SetOptions(merge: true));
-                                  progress?.dismiss();
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(isEdit
-                                          ? 'Student Updated Successfully'
-                                          : 'Student Registered Successfully'),
-                                      backgroundColor: Colors.green,
-                                    ),
-                                  );
-
-                                  value.imagefile = null;
-
-                                  if (!isEdit) {
-                                    setState(() {
-                                      value.imageUrl = "";
-                                      _uploadedImageUrl = "";
-                                    });
-                                    studentName.clear();
-                                    studentId.clear();
-                                    dob.clear();
-                                    address.clear();
-                                    email.clear();
-                                    phone.clear();
-                                    parentNames.clear();
-                                    guardianContacts.clear();
-                                    parentNames.add(TextEditingController());
-                                    guardianContacts.add(TextEditingController());
-                                    selectedDay = null;
-                                    selectedMonth = null;
-                                    selectedYear = null;
-                                  }
-                                },
+                                onPressed: () => _handleSubmit(value, isEdit),
                                 icon: Icon(isEdit ? Icons.update : Icons.save),
                                 label: Text(isEdit ? 'Update Student' : 'Register Student'),
                                 style: ElevatedButton.styleFrom(
-                                    backgroundColor: Color(0xFF00496d),
+                                    backgroundColor: const Color(0xFF00496d),
                                     foregroundColor: Colors.white
                                 ),
                               ),
-                              SizedBox(width: 16),
+                              const SizedBox(width: 16),
                               OutlinedButton.icon(
                                 style: OutlinedButton.styleFrom(
                                   side:
@@ -531,7 +624,7 @@ class _RegisterStudentState extends State<RegisterStudent> {
                                 icon: const Icon(Icons.list),
                                 label: const Text("View Students"),
                                 onPressed: () {
-                                  context.go(Routes.viewstudentlist);
+                                  Navigator.pushNamed(context, Routes.viewstudentlist);
                                 },
                               ),
                             ],
@@ -556,17 +649,19 @@ class _RegisterStudentState extends State<RegisterStudent> {
     required String validatorMsg,
     required Color fillColor,
     TextInputType keyboardType = TextInputType.text,
+    bool enabled = true,
   }) {
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
+      enabled: enabled,
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
         labelStyle: const TextStyle(color: Colors.black54),
         hintStyle: const TextStyle(color: Colors.grey),
-        border: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
-        enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
+        border: const OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
+        enabledBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
         focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: Color(0xFF00496d))),
         contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
         filled: false,
@@ -579,8 +674,6 @@ class _RegisterStudentState extends State<RegisterStudent> {
       },
     );
   }
-
-
 
   Widget _buildImagePicker(Myprovider value) {
     return InkWell(

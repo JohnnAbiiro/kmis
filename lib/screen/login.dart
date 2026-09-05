@@ -61,7 +61,6 @@ class _LoginPageState extends State<LoginPage> {
                             style: TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.bold,
-                              color: Colors.brown,
                             ),
                           ),
                           const SizedBox(height: 32),
@@ -80,12 +79,10 @@ class _LoginPageState extends State<LoginPage> {
                                     children: [
                                       Text(
                                         'Staff Login',
-                                        style: Theme.of(context).textTheme.titleLarge
-                                            ?.copyWith(color: Colors.brown),
+                                        style: Theme.of(context).textTheme.titleLarge,
                                       ),
                                       const SizedBox(height: 24),
                                       TextFormField(
-                                        style: const TextStyle(color: Colors.black),
                                         keyboardType: TextInputType.phone,
                                         controller: _emailController,
                                         decoration: const InputDecoration(
@@ -134,7 +131,6 @@ class _LoginPageState extends State<LoginPage> {
                                             hud?.dismiss();
                                           },
                                           style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.brown,
                                             padding: const EdgeInsets.symmetric(vertical: 17),
                                             shape: RoundedRectangleBorder(
                                               borderRadius: BorderRadius.circular(10),
@@ -144,7 +140,6 @@ class _LoginPageState extends State<LoginPage> {
                                             'Login',
                                             style: TextStyle(
                                               fontSize: 16,
-                                              color: Colors.white,
                                             ),
                                           ),
                                         ),
@@ -379,9 +374,9 @@ class _LoginPageState extends State<LoginPage> {
     return ProgressHUD(
       child: Consumer<Myprovider>(
         builder: (BuildContext context, Myprovider value, Widget? child) {
+          final colors = Theme.of(context).colorScheme;
           return SafeArea(
             child: Scaffold(
-              backgroundColor: Colors.white,
               body: SingleChildScrollView(
                 child: SizedBox(
                   height: MediaQuery.of(context).size.height,
@@ -389,13 +384,11 @@ class _LoginPageState extends State<LoginPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        color: const Color(0xFFF7EFEA).withOpacity(0.2),
                         constraints: BoxConstraints(maxWidth:
                           w< 600 ?  w * 0.9
                           : w* 0.58,
                         ),
                          child: Padding(
-                         // padding:  EdgeInsets.all(w < 600 ? 35.0 : w*0.1),
                            padding: EdgeInsets.fromLTRB
                              (w < 600 ? 30.0 : w*0.09,
                                w < 600 ? 10.0 : 50.0,
@@ -418,12 +411,10 @@ class _LoginPageState extends State<LoginPage> {
                                   style: TextStyle(
                                     fontSize: 22,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.brown,
                                   ),
                                 ),
                                 const SizedBox(height: 15),
                                 TextFormField(
-                                  style: const TextStyle(color: Colors.black),
                                   keyboardType: TextInputType.phone,
                                   controller: _emailController,
                                   decoration: const InputDecoration(
@@ -438,7 +429,6 @@ class _LoginPageState extends State<LoginPage> {
                                 TextFormField(
                                   controller: _passwordController,
                                   obscureText: _obscurePassword,
-                                  style: const TextStyle(color: Colors.black),
                                   decoration: InputDecoration(
                                     labelText: 'Password',
                                     border: const OutlineInputBorder(),
@@ -472,7 +462,7 @@ class _LoginPageState extends State<LoginPage> {
                                     },
                                     child: const Text(
                                       'Forgot password?',
-                                      style: TextStyle(fontSize: 14,color: Colors.brown),
+                                      style: TextStyle(fontSize: 14),
                                     ),
                                   ),
                                 ),
@@ -480,54 +470,20 @@ class _LoginPageState extends State<LoginPage> {
                                 InkWell(
                                   onTap: () async {
                                     if (_formKey.currentState!.validate()) {
-                                      final email = _emailController.text.trim();
-                                      final password = _passwordController.text.trim();
-                                      final progress = ProgressHUD.of(context);
                                       context.go(Routes.dashboard);
-
-                                    /*  try {
-                                        progress?.show();
-
-                                        //await value.login(email, password, context);
-                                       context.go(Routes.dashboard);
-                                      } on FirebaseAuthException catch (e) {
-                                        // Firebase specific errors
-                                        String msg = "Login failed";
-                                        if (e.code == 'user-not-found') {
-                                          msg = "No user found for this email.";
-                                        } else if (e.code == 'wrong-password') {
-                                          msg = "Invalid password. Try again.";
-                                        } else if (e.code == 'invalid-email') {
-                                          msg = "Invalid email address.";
-                                        }
-
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(content: Text(msg), backgroundColor: Colors.red),
-                                        );
-
-                                      } catch (e) {
-                                        // Any other error
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(content: Text("Something went wrong: $e"), backgroundColor: Colors.red),
-                                        );
-
-                                      } finally {
-                                        progress?.dismiss();
-                                      }*/
                                     }
                                   },
                                   child: Container(
                                     width: double.infinity,
                                     padding: const EdgeInsets.all(14),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFF442B23),
-                                      border: Border.all(color: Colors.grey.shade300),
+                                      color: colors.primary,
                                       borderRadius: BorderRadius.circular(8),
                                     ),
-                                    child: const Center(
+                                    child: Center(
                                       child: Text(
                                         'Sign In',
-                                        style: TextStyle(color: Colors.white),
+                                        style: TextStyle(color: colors.onPrimary, fontWeight: FontWeight.bold),
                                       ),
                                     ),
                                   ),

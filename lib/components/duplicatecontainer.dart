@@ -24,6 +24,7 @@ class DuplicateContainer extends StatefulWidget {
 class _DuplicateContainerState extends State<DuplicateContainer> {
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
 
     int touchedIndex = -1;
 
@@ -49,7 +50,7 @@ class _DuplicateContainerState extends State<DuplicateContainer> {
       width: widget.containerWidth,
       height: 250,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colors.surface,
           borderRadius: BorderRadius.all(Radius.circular(10)),
         boxShadow: [
           BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
@@ -60,7 +61,7 @@ class _DuplicateContainerState extends State<DuplicateContainer> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Staff & Teacher Information', style: TextStyle(fontSize: 18, color: Color(0xFF00496d))),
+            Text('Staff & Teacher Information', style: const TextStyle(fontSize: 18)),
             SizedBox(height: 30),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -70,7 +71,7 @@ class _DuplicateContainerState extends State<DuplicateContainer> {
                     height: 150,
                     width: 150,
                     decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: colors.surface,
                         border: Border.all(
                             color: Colors.black12
                         ),
@@ -141,9 +142,9 @@ class _DuplicateContainerState extends State<DuplicateContainer> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.school_sharp, size: 40, color: Color(0xFF7A6FF0)),
-                                Text("Total Staff", style: TextStyle(fontSize: 12)),
-                                Text(count.toString(), style: TextStyle(fontWeight: FontWeight.w600, fontSize: 30))
+                                Icon(Icons.school_sharp, size: 40, color: colors.primary),
+                                const Text("Total Staff", style: TextStyle(fontSize: 12)),
+                                Text(count.toString(), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 30))
                               ],
                             );
                           }
@@ -206,7 +207,7 @@ class _DuplicateContainerState extends State<DuplicateContainer> {
                                   ),
                                   const SizedBox(width: 6),
                                   Text(
-                                    "Teaching Staff",
+                                    "Teaching ",
                                     style: const TextStyle(fontSize: 12),
                                   ),
                                 ],
@@ -221,7 +222,7 @@ class _DuplicateContainerState extends State<DuplicateContainer> {
                                   ),
                                   const SizedBox(width: 6),
                                   Text(
-                                    "Non-Teaching Staff",
+                                    "Non-Teaching",
                                     style: const TextStyle(fontSize: 12),
                                   ),
                                 ],
@@ -241,3 +242,4 @@ class _DuplicateContainerState extends State<DuplicateContainer> {
     );
   }
 }
+

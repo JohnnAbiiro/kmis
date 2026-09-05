@@ -9,11 +9,12 @@ class GaugeContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Container(
       width: cwidth,
       height: 250,
       decoration: BoxDecoration(
-          color: Colors.white,
+          color: colors.surface,
           borderRadius: BorderRadius.all(Radius.circular(10)),
         boxShadow: [
           BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
@@ -24,7 +25,7 @@ class GaugeContainer extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('School Finance Information', style: TextStyle(fontSize: 18, color: Color(0xFF00496d))),
+            Text('School Finance Information', style: const TextStyle(fontSize: 18)),
             SizedBox(height: 30),
             Row(
               //mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -56,7 +57,7 @@ class GaugeContainer extends StatelessWidget {
                             ],
                           ),
                           Column(
-                            children: [
+                            children: const [
                               Text("20,000", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                               Text("Total Expected Fees", style: TextStyle(fontSize: 12))
                             ],
@@ -94,7 +95,7 @@ class GaugeContainer extends StatelessWidget {
                             ],
                           ),
                           Column(
-                            children: [
+                            children: const [
                               Text("13,000", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
                               Text("Total Fees Received", style: TextStyle(fontSize: 12),)
                             ],
@@ -134,7 +135,7 @@ class GaugeContainer extends StatelessWidget {
                     SizedBox(width: 20),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                      children: const [
                         Text("7,000", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
                         Text("Outstanding balances", style: TextStyle(fontSize: 12),)
                       ],
@@ -149,3 +150,4 @@ class GaugeContainer extends StatelessWidget {
     );
   }
 }
+

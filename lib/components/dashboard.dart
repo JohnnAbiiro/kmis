@@ -71,15 +71,47 @@ class _DashboardLayoutState extends State<DashboardLayout> {
       builder: (BuildContext context, StatsProvider value, Widget? child) {
         return Scaffold(
             appBar: AppBar(
-              iconTheme: IconThemeData(color: Colors.white),
-              backgroundColor: const Color(0xFF00273a),
-              title: Text(schoolname.toUpperCase() , style: TextStyle(color: Colors.white)),
-              actions: const [
-                Padding(
+              title: Text(schoolname.toUpperCase()),
+              actions: [
+                Consumer<Myprovider>(
+                  builder: (context, provider, child) {
+                    IconData themeIcon;
+                    switch (provider.themeMode) {
+                      case ThemeMode.light:
+                        themeIcon = Icons.light_mode;
+                        break;
+                      case ThemeMode.dark:
+                        themeIcon = Icons.dark_mode;
+                        break;
+                      case ThemeMode.system:
+                        themeIcon = Icons.brightness_auto;
+                        break;
+                    }
+                    return IconButton(
+                      icon: Icon(themeIcon),
+                      onPressed: () {
+                        ThemeMode nextMode;
+                        switch (provider.themeMode) {
+                          case ThemeMode.light:
+                            nextMode = ThemeMode.dark;
+                            break;
+                          case ThemeMode.dark:
+                            nextMode = ThemeMode.system;
+                            break;
+                          case ThemeMode.system:
+                            nextMode = ThemeMode.light;
+                            break;
+                        }
+                        provider.setThemeMode(nextMode);
+                      },
+                      tooltip: 'Toggle Theme',
+                    );
+                  },
+                ),
+                const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16),
                   child: CircleAvatar(
-                    backgroundColor: Color(0xFF00496d),
-                      child: Icon(Icons.person, color: Colors.white54)
+                    child: Icon(Icons.person),
                   ),
                 ),
               ],

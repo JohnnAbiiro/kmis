@@ -6,12 +6,13 @@ class NoticeBoard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Container(
       height: 400,
       width: cwidth,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -80,15 +81,14 @@ class NoticeBoard extends StatelessWidget {
                   ),
                 ),
                 onPressed: () {},
-                child: const Text(
+                child:  const Text(
                   'Clear All',
-                  style: TextStyle(color: Colors.deepPurple),
                 ),
               ),
 
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurple,
+                  backgroundColor: colors.primary,
                   padding:
                   const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   shape: RoundedRectangleBorder(
@@ -96,9 +96,9 @@ class NoticeBoard extends StatelessWidget {
                   ),
                 ),
                 onPressed: () {},
-                child: const Text(
+                child:  Text(
                   'Add Notice',
-                  style: TextStyle(color: Colors.white),
+                  style: TextStyle(color: colors.onPrimary),
                 ),
               ),
             ],
@@ -125,6 +125,7 @@ class NoticeItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       child: Column(
@@ -134,13 +135,13 @@ class NoticeItem extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.deepPurple.withOpacity(0.1),
+              color: colors.primaryContainer,
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
               date,
-              style: const TextStyle(
-                color: Colors.deepPurple,
+              style:  TextStyle(
+                color: colors.onPrimaryContainer,
                 fontWeight: FontWeight.bold,
                 fontSize: 12,
               ),
@@ -151,7 +152,7 @@ class NoticeItem extends StatelessWidget {
           // Title
           Text(
             title,
-            style: const TextStyle(fontSize: 14),
+            style: TextStyle(fontSize: 14, color: colors.onSurface),
           ),
           const SizedBox(height: 4),
 
@@ -160,19 +161,19 @@ class NoticeItem extends StatelessWidget {
             children: [
               Text(
                 author,
-                style: const TextStyle(
+                style:  TextStyle(
                   fontSize: 12,
-                  color: Colors.grey,
+                  color: colors.onSurfaceVariant,
                 ),
               ),
               const SizedBox(width: 8),
-              const Icon(Icons.access_time, size: 12, color: Colors.grey),
+              Icon(Icons.access_time, size: 12, color: colors.onSurfaceVariant),
               const SizedBox(width: 4),
               Text(
                 timeAgo,
-                style: const TextStyle(
+                style:  TextStyle(
                   fontSize: 12,
-                  color: Colors.grey,
+                  color: colors.onSurfaceVariant,
                 ),
               ),
             ],

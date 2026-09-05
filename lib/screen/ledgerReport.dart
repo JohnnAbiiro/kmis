@@ -471,7 +471,6 @@ _searchController.clear();
 @override
 Widget build(BuildContext context) {
 return Scaffold(
-backgroundColor: Constants.scaffoldcolor,
 appBar: _buildAppBar(),
 body: _loading
 ? const _LoadingView()
@@ -490,19 +489,15 @@ onRetry: _loadLedger,
 
 PreferredSizeWidget _buildAppBar() {
 return AppBar(
-backgroundColor:Constants.appbarcolor,
-surfaceTintColor: Colors.white,
 elevation: 0,
 toolbarHeight: 72,
 leading: IconButton(
-  color: Constants.whitetext,
 tooltip: 'Back',
 onPressed: () {
       context.go(Routes.dashboard);
           },
 icon: const Icon(
 Icons.arrow_back_rounded,
-color: Constants.whitetext,
 ),
 ),
 title: Row(
@@ -541,10 +536,8 @@ CrossAxisAlignment.start,
 children: [
 Text(
 'Ledger Report',
-style: TextStyle(
-color: Constants.whitetext,
+style: const TextStyle(
 fontSize: 16,
-fontWeight: FontWeight.w800,
 ),
 ),
 SizedBox(height: 3),
