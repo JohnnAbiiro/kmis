@@ -2,6 +2,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ksoftsms/screen/schoolinfo.dart';
 import 'package:ksoftsms/screen/studentswizardpanel.dart';
 import 'package:ksoftsms/screen/subject.dart';
 import 'package:ksoftsms/screen/term.dart';
@@ -15,6 +16,7 @@ import '../controller/dbmodels/classmodel.dart';
 import '../controller/dbmodels/departmodel.dart';
 import '../controller/dbmodels/facultymodel.dart';
 import '../controller/dbmodels/idformatmodel.dart';
+import '../controller/dbmodels/schoolmodel.dart';
 import '../controller/dbmodels/termmodel.dart';
 import '../controller/dbmodels/subjectmodel.dart';
 import '../controller/myprovider.dart';
@@ -43,6 +45,10 @@ class _SetupWizardPageState extends State<SetupWizardPage> {
   bool _saving = false;
   String _schoolType = 'Loading...';
   String _period = 'First semester';
+  bool _hasExistingProfile = false;
+  bool _profileUnlocked = false;
+  bool _loadingProfile = false;
+  bool get _profileLocked => _hasExistingProfile && !_profileUnlocked;
   final _yearController = TextEditingController();
   final _reopeningDates = <String>[];
   final _caController = TextEditingController(text: '40');
@@ -136,6 +142,8 @@ class _SetupWizardPageState extends State<SetupWizardPage> {
         provider.fetchIdFormats(),
         provider.fetchterms(),
       ]);
+
+      await _fetchSchoolProfile();
       if (provider.terms.isNotEmpty) {
         _termEntries
           ..clear()
@@ -287,9 +295,47 @@ class _SetupWizardPageState extends State<SetupWizardPage> {
     }, SetOptions(merge: true));
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('schoolType', _schoolType);
+    if (mounted) {
+      setState(() {
+        _hasExistingProfile = true;
+        _profileUnlocked = false;
+      });
+    }
     _showSaveMessage('School profile saved.');
   }
+  Future<void> _fetchSchoolProfile() async {
+    final provider = context.read<Myprovider>();
+    final schoolId = provider.schoolid.trim();
+    if (schoolId.isEmpty) return;
+    setState(() => _loadingProfile = true);
+    try {
+      final doc = await provider.db.collection('schools').doc(schoolId).get();
+      if (doc.exists && mounted) {
+        final data = doc.data()!;
+        setState(() {
+          final year = data['currentAcademicYear']?.toString();
+          if (year != null && year.isNotEmpty) _yearController.text = year;
+          final idFormat = data['studentIdFormat']?.toString();
+          if (idFormat != null && idFormat.isNotEmpty) _idFormatController.text = idFormat;
+          final type = data['schoolType']?.toString();
+          if (type == 'Tertiary' || type == 'SHS' || type == 'Pre-tertiary') {
+            _schoolType = type!;
+          }
+          _hasExistingProfile = true;
+          _profileUnlocked = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) _showSaveMessage('Failed to load school profile: $e', error: true);
+    } finally {
+      if (mounted) setState(() => _loadingProfile = false);
+    }
+  }
 
+  Future<void> _cancelProfileEdit() async {
+    await _fetchSchoolProfile();
+    if (mounted) setState(() => _profileUnlocked = false);
+  }
   Future<void> _saveAcademicPeriod() async {
     final provider = context.read<Myprovider>();
     final schoolId = provider.schoolid.trim();
@@ -378,13 +424,14 @@ class _SetupWizardPageState extends State<SetupWizardPage> {
     setState(() => _saving = true);
     try {
       switch (_step) {
+
         case 0:
           await _saveSchoolProfile();
         case 1:
           await _saveAcademicPeriod();
         case 2:
           await _saveStructureSettings();
-        case 6:
+        case 8:
           await _saveAssessmentSettings();
       }
     } catch (error) {
@@ -760,6 +807,7 @@ class _SetupWizardPageState extends State<SetupWizardPage> {
   }
 
 
+
   Widget _registeredSettingChoice({
     required String label,
     required String? value,
@@ -768,8 +816,10 @@ class _SetupWizardPageState extends State<SetupWizardPage> {
     required VoidCallback onRegister,
     required ValueChanged<String> onEdit,
     required ValueChanged<String> onDelete,
+    bool? disabled,
   }) {
     final scheme = Theme.of(context).colorScheme;
+    final isDisabled = disabled ?? _locked;
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -784,7 +834,7 @@ class _SetupWizardPageState extends State<SetupWizardPage> {
             children: [
               Expanded(child: Text(label, style: const TextStyle(fontWeight: FontWeight.w700))),
               OutlinedButton.icon(
-                onPressed: _locked ? null : onRegister,
+                onPressed: isDisabled ? null : onRegister,
                 icon: const Icon(Icons.add, size: 17),
                 label: const Text('Add'),
               ),
@@ -796,7 +846,7 @@ class _SetupWizardPageState extends State<SetupWizardPage> {
             decoration: InputDecoration(labelText: 'Select $label', border: const OutlineInputBorder()),
             hint: Text('Select a registered $label'),
             items: options.map((item) => DropdownMenuItem(value: item, child: Text(item))).toList(),
-            onChanged: _locked ? null : onChanged,
+            onChanged: isDisabled ? null : onChanged,
           ),
           const SizedBox(height: 10),
           if (options.isEmpty)
@@ -821,12 +871,12 @@ class _SetupWizardPageState extends State<SetupWizardPage> {
                     IconButton(
                       tooltip: 'Edit ${entry.value}',
                       icon: const Icon(Icons.edit_outlined),
-                      onPressed: _locked ? null : () => onEdit(entry.value),
+                      onPressed: isDisabled ? null : () => onEdit(entry.value),
                     ),
                     IconButton(
                       tooltip: 'Delete ${entry.value}',
                       icon: const Icon(Icons.delete_outline, color: Colors.red),
-                      onPressed: _locked ? null : () => onDelete(entry.value),
+                      onPressed: isDisabled ? null : () => onDelete(entry.value),
                     ),
                   ],
                 ),
@@ -836,7 +886,6 @@ class _SetupWizardPageState extends State<SetupWizardPage> {
       ),
     );
   }
-
   Future<void> _registerFaculty() async {
     final result = await showDialog<FacultyModel>(
       context: context,
@@ -1276,52 +1325,6 @@ class _SetupWizardPageState extends State<SetupWizardPage> {
     }
   }
 
-  // Widget _gradingScaleManager(ColorScheme scheme) => Container(
-  //   padding: const EdgeInsets.all(16),
-  //   decoration: BoxDecoration(
-  //     border: Border.all(color: scheme.outlineVariant),
-  //     borderRadius: BorderRadius.circular(12),
-  //   ),
-  //   child: Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //       Row(
-  //         children: [
-  //           Icon(Icons.rule_folder_outlined, color: scheme.primary),
-  //           const SizedBox(width: 12),
-  //           const Expanded(
-  //             child: Text('Grading scale', style: TextStyle(fontWeight: FontWeight.w800)),
-  //           ),
-  //           FilledButton.icon(
-  //             onPressed: _openGradingScaleManager,
-  //             icon: const Icon(Icons.open_in_new, size: 18),
-  //             label: const Text('Manage grading scales'),
-  //           ),
-  //         ],
-  //       ),
-  //       const SizedBox(height: 6),
-  //       Text(
-  //         'Set one school default scale, or a separate scale per department. '
-  //             'Locking the setup makes scales view-only.',
-  //         style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
-  //       ),
-  //     ],
-  //   ),
-  // );
-
-  Future<void> _openGradingScaleManager() async {
-    await showDialog<void>(
-      context: context,
-      builder: (_) => Dialog(
-        child: SizedBox(
-          width: 900,
-          height: 700,
-          child: GradingSystemFormPage(embedded: true),
-        ),
-      ),
-    );
-    if (mounted) setState(() {});
-  }
   Widget _allocationStep(ColorScheme scheme) {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -1680,7 +1683,9 @@ class _SetupWizardPageState extends State<SetupWizardPage> {
                 ),
                 if (_step == 0 || _step == 1 || _step == 2 || _step == 8)
                   OutlinedButton.icon(
-                    onPressed: _locked || _saving ? null : _saveCurrentSection,
+                    onPressed: (_locked || _saving || (_step == 0 && _profileLocked))
+                        ? null
+                        : _saveCurrentSection,
                     icon: const Icon(Icons.save_outlined),
                     label: Text(_saving ? 'Saving...' : 'Save section'),
                   ),
@@ -1702,615 +1707,24 @@ class _SetupWizardPageState extends State<SetupWizardPage> {
       ),
     );
   }
-
-  // Future<void> _openCourseRegistrationModal({ SubjectModel? initialRecord,}) async {
-  //   final provider = context.read<Myprovider>();
-  //   final codeController = TextEditingController();
-  //   final nameController = TextEditingController();
-  //   final weightController = TextEditingController(text: '1');
-  //   final creditHoursController = TextEditingController(text: '3');
-  //   String? faculty = initialRecord == null
-  //       ? null
-  //       : _departmentFaculties[initialRecord.department];
-  //   String? department = initialRecord?.department;
-  //   String? group = initialRecord?.level;
-  //   String courseType = initialRecord?.type ?? 'Core';
-  //   String courseScope = initialRecord?.scope ?? 'Single department';
-  //   String search = '';
-  //   SubjectModel? editing = initialRecord;
-  //   if (initialRecord != null) {
-  //     codeController.text = initialRecord.code ?? '';
-  //     nameController.text = initialRecord.name;
-  //     weightController.text = initialRecord.weight.toString();
-  //     creditHoursController.text = initialRecord.creditHours.toString();
-  //   }
-  //
-  //   Future<void> saveRecord(StateSetter setDialogState) async {
-  //     final code = codeController.text.trim().toUpperCase();
-  //     final name = nameController.text.trim().toUpperCase();
-  //     final weight = double.tryParse(weightController.text.trim());
-  //     final creditHours = double.tryParse(creditHoursController.text.trim());
-  //     if (code.isEmpty ||
-  //         name.isEmpty ||
-  //         faculty == null ||
-  //         department == null ||
-  //         group == null ||
-  //         weight == null ||
-  //         creditHours == null) {
-  //       return;
-  //     }
-  //     final id = '${provider.schoolid}_$code';
-  //     if (editing != null && editing!.id != id) {
-  //       await provider.db.collection('subjects').doc(editing!.id).delete();
-  //     }
-  //     final data = SubjectModel(
-  //       id: id,
-  //       code: code,
-  //       name: name,
-  //       schoolId: provider.schoolid,
-  //       department: department,
-  //       level: group,
-  //       weight: weight,
-  //       creditHours: creditHours,
-  //       creditHourMin: double.tryParse(_creditMinController.text) ?? 0,
-  //       creditHourMax: double.tryParse(_creditMaxController.text) ?? 30,
-  //       type: courseType,
-  //       scope: courseScope,
-  //     ).toMap();
-  //     data['faculty'] = faculty;
-  //     data['schoolType'] = _schoolType;
-  //     data['entryType'] = _courseLabel;
-  //     await provider.db
-  //         .collection('subjects')
-  //         .doc(id)
-  //         .set(data, SetOptions(merge: true));
-  //     await provider.fetchsubjects();
-  //     if (!mounted) return;
-  //     final saved = provider.subjectList.firstWhere(
-  //           (item) => item.id == id,
-  //       orElse: () => SubjectModel(id: id, code: code, name: name),
-  //     );
-  //     setState(() {
-  //       _courseCodeController.text = code;
-  //       _courseNameController.text = name;
-  //       _facultyController.text = faculty!;
-  //       _departmentController.text = department!;
-  //       _levelController.text = group!;
-  //       _selectedCourse = code;
-  //     });
-  //     editing = saved;
-  //     setDialogState(() {});
-  //   }
-  //
-  //   Future<void> deleteRecord(
-  //       SubjectModel record,
-  //       StateSetter setDialogState,
-  //       ) async {
-  //     final confirmed = await showDialog<bool>(
-  //       context: context,
-  //       builder: (context) => AlertDialog(
-  //         title: Text('Delete ${_courseLabel.toLowerCase()}?'),
-  //         content: Text('Remove "${record.name}" from the registered records?'),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () => Navigator.pop(context, false),
-  //             child: const Text('Cancel'),
-  //           ),
-  //           TextButton(
-  //             onPressed: () => Navigator.pop(context, true),
-  //             child: const Text('Delete', style: TextStyle(color: Colors.red)),
-  //           ),
-  //         ],
-  //       ),
-  //     );
-  //     if (confirmed != true) return;
-  //     await provider.db.collection('subjects').doc(record.id).delete();
-  //     await provider.fetchsubjects();
-  //     if (editing?.id == record.id) editing = null;
-  //     setDialogState(() {});
-  //   }
-  //
-  //   await showDialog<void>(
-  //     context: context,
-  //     builder: (dialogContext) => StatefulBuilder(
-  //       builder: (context, setDialogState) {
-  //         final records = provider.subjectList.where((record) {
-  //           final query = search.toLowerCase();
-  //           return record.name.toLowerCase().contains(query) ||
-  //               (record.code ?? '').toLowerCase().contains(query);
-  //         }).toList();
-  //
-  //         final departmentOptions = _departmentEntries
-  //             .where((d) => faculty == null || _departmentFaculties[d] == faculty)
-  //             .toSet()
-  //             .toList();
-  //         final groupOptions = _levelEntries
-  //             .where((l) => department == null || _groupDepartments[l] == department)
-  //             .toSet()
-  //             .toList();
-  //         final facultyOptions = _facultyEntries.toSet().toList();
-  //
-  //         return AlertDialog(
-  //           title: Row(
-  //             children: [
-  //               Icon(_usesSemester ? Icons.menu_book : Icons.book_outlined),
-  //               const SizedBox(width: 8),
-  //               Text('Register $_courseLabel'),
-  //             ],
-  //           ),
-  //           content: SizedBox(
-  //             width: 760,
-  //             height: 620,
-  //             child: SingleChildScrollView(
-  //               child: Column(
-  //                 crossAxisAlignment: CrossAxisAlignment.start,
-  //                 children: [
-  //                   TextFormField(
-  //                     controller: codeController,
-  //                     decoration: InputDecoration(
-  //                       labelText: '$_courseLabel code',
-  //                     ),
-  //                   ),
-  //                   const SizedBox(height: 12),
-  //                   TextFormField(
-  //                     controller: nameController,
-  //                     decoration: InputDecoration(
-  //                       labelText: '$_courseLabel name',
-  //                     ),
-  //                   ),
-  //                   const SizedBox(height: 12),
-  //                   DropdownButtonFormField<String>(
-  //                     initialValue:
-  //                     facultyOptions.contains(faculty) ? faculty : null,
-  //                     decoration: const InputDecoration(labelText: 'Faculty'),
-  //                     items: facultyOptions
-  //                         .map(
-  //                           (item) => DropdownMenuItem(
-  //                         value: item,
-  //                         child: Text(item),
-  //                       ),
-  //                     )
-  //                         .toList(),
-  //                     onChanged: (value) => setDialogState(() {
-  //                       faculty = value;
-  //                       if (department != null &&
-  //                           _departmentFaculties[department] != faculty) {
-  //                         department = null;
-  //                         group = null;
-  //                       }
-  //                     }),
-  //                   ),
-  //                   const SizedBox(height: 12),
-  //                   DropdownButtonFormField<String>(
-  //                     initialValue: departmentOptions.contains(department)
-  //                         ? department
-  //                         : null,
-  //                     decoration: const InputDecoration(
-  //                       labelText: 'Department / programme',
-  //                     ),
-  //                     items: departmentOptions
-  //                         .map(
-  //                           (item) => DropdownMenuItem(
-  //                         value: item,
-  //                         child: Text(item),
-  //                       ),
-  //                     )
-  //                         .toList(),
-  //                     onChanged: (value) => setDialogState(() {
-  //                       department = value;
-  //                       faculty = _departmentFaculties[value] ?? faculty;
-  //                       if (group != null &&
-  //                           _groupDepartments[group] != department) {
-  //                         group = null;
-  //                       }
-  //                     }),
-  //                   ),
-  //                   const SizedBox(height: 12),
-  //                   DropdownButtonFormField<String>(
-  //                     initialValue:
-  //                     groupOptions.contains(group) ? group : null,
-  //                     decoration: InputDecoration(labelText: _groupLabel),
-  //                     items: groupOptions
-  //                         .map(
-  //                           (item) => DropdownMenuItem(
-  //                         value: item,
-  //                         child: Text(item),
-  //                       ),
-  //                     )
-  //                         .toList(),
-  //                     onChanged: (value) => setDialogState(() {
-  //                       group = value;
-  //                       department = _groupDepartments[value] ?? department;
-  //                       faculty = _departmentFaculties[department] ?? faculty;
-  //                     }),
-  //                   ),
-  //                   const SizedBox(height: 12),
-  //                   Row(
-  //                     children: [
-  //                       Expanded(
-  //                         child: TextFormField(
-  //                           controller: weightController,
-  //                           keyboardType: const TextInputType.numberWithOptions(
-  //                             decimal: true,
-  //                           ),
-  //                           decoration: const InputDecoration(
-  //                             labelText: 'Weight',
-  //                           ),
-  //                         ),
-  //                       ),
-  //                       const SizedBox(width: 12),
-  //                       Expanded(
-  //                         child: TextFormField(
-  //                           controller: creditHoursController,
-  //                           keyboardType: const TextInputType.numberWithOptions(
-  //                             decimal: true,
-  //                           ),
-  //                           decoration: const InputDecoration(
-  //                             labelText: 'Credit hours',
-  //                           ),
-  //                         ),
-  //                       ),
-  //                     ],
-  //                   ),
-  //                   const SizedBox(height: 12),
-  //                   DropdownButtonFormField<String>(
-  //                     initialValue: courseType,
-  //                     decoration: const InputDecoration(labelText: 'Type'),
-  //                     items: const ['Core', 'Elective']
-  //                         .map(
-  //                           (item) => DropdownMenuItem(
-  //                         value: item,
-  //                         child: Text(item),
-  //                       ),
-  //                     )
-  //                         .toList(),
-  //                     onChanged: (value) =>
-  //                         setDialogState(() => courseType = value ?? 'Core'),
-  //                   ),
-  //                   const SizedBox(height: 12),
-  //                   DropdownButtonFormField<String>(
-  //                     initialValue: courseScope,
-  //                     decoration: const InputDecoration(labelText: 'Scope'),
-  //                     items: const ['Single department', 'All departments']
-  //                         .map(
-  //                           (item) => DropdownMenuItem(
-  //                         value: item,
-  //                         child: Text(item),
-  //                       ),
-  //                     )
-  //                         .toList(),
-  //                     onChanged: (value) => setDialogState(
-  //                           () => courseScope = value ?? 'Single department',
-  //                     ),
-  //                   ),
-  //                   const SizedBox(height: 18),
-  //                   Row(
-  //                     children: [
-  //                       Expanded(
-  //                         child: Text(
-  //                           'Registered ${_courseLabel.toLowerCase()}s',
-  //                           style: const TextStyle(fontWeight: FontWeight.w800),
-  //                         ),
-  //                       ),
-  //                       if (editing != null)
-  //                         TextButton(
-  //                           onPressed: () => setDialogState(() {
-  //                             editing = null;
-  //                             codeController.clear();
-  //                             nameController.clear();
-  //                           }),
-  //                           child: const Text('Clear form'),
-  //                         ),
-  //                     ],
-  //                   ),
-  //                   TextField(
-  //                     onChanged: (value) =>
-  //                         setDialogState(() => search = value),
-  //                     decoration: const InputDecoration(
-  //                       labelText: 'Search registered records',
-  //                       prefixIcon: Icon(Icons.search),
-  //                     ),
-  //                   ),
-  //                   const SizedBox(height: 8),
-  //                   if (records.isEmpty)
-  //                     const Padding(
-  //                       padding: EdgeInsets.all(12),
-  //                       child: Text('No registered records found.'),
-  //                     )
-  //                   else
-  //                     ...records.map(
-  //                           (record) => ListTile(
-  //                         dense: true,
-  //                         title: Text('${record.code ?? ''}  ${record.name}'),
-  //                         subtitle: Text(
-  //                           '${record.department ?? ''} • ${record.level ?? ''}',
-  //                         ),
-  //                         onTap: () {
-  //                           editing = record;
-  //                           codeController.text = record.code ?? '';
-  //                           nameController.text = record.name;
-  //                           department = record.department;
-  //                           group = record.level;
-  //                           faculty = _departmentFaculties[department];
-  //                           weightController.text = record.weight.toString();
-  //                           creditHoursController.text = record.creditHours
-  //                               .toString();
-  //                           courseType = record.type;
-  //                           courseScope = record.scope;
-  //                           setDialogState(() {});
-  //                         },
-  //                         trailing: Row(
-  //                           mainAxisSize: MainAxisSize.min,
-  //                           children: [
-  //                             IconButton(
-  //                               tooltip: 'Edit ${record.name}',
-  //                               icon: const Icon(Icons.edit_outlined),
-  //                               onPressed: () {
-  //                                 editing = record;
-  //                                 codeController.text = record.code ?? '';
-  //                                 nameController.text = record.name;
-  //                                 department = record.department;
-  //                                 group = record.level;
-  //                                 faculty = _departmentFaculties[department];
-  //                                 weightController.text = record.weight
-  //                                     .toString();
-  //                                 creditHoursController.text = record
-  //                                     .creditHours
-  //                                     .toString();
-  //                                 courseType = record.type;
-  //                                 courseScope = record.scope;
-  //                                 setDialogState(() {});
-  //                               },
-  //                             ),
-  //                             IconButton(
-  //                               tooltip: 'Delete ${record.name}',
-  //                               icon: const Icon(
-  //                                 Icons.delete_outline,
-  //                                 color: Colors.red,
-  //                               ),
-  //                               onPressed: () =>
-  //                                   deleteRecord(record, setDialogState),
-  //                             ),
-  //                           ],
-  //                         ),
-  //                       ),
-  //                     ),
-  //                 ],
-  //               ),
-  //             ),
-  //           ),
-  //           actions: [
-  //             TextButton(
-  //               onPressed: () => Navigator.pop(dialogContext),
-  //               child: const Text('Close'),
-  //             ),
-  //             FilledButton.icon(
-  //               onPressed: () => saveRecord(setDialogState),
-  //               icon: Icon(editing == null ? Icons.add : Icons.save),
-  //               label: Text(editing == null ? 'Register' : 'Update'),
-  //             ),
-  //           ],
-  //         );
-  //       },
-  //     ),
-  //   );
-  //   codeController.dispose();
-  //   nameController.dispose();
-  //   weightController.dispose();
-  //   creditHoursController.dispose();
-  // }
-  // Future<void> _openRegisteredCoursesModal() async {
-  //   final provider = context.read<Myprovider>();
-  //   String search = '';
-  //
-  //   Future<void> deleteRecord(
-  //       SubjectModel record,
-  //       StateSetter setDialogState,
-  //       ) async {
-  //     final confirmed = await showDialog<bool>(
-  //       context: context,
-  //       builder: (context) => AlertDialog(
-  //         title: Text('Delete ${_courseLabel.toLowerCase()}?'),
-  //         content: Text('Remove "${record.name}" from the registered records?'),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () => Navigator.pop(context, false),
-  //             child: const Text('Cancel'),
-  //           ),
-  //           TextButton(
-  //             onPressed: () => Navigator.pop(context, true),
-  //             child: const Text('Delete', style: TextStyle(color: Colors.red)),
-  //           ),
-  //         ],
-  //       ),
-  //     );
-  //     if (confirmed != true) return;
-  //     await provider.db.collection('subjects').doc(record.id).delete();
-  //     await provider.fetchsubjects();
-  //     if (_selectedCourse == record.code && mounted) {
-  //       setState(() => _selectedCourse = null);
-  //     }
-  //     setDialogState(() {});
-  //   }
-  //
-  //   await showDialog<void>(
-  //     context: context,
-  //     builder: (dialogContext) => StatefulBuilder(
-  //       builder: (context, setDialogState) {
-  //         final query = search.trim().toLowerCase();
-  //         final records = provider.subjectList.where((record) {
-  //           return query.isEmpty ||
-  //               record.name.toLowerCase().contains(query) ||
-  //               (record.code ?? '').toLowerCase().contains(query) ||
-  //               (record.department ?? '').toLowerCase().contains(query) ||
-  //               (record.level ?? '').toLowerCase().contains(query);
-  //         }).toList();
-  //         return AlertDialog(
-  //           title: Text('Registered ${_courseLabel}s'),
-  //           content: SizedBox(
-  //             width: 900,
-  //             height: 560,
-  //             child: LayoutBuilder(
-  //               builder: (context, constraints) {
-  //                 final desktop = constraints.maxWidth >= 650;
-  //                 return Column(
-  //                   children: [
-  //                     TextField(
-  //                       onChanged: (value) =>
-  //                           setDialogState(() => search = value),
-  //                       decoration: const InputDecoration(
-  //                         labelText: 'Search registered records',
-  //                         prefixIcon: Icon(Icons.search),
-  //                       ),
-  //                     ),
-  //                     const SizedBox(height: 12),
-  //                     Expanded(
-  //                       child: records.isEmpty
-  //                           ? const Center(
-  //                         child: Text('No registered records found.'),
-  //                       )
-  //                           : desktop
-  //                           ? SingleChildScrollView(
-  //                         scrollDirection: Axis.horizontal,
-  //                         child: SingleChildScrollView(
-  //                           child: DataTable(
-  //                             columns: const [
-  //                               DataColumn(label: Text('#')),
-  //                               DataColumn(label: Text('Code')),
-  //                               DataColumn(label: Text('Name')),
-  //                               DataColumn(label: Text('Faculty')),
-  //                               DataColumn(label: Text('Department')),
-  //                               DataColumn(label: Text('Class / Level')),
-  //                               DataColumn(label: Text('Credits')),
-  //                               DataColumn(label: Text('Action')),
-  //                             ],
-  //                             rows: records.asMap().entries.map((entry) {
-  //                               final record = entry.value;
-  //                               final faculty =
-  //                                   _departmentFaculties[record
-  //                                       .department] ??
-  //                                       '';
-  //                               return DataRow(
-  //                                 cells: [
-  //                                   DataCell(Text('${entry.key + 1}')),
-  //                                   DataCell(Text(record.code ?? '')),
-  //                                   DataCell(Text(record.name)),
-  //                                   DataCell(Text(faculty)),
-  //                                   DataCell(
-  //                                     Text(record.department ?? ''),
-  //                                   ),
-  //                                   DataCell(Text(record.level ?? '')),
-  //                                   DataCell(
-  //                                     Text(record.creditHours.toString()),
-  //                                   ),
-  //                                   DataCell(
-  //                                     Row(
-  //                                       mainAxisSize: MainAxisSize.min,
-  //                                       children: [
-  //                                         IconButton(
-  //                                           tooltip:
-  //                                           'Edit ${record.name}',
-  //                                           icon: const Icon(
-  //                                             Icons.edit_outlined,
-  //                                           ),
-  //                                           onPressed: () async {
-  //                                             Navigator.pop(
-  //                                               dialogContext,
-  //                                             );
-  //                                             await _openCourseRegistrationModal(
-  //                                               initialRecord: record,
-  //                                             );
-  //                                           },
-  //                                         ),
-  //                                         IconButton(
-  //                                           tooltip:
-  //                                           'Delete ${record.name}',
-  //                                           icon: const Icon(
-  //                                             Icons.delete_outline,
-  //                                             color: Colors.red,
-  //                                           ),
-  //                                           onPressed: () => deleteRecord(
-  //                                             record,
-  //                                             setDialogState,
-  //                                           ),
-  //                                         ),
-  //                                       ],
-  //                                     ),
-  //                                   ),
-  //                                 ],
-  //                               );
-  //                             }).toList(),
-  //                           ),
-  //                         ),
-  //                       )
-  //                           : ListView.separated(
-  //                         itemCount: records.length,
-  //                         separatorBuilder: (_, __) =>
-  //                         const Divider(height: 1),
-  //                         itemBuilder: (context, index) {
-  //                           final record = records[index];
-  //                           final faculty =
-  //                               _departmentFaculties[record.department] ??
-  //                                   '';
-  //                           return ListTile(
-  //                             leading: CircleAvatar(
-  //                               child: Text('${index + 1}'),
-  //                             ),
-  //                             title: Text(
-  //                               '${record.code ?? ''}  ${record.name}',
-  //                             ),
-  //                             subtitle: Text(
-  //                               'Faculty: $faculty\nDepartment: ${record.department ?? ''}\nClass / Level: ${record.level ?? ''}\nCredits: ${record.creditHours} | Weight: ${record.weight}',
-  //                             ),
-  //                             isThreeLine: true,
-  //                             trailing: Row(
-  //                               mainAxisSize: MainAxisSize.min,
-  //                               children: [
-  //                                 IconButton(
-  //                                   tooltip: 'Edit ${record.name}',
-  //                                   icon: const Icon(Icons.edit_outlined),
-  //                                   onPressed: () async {
-  //                                     Navigator.pop(dialogContext);
-  //                                     await _openCourseRegistrationModal(
-  //                                       initialRecord: record,
-  //                                     );
-  //                                   },
-  //                                 ),
-  //                                 IconButton(
-  //                                   tooltip: 'Delete ${record.name}',
-  //                                   icon: const Icon(
-  //                                     Icons.delete_outline,
-  //                                     color: Colors.red,
-  //                                   ),
-  //                                   onPressed: () => deleteRecord(
-  //                                     record,
-  //                                     setDialogState,
-  //                                   ),
-  //                                 ),
-  //                               ],
-  //                             ),
-  //                           );
-  //                         },
-  //                       ),
-  //                     ),
-  //                   ],
-  //                 );
-  //               },
-  //             ),
-  //           ),
-  //           actions: [
-  //             TextButton(
-  //               onPressed: () => Navigator.pop(dialogContext),
-  //               child: const Text('Close'),
-  //             ),
-  //           ],
-  //         );
-  //       },
-  //     ),
-  //   );
-  // }
-
-
+  Future<void> _openSchoolInfoModal() async {
+    final result = await showDialog<SchoolModel>(
+      context: context,
+      builder: (_) => Dialog(
+        child: SizedBox(
+          width: 600,
+          child: Schoolinfo(school: null, embedded: true),
+        ),
+      ),
+    );
+    if (result != null && mounted) {
+      setState(() {
+        _schoolType = result.type;
+        _hasExistingProfile = true;
+        _profileUnlocked = false;
+      });
+    }
+  }
   Future<void> _openSubjectRegistration({SubjectModel? initialRecord}) async {
     final result = await showDialog<SubjectModel>(
       context: context,
@@ -2727,6 +2141,31 @@ class _SetupWizardPageState extends State<SetupWizardPage> {
       case 0:
         final provider = context.watch<Myprovider>();
         return _fields([
+          if (_loadingProfile)
+            const LinearProgressIndicator()
+          else
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    _profileLocked ? 'Saved school profile' : 'School profile',
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                ),
+                if (_hasExistingProfile && !_profileUnlocked)
+                  IconButton(
+                    tooltip: 'Edit full school info',
+                    icon: const Icon(Icons.edit_outlined),
+                    onPressed: _locked ? null : _openSchoolInfoModal,
+                  ),
+                if (_hasExistingProfile && _profileUnlocked)
+                  IconButton(
+                    tooltip: 'Cancel editing',
+                    icon: const Icon(Icons.close),
+                    onPressed: _cancelProfileEdit,
+                  ),
+              ],
+            ),
           InputDecorator(
             decoration: const InputDecoration(
               labelText: 'School type',
@@ -2765,7 +2204,6 @@ class _SetupWizardPageState extends State<SetupWizardPage> {
             },
           ),
         ]);
-
       case 1:
         final provider = context.watch<Myprovider>();
         return _fields([

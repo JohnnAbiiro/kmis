@@ -10,7 +10,9 @@ import '../controller/dbmodels/schoolmodel.dart';
 
 class Schoolinfo extends StatefulWidget {
   final SchoolModel? school;
-  const Schoolinfo({Key? key, this.school}) : super(key: key);
+
+  final bool embedded;
+  const Schoolinfo({Key? key, this.school, this.embedded = false}) : super(key: key);
 
   @override
   State<Schoolinfo> createState() => _SchoolinfoState();
@@ -31,17 +33,8 @@ class _SchoolinfoState extends State<Schoolinfo> {
   bool _isLoadingSchool = false;
 
   String? _uploadedLogoUrl = '';
-
-  // True once we have a real school record on hand — either passed in
-  // directly or found via provider.schoolid. Drives the locked/read-only
-  // default: an existing record should never be editable by accident, so
-  // the form opens locked and only unlocks when the person taps Edit.
-  bool _hasExistingSchool = false;
-
-  // Whether the locked fields are currently unlocked for editing. Always
-  // true (irrelevant, since _fieldsLocked is false) when there's no
-  // existing school to protect yet.
-  bool _unlocked = false;
+ bool _hasExistingSchool = false;
+ bool _unlocked = false;
 
   bool get _fieldsLocked => _hasExistingSchool && !_unlocked;
 
@@ -64,6 +57,7 @@ class _SchoolinfoState extends State<Schoolinfo> {
         logoUrl: data.logoUrl,
       );
       _hasExistingSchool = true;
+    if (widget.embedded) _unlocked = true;
     }
     Future.microtask(() {
       final provider = Provider.of<Myprovider>(context, listen: false);
@@ -121,9 +115,7 @@ class _SchoolinfoState extends State<Schoolinfo> {
             logoUrl: map['logoUrl'] as String?,
           );
           _hasExistingSchool = true;
-          // A fresh fetch is the source of truth — drop any in-progress
-          // unsaved edits so the form reflects what's actually stored.
-          _unlocked = false;
+       _unlocked = false;
         });
       }
     } catch (e) {
@@ -136,10 +128,11 @@ class _SchoolinfoState extends State<Schoolinfo> {
       if (mounted) setState(() => _isLoadingSchool = false);
     }
   }
-
-  /// Discards any unsaved edits and re-locks the form by reloading from
-  /// whichever source of truth is available.
-  Future<void> _cancelEdit() async {
+ Future<void> _cancelEdit() async {
+    if (widget.embedded) {
+      Navigator.of(context).pop();
+      return;
+    }
     final provider = Provider.of<Myprovider>(context, listen: false);
     if (provider.schoolid.isNotEmpty) {
       await _fetchSchool(provider.schoolid);
@@ -164,7 +157,7 @@ class _SchoolinfoState extends State<Schoolinfo> {
   Future<void> _handleSave(Myprovider value) async {
     if (!_formKey.currentState!.validate()) return;
 
-    final progress = ProgressHUD.of(context);
+    final progress = widget.embedded ? null : ProgressHUD.of(context);
     progress?.show();
 
     try {
@@ -178,15 +171,17 @@ class _SchoolinfoState extends State<Schoolinfo> {
       final schoolIdTxt = schoolId.text.trim();
 
       final school = SchoolModel(
-        id: widget.school?.id ?? prefixTxt,
+        id: widget.school?.id ??
+            (prefixTxt.isNotEmpty
+                ? prefixTxt
+                : schoolIdTxt.isNotEmpty
+                ? schoolIdTxt
+                : FirebaseFirestore.instance.collection('schools').doc().id),
         schoolname: schoolNameTxt,
         prefix: prefixTxt,
         address: addressTxt,
         email: emailTxt,
         phone: phoneTxt,
-        // Previously this always evaluated to "" (a leftover
-        // "dd".isNotEmpty placeholder), silently wiping the logo on every
-        // save. Now it actually preserves whatever was loaded/uploaded.
         logoUrl: _uploadedLogoUrl ?? "",
         createdAt: DateTime.now(),
         countryName: countryNameTxt,
@@ -210,6 +205,14 @@ class _SchoolinfoState extends State<Schoolinfo> {
 
       progress?.dismiss();
       if (!mounted) return;
+
+      if (widget.embedded) {
+        // Hand the saved record back to whoever opened the dialog
+        // (e.g. showDialog<SchoolModel>(...)) instead of staying on
+        // screen — there is no "screen" to stay on inside a modal.
+        Navigator.of(context).pop(school);
+        return;
+      }
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -262,6 +265,231 @@ class _SchoolinfoState extends State<Schoolinfo> {
               ? 'Register School'
               : (_unlocked ? 'Edit School' : 'School Information');
 
+          final form = _isLoadingSchool
+              ? const Center(child: CircularProgressIndicator())
+              : SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(16, widget.embedded ? 0 : 40, 16, 20),
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: Container(
+                color: const Color(0xFFffffff),
+                margin: widget.embedded
+                    ? EdgeInsets.zero
+                    : const EdgeInsets.all(30.0),
+                constraints: const BoxConstraints(maxWidth: 600),
+                child: Padding(
+                  padding: const EdgeInsets.all(30.0),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        if (_hasExistingSchool && !_unlocked)
+                          const Padding(
+                            padding: EdgeInsets.only(bottom: 16),
+                            child: Row(
+                              children: [
+                                Icon(Icons.lock_outline, size: 16, color: Colors.black45),
+                                SizedBox(width: 6),
+                                Text(
+                                  "Tap the edit icon above to make changes",
+                                  style: TextStyle(color: Colors.black45, fontSize: 12),
+                                ),
+                              ],
+                            ),
+                          ),
+                        const SizedBox(height: 4),
+                        _buildTextField(
+                          controller: schoolName,
+                          label: "School Name",
+                          hint: "Enter school name",
+                          validatorMsg: 'School name cannot be empty',
+                          fillColor: inputFill,
+                          readOnly: _fieldsLocked,
+                        ),
+                        const SizedBox(height: 10),
+                        _buildTextField(
+                          controller: prefix,
+                          label: "School Prefix",
+                          hint: "Enter unique prefix (e.g. lamp)",
+                          fillColor: _fieldsLocked ? Colors.grey[300]! : inputFill,
+                          readOnly: _fieldsLocked,
+                          required: false,
+                          validatorMsg: '',
+                        ),
+                        const SizedBox(height: 10),
+                        _buildTextField(
+                          controller: address,
+                          label: "Address",
+                          hint: "Enter school address",
+                          validatorMsg: 'Address cannot be empty',
+                          fillColor: inputFill,
+                          readOnly: _fieldsLocked,
+                        ),
+                        const SizedBox(height: 10),
+                        _buildTextField(
+                          controller: email,
+                          label: "Email",
+                          hint: "Enter school email",
+                          validatorMsg: 'Email cannot be empty',
+                          fillColor: inputFill,
+                          keyboardType: TextInputType.emailAddress,
+                          readOnly: _fieldsLocked,
+                        ),
+                        const SizedBox(height: 10),
+                        _buildTextField(
+                          controller: phone,
+                          label: "Phone",
+                          hint: "Enter school phone",
+                          validatorMsg: 'Phone cannot be empty',
+                          fillColor: inputFill,
+                          keyboardType: TextInputType.phone,
+                          readOnly: _fieldsLocked,
+                        ),
+                        const SizedBox(height: 10),
+                        _buildTextField(
+                          controller: countryName,
+                          label: "Country Name",
+                          hint: "Enter country (e.g. Ghana)",
+                          validatorMsg: 'Country name cannot be empty',
+                          fillColor: inputFill,
+                          readOnly: _fieldsLocked,
+                        ),
+                        const SizedBox(height: 10),
+                        _buildTextField(
+                          controller: countryCode,
+                          label: "Country Code",
+                          hint: "Enter country code (e.g. +233)",
+                          validatorMsg: 'Country code cannot be empty',
+                          fillColor: inputFill,
+                          readOnly: _fieldsLocked,
+                        ),
+                        const SizedBox(height: 10),
+                        _buildTextField(
+                          controller: schoolId,
+                          label: "School ID",
+                          hint: "Enter school ID (e.g. KS0001)",
+                          validatorMsg: 'School ID cannot be empty',
+                         fillColor: _hasExistingSchool ? Colors.grey[300]! : inputFill,
+                          readOnly: _hasExistingSchool,
+                        ),
+                        const SizedBox(height: 10),
+                        DropdownButtonFormField<String>(
+                          initialValue: schoolType,
+                          decoration: const InputDecoration(
+                            labelText: 'School Type',
+                            border: OutlineInputBorder(),
+                          ),
+                          items: const [
+                            DropdownMenuItem(
+                              value: 'Pre-tertiary',
+                              child: Text('Pre-tertiary'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'Tertiary',
+                              child: Text('Tertiary'),
+                            ),
+                          ],
+                          onChanged: _fieldsLocked
+                              ? null
+                              : (value) {
+                            if (value != null) {
+                              setState(() => schoolType = value);
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: agreedToTerms,
+                              onChanged: _fieldsLocked
+                                  ? null
+                                  : (val) {
+                                setState(() => agreedToTerms = val ?? false);
+                              },
+                              activeColor: Color(0xFF00496d),
+                            ),
+                            const Expanded(
+                              child: Text(
+                                "I agree to the terms & conditions",
+                                style: TextStyle(color: Colors.black54),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        if (!_hasExistingSchool || _unlocked)
+                          Row(
+                            mainAxisAlignment: widget.embedded
+                                ? MainAxisAlignment.end
+                                : MainAxisAlignment.center,
+                            children: [
+                              if (widget.embedded)
+                                TextButton(
+                                  onPressed: _cancelEdit,
+                                  child: const Text('Cancel'),
+                                ),
+                              if (widget.embedded) const SizedBox(width: 12),
+                              ElevatedButton.icon(
+                                onPressed: () => _handleSave(value),
+                                icon: Icon(_hasExistingSchool ? Icons.update : Icons.save),
+                                label: Text(_hasExistingSchool ? 'Update School' : 'Register School'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color(0xFF00496d),
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                                  textStyle: const TextStyle(fontSize: 18),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  elevation: 5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        const SizedBox(height: 20),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+
+          if (widget.embedded) {
+           return Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      if (_hasExistingSchool && !_unlocked)
+                        IconButton(
+                          icon: const Icon(Icons.edit),
+                          tooltip: 'Edit school details',
+                          onPressed: () => setState(() => _unlocked = true),
+                        ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        tooltip: 'Close',
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ],
+                  ),
+                  const Divider(),
+                  Flexible(child: form),
+                ],
+              ),
+            );
+          }
+
           return Scaffold(
             appBar: AppBar(
               backgroundColor: const Color(0xFF00273a),
@@ -292,192 +520,7 @@ class _SchoolinfoState extends State<Schoolinfo> {
                   ),
               ],
             ),
-            body: _isLoadingSchool
-                ? const Center(child: CircularProgressIndicator())
-                : SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(16, 40, 16, 20),
-              child: Align(
-                alignment: Alignment.topCenter,
-                child: Container(
-                  color: const Color(0xFFffffff),
-                  margin: const EdgeInsets.all(30.0),
-                  constraints: const BoxConstraints(maxWidth: 600),
-                  child: Padding(
-                    padding: const EdgeInsets.all(30.0),
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        children: [
-                          if (_hasExistingSchool && !_unlocked)
-                            const Padding(
-                              padding: EdgeInsets.only(bottom: 16),
-                              child: Row(
-                                children: [
-                                  Icon(Icons.lock_outline, size: 16, color: Colors.black45),
-                                  SizedBox(width: 6),
-                                  Text(
-                                    "Tap the edit icon above to make changes",
-                                    style: TextStyle(color: Colors.black45, fontSize: 12),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          const SizedBox(height: 4),
-                          _buildTextField(
-                            controller: schoolName,
-                            label: "School Name",
-                            hint: "Enter school name",
-                            validatorMsg: 'School name cannot be empty',
-                            fillColor: inputFill,
-                            readOnly: _fieldsLocked,
-                          ),
-                          const SizedBox(height: 10),
-                          _buildTextField(
-                            controller: prefix,
-                            label: "School Prefix",
-                            hint: "Enter unique prefix (e.g. lamp)",
-                            validatorMsg: 'Prefix cannot be empty',
-                            // Prefix is the record's own doc id — it stays
-                            // locked whenever a school already exists, even
-                            // while other fields are unlocked for editing,
-                            // since changing it would mean writing to a
-                            // different document rather than updating this
-                            // one.
-                            fillColor: _hasExistingSchool ? Colors.grey[300]! : inputFill,
-                            readOnly: _hasExistingSchool,
-                          ),
-                          const SizedBox(height: 10),
-                          _buildTextField(
-                            controller: address,
-                            label: "Address",
-                            hint: "Enter school address",
-                            validatorMsg: 'Address cannot be empty',
-                            fillColor: inputFill,
-                            readOnly: _fieldsLocked,
-                          ),
-                          const SizedBox(height: 10),
-                          _buildTextField(
-                            controller: email,
-                            label: "Email",
-                            hint: "Enter school email",
-                            validatorMsg: 'Email cannot be empty',
-                            fillColor: inputFill,
-                            keyboardType: TextInputType.emailAddress,
-                            readOnly: _fieldsLocked,
-                          ),
-                          const SizedBox(height: 10),
-                          _buildTextField(
-                            controller: phone,
-                            label: "Phone",
-                            hint: "Enter school phone",
-                            validatorMsg: 'Phone cannot be empty',
-                            fillColor: inputFill,
-                            keyboardType: TextInputType.phone,
-                            readOnly: _fieldsLocked,
-                          ),
-                          const SizedBox(height: 10),
-                          _buildTextField(
-                            controller: countryName,
-                            label: "Country Name",
-                            hint: "Enter country (e.g. Ghana)",
-                            validatorMsg: 'Country name cannot be empty',
-                            fillColor: inputFill,
-                            readOnly: _fieldsLocked,
-                          ),
-                          const SizedBox(height: 10),
-                          _buildTextField(
-                            controller: countryCode,
-                            label: "Country Code",
-                            hint: "Enter country code (e.g. +233)",
-                            validatorMsg: 'Country code cannot be empty',
-                            fillColor: inputFill,
-                            readOnly: _fieldsLocked,
-                          ),
-                          const SizedBox(height: 10),
-                          _buildTextField(
-                            controller: schoolId,
-                            label: "School ID",
-                            hint: "Enter school ID (e.g. KS0001)",
-                            validatorMsg: 'School ID cannot be empty',
-                            // Same reasoning as prefix — schoolid is a
-                            // stable identifier used elsewhere in the app
-                            // (provider.schoolid), so it stays locked
-                            // whenever a school already exists.
-                            fillColor: _hasExistingSchool ? Colors.grey[300]! : inputFill,
-                            readOnly: _hasExistingSchool,
-                          ),
-                          const SizedBox(height: 10),
-                          DropdownButtonFormField<String>(
-                            initialValue: schoolType,
-                            decoration: const InputDecoration(
-                              labelText: 'School Type',
-                              border: OutlineInputBorder(),
-                            ),
-                            items: const [
-                              DropdownMenuItem(
-                                value: 'Pre-tertiary',
-                                child: Text('Pre-tertiary'),
-                              ),
-                              DropdownMenuItem(
-                                value: 'Tertiary',
-                                child: Text('Tertiary'),
-                              ),
-                            ],
-                            onChanged: _fieldsLocked
-                                ? null
-                                : (value) {
-                              if (value != null) {
-                                setState(() => schoolType = value);
-                              }
-                            },
-                          ),
-                          const SizedBox(height: 20),
-                          Row(
-                            children: [
-                              Checkbox(
-                                value: agreedToTerms,
-                                onChanged: _fieldsLocked
-                                    ? null
-                                    : (val) {
-                                  setState(() => agreedToTerms = val ?? false);
-                                },
-                                activeColor: Color(0xFF00496d),
-                              ),
-                              const Expanded(
-                                child: Text(
-                                  "I agree to the terms & conditions",
-                                  style: TextStyle(color: Colors.black54),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 20),
-                          // Locked view is read-only display — no reason to
-                          // show a Save button until Edit has been tapped.
-                          if (!_hasExistingSchool || _unlocked)
-                            ElevatedButton.icon(
-                              onPressed: () => _handleSave(value),
-                              icon: Icon(_hasExistingSchool ? Icons.update : Icons.save),
-                              label: Text(_hasExistingSchool ? 'Update School' : 'Register School'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xFF00496d),
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                                textStyle: const TextStyle(fontSize: 18),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                elevation: 5,
-                              ),
-                            ),
-                          const SizedBox(height: 20),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            body: form,
           );
         },
       ),
@@ -492,13 +535,14 @@ class _SchoolinfoState extends State<Schoolinfo> {
     required Color fillColor,
     TextInputType keyboardType = TextInputType.text,
     bool readOnly = false,
+    bool required = true,
   }) {
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
       readOnly: readOnly,
       decoration: InputDecoration(
-        labelText: label,
+        labelText: required ? label : '$label (optional)',
         hintText: hint,
         labelStyle: const TextStyle(color: Colors.black54, fontSize: 12),
         hintStyle: const TextStyle(color: Colors.black54, fontSize: 12),
@@ -513,7 +557,9 @@ class _SchoolinfoState extends State<Schoolinfo> {
         fontSize: 14,
         color: readOnly ? Colors.black54 : Colors.black,
       ),
-      validator: (value) {
+      validator: !required
+          ? null
+          : (value) {
         if (value == null || value.trim().isEmpty) return validatorMsg;
         return null;
       },
