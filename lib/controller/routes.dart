@@ -49,10 +49,10 @@ import '../screen/gradingsystem.dart';
 import '../screen/headremarks.dart';
 import '../screen/idformat.dart';
 import '../screen/individualcumreport.dart';
-import '../screen/judgeui.dart';
+
 
 import '../screen/ledgerReport.dart';
-import '../screen/levelreg.dart';
+
 import '../screen/masspromotion.dart';
 import '../screen/multipleschools.dart';
 import '../screen/nextfees.dart';
@@ -87,11 +87,11 @@ import '../screen/viewacademicyr.dart';
 import '../screen/viewclass.dart';
 import '../screen/viewdepartment.dart';
 import '../screen/viewidformats.dart';
-import '../screen/viewmark.dart';
+
 import '../screen/viewpromotionsetting.dart';
 import '../screen/viewschool.dart';
 import '../screen/viewsubject.dart';
-import '../screen/viewteachersetup.dart';
+
 import '../screen/feespayment.dart';
 import 'dbmodels/componentmodel.dart';
 import 'dbmodels/departmodel.dart';
@@ -277,13 +277,7 @@ final GoRouter router = GoRouter(
       builder: (context, state) => EmployeeScreen(),
     ),
     GoRoute(path: Routes.payroll, builder: (context, state) => PayrollScreen()),
-    GoRoute(
-      path: Routes.levelreg,
-      builder: (context, state) {
-        final level = state.extra as LevelModel?;
-        return LevelListScreen(levelData: level);
-      },
-    ),
+
     GoRoute(path: Routes.dashboard, builder: (c, s) => DashboardLayout()),
     GoRoute(path: Routes.receipt, builder: (c, s) => SchoolReceipt()),
 
@@ -365,10 +359,7 @@ final GoRouter router = GoRouter(
     GoRoute(path: Routes.registerstudent, builder: (c, s) => RegisterStudent()),
     GoRoute(path: Routes.regionreg, builder: (c, s) => Regionregistration()),
     GoRoute(path: Routes.idformat, builder: (c, s) => IdformatScreen()),
-    GoRoute(
-      path: Routes.viewteachersetup,
-      builder: (c, s) => TeacherListPage(),
-    ),
+
     GoRoute(path: Routes.billing, builder: (c, s) => Billing()),
     GoRoute(path: Routes.accountActivity, builder: (c, s) => SystemActivity()),
     GoRoute(path: Routes.coa, builder: (c, s) => AccountsChart()),
@@ -405,7 +396,7 @@ final GoRouter router = GoRouter(
     GoRoute(path: Routes.masspromotion, builder: (c, s) => Masspromotion()),
     GoRoute(path: Routes.classpromotion, builder: (c, s) => ClassPromotion()),
     GoRoute(path: Routes.studentsetup, builder: (c, s) => StudentSetupPage()),
-    GoRoute(path: Routes.viewmarks,builder: (c,s)=> ViewScorePage()),
+
     GoRoute(path: Routes.totalattend,builder: (c,s)=> Totalattend()),
     GoRoute(path: Routes.nextfees,builder: (c,s)=> NextFees()),
     GoRoute(path: Routes.reopening,builder: (c,s)=> Reopening()),
