@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../controller/dbmodels/contestantsmodel.dart';
+import '../controller/dbmodels/coursematerialmodel1.dart';
 import '../controller/dbmodels/coursemountmodel.dart';
-import '../controller/dbmodels/coursematerialmodel.dart';
 import '../controller/dbmodels/courseregmodel.dart';
 import '../controller/dbmodels/departmodel.dart';
 import '../controller/myprovider.dart';
@@ -33,7 +33,7 @@ class _StudentPortalPageState extends State<StudentPortalPage> {
 
   final Set<String> _selectedElectives = {};
   bool _saving = false;
-  int _section = 0; // 0 = Register, 1 = Fees, 2 = Results, 3 = Materials
+  int _section = 0; // 0 = Register, 1 = Fees, 2 = Results
 
   Myprovider get _provider => context.read<Myprovider>();
 
@@ -103,14 +103,15 @@ class _StudentPortalPageState extends State<StudentPortalPage> {
       final scoringSnap = await provider.db.collection('subjectScoring').doc(scoringId).get();
       if (scoringSnap.exists) resultsDoc = scoringSnap.data();
 
-      final registeredCodes = existingReg?.courseCodes ?? const <String>[];
       List<CourseMaterialModel> materials = [];
-      if (registeredCodes.isNotEmpty) {
+      if (mount != null && mount.allCourseCodes.isNotEmpty) {
+        final codes = mount.allCourseCodes.take(10).toList();
         final materialsSnap = await provider.db
             .collection('courseMaterials')
             .where('schoolId', isEqualTo: provider.schoolid)
-            .where('courseCode', whereIn: registeredCodes.take(30).toList())
-            .orderBy('timestamp', descending: true)
+            .where('academicYear', isEqualTo: provider.year)
+            .where('termOrSemester', isEqualTo: provider.term)
+            .where('courseCode', whereIn: codes)
             .get();
         materials = materialsSnap.docs.map((d) => CourseMaterialModel.fromMap(d.data())).toList();
       }
@@ -142,6 +143,8 @@ class _StudentPortalPageState extends State<StudentPortalPage> {
     }
   }
 
+  // ---- derived state -------------------------------------------------
+
   List<SubjectLike> get _coreSubjects => _subjects.where((s) => s.type == 'Core').toList();
 
   List<SubjectLike> get _electiveSubjects => _subjects.where((s) => s.type != 'Core').toList();
@@ -163,6 +166,7 @@ class _StudentPortalPageState extends State<StudentPortalPage> {
 
   bool get _canEdit => _mount != null && _registrationOpen;
 
+  // ---- actions ---------------------------------------------------------
 
   void _showMountedCoursesModal(CourseMountModel mount) {
     if (!mounted) return;
@@ -298,13 +302,6 @@ class _StudentPortalPageState extends State<StudentPortalPage> {
     }
   }
 
-  Future<void> _openMaterial(CourseMaterialModel m) async {
-    final uri = Uri.tryParse(m.fileUrl);
-    if (uri == null || !await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      _showSnack('Could not open file.', isError: true);
-    }
-  }
-
   // ---- build -------------------------------------------------------
 
   @override
@@ -345,7 +342,6 @@ class _StudentPortalPageState extends State<StudentPortalPage> {
                   NavigationRailDestination(icon: Icon(Icons.menu_book_outlined), label: Text('Register')),
                   NavigationRailDestination(icon: Icon(Icons.payments_outlined), label: Text('Fees')),
                   NavigationRailDestination(icon: Icon(Icons.grade_outlined), label: Text('Results')),
-                  NavigationRailDestination(icon: Icon(Icons.folder_outlined), label: Text('Materials')),
                 ],
               ),
               const VerticalDivider(width: 1),
@@ -363,7 +359,6 @@ class _StudentPortalPageState extends State<StudentPortalPage> {
           NavigationDestination(icon: Icon(Icons.menu_book_outlined), label: 'Register'),
           NavigationDestination(icon: Icon(Icons.payments_outlined), label: 'Fees'),
           NavigationDestination(icon: Icon(Icons.grade_outlined), label: 'Results'),
-          NavigationDestination(icon: Icon(Icons.folder_outlined), label: 'Materials'),
         ],
       ),
     );
@@ -375,8 +370,6 @@ class _StudentPortalPageState extends State<StudentPortalPage> {
         return _feesSection(scheme);
       case 2:
         return _resultsSection(scheme);
-      case 3:
-        return _materialsSection(scheme);
       default:
         return _registrationSection(scheme);
     }
@@ -463,6 +456,28 @@ class _StudentPortalPageState extends State<StudentPortalPage> {
             );
           },
         ),
+        if (_materials.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          Text('Course materials', style: TextStyle(fontWeight: FontWeight.w700, color: scheme.onSurface)),
+          const SizedBox(height: 6),
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _materials.length,
+            itemBuilder: (context, i) {
+              final m = _materials[i];
+              return ListTile(
+                leading: const Icon(Icons.link),
+                title: Text('${m.courseCode} • ${m.title}'),
+                subtitle: SelectableText(m.url),
+                trailing: IconButton(
+                  icon: const Icon(Icons.copy),
+                  onPressed: () => Clipboard.setData(ClipboardData(text: m.url)),
+                ),
+              );
+            },
+          ),
+        ],
         const SizedBox(height: 20),
         Align(
           alignment: Alignment.centerRight,
@@ -572,10 +587,7 @@ class _StudentPortalPageState extends State<StudentPortalPage> {
   Widget _resultsSection(ColorScheme scheme) {
     final doc = _resultsDoc;
     final subjects = (doc?['subjects'] as Map<String, dynamic>?) ?? {};
-    final rows = subjects.values
-        .map((v) => Map<String, dynamic>.from(v as Map))
-        .where((row) => row['isRegistered'] != false)
-        .toList();
+    final rows = subjects.values.toList();
 
     if (rows.isEmpty) {
       return Center(
@@ -587,7 +599,7 @@ class _StudentPortalPageState extends State<StudentPortalPage> {
       padding: const EdgeInsets.all(16),
       itemCount: rows.length,
       itemBuilder: (context, i) {
-        final row = rows[i];
+        final row = Map<String, dynamic>.from(rows[i] as Map);
         final isComplete = row['isComplete']?.toString() == 'yes';
         return Card(
           margin: const EdgeInsets.only(bottom: 8),
@@ -598,33 +610,6 @@ class _StudentPortalPageState extends State<StudentPortalPage> {
               label: Text(isComplete ? 'Complete' : 'Pending'),
               backgroundColor: isComplete ? scheme.primaryContainer : scheme.surfaceContainerHighest,
             ),
-          ),
-        );
-      },
-    );
-  }
-
-  // ---- Materials section --------------------------------------------
-
-  Widget _materialsSection(ColorScheme scheme) {
-    if (_materials.isEmpty) {
-      return Center(
-        child: Text('No course materials available yet.', style: TextStyle(color: scheme.onSurfaceVariant)),
-      );
-    }
-    return ListView.separated(
-      padding: const EdgeInsets.all(16),
-      itemCount: _materials.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 8),
-      itemBuilder: (context, i) {
-        final m = _materials[i];
-        return Card(
-          child: ListTile(
-            leading: Icon(Icons.description_outlined, color: scheme.primary),
-            title: Text('${m.courseCode}  ${m.title}'),
-            subtitle: Text('${m.fileName} • by ${m.staffName}'),
-            trailing: IconButton(icon: const Icon(Icons.download), onPressed: () => _openMaterial(m)),
-            onTap: () => _openMaterial(m),
           ),
         );
       },

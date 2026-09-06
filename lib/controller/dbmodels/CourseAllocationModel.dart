@@ -12,7 +12,7 @@ class CourseAllocationModel {
   final String termOrSemester;
   final String courseCode;
   final String courseName;
-
+  final String? staffemail;
   CourseAllocationModel({
     required this.id,
     required this.schoolId,
@@ -25,6 +25,7 @@ class CourseAllocationModel {
     required this.termOrSemester,
     required this.courseCode,
     required this.courseName,
+     this.staffemail,
   });
 
   Map<String, dynamic> toMap() => {
@@ -39,6 +40,7 @@ class CourseAllocationModel {
     'termOrSemester': termOrSemester,
     'courseCode': courseCode,
     'courseName': courseName,
+    'staffemail': staffemail,
     'updatedAt': FieldValue.serverTimestamp(),
   };
 
@@ -54,5 +56,6 @@ class CourseAllocationModel {
     termOrSemester: map['termOrSemester']?.toString() ?? '',
     courseCode: map['courseCode']?.toString() ?? '',
     courseName: map['courseName']?.toString() ?? '',
+    staffemail: map['staffemail']?.toString() ?? '',
   );
 }

@@ -42,6 +42,7 @@ class _SetupWizardPageState extends State<SetupWizardPage> {
   final _stepScrollController = ScrollController();
   int _step = 0;
   bool _locked = false;
+  bool _changingLock = false;
   bool _saving = false;
   String _schoolType = 'Loading...';
   String _period = 'First semester';
@@ -144,9 +145,11 @@ class _SetupWizardPageState extends State<SetupWizardPage> {
         provider.fetchclass(),
         provider.fetchFaculty(),
 
+
       ]);
 
       await _fetchSchoolProfile();
+      await _loadSetupLockStatus();
       if (provider.terms.isNotEmpty) {
         _termEntries
           ..clear()
@@ -160,7 +163,26 @@ class _SetupWizardPageState extends State<SetupWizardPage> {
     });
   }
 
+  Future<void> _loadSetupLockStatus() async {
+    final provider = context.read<Myprovider>();
 
+    try {
+      final locked = await provider.getSetupLockStatus();
+
+      if (!mounted) return;
+
+      setState(() {
+        _locked = locked;
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      _showSaveMessage(
+        'Failed to load setup lock status: $e',
+        error: true,
+      );
+    }
+  }
   Future<void> _loadAllocations() async {
     final provider = context.read<Myprovider>();
     if (provider.schoolid.isEmpty) return;
@@ -397,37 +419,114 @@ class _SetupWizardPageState extends State<SetupWizardPage> {
     }
   }
 
-  Future<void> _lockSetup() async {
-    if (_saving) return;
+  // Future<void> _lockSetup() async {
+  //   if (_saving) return;
+  //   final confirmed = await showDialog<bool>(
+  //     context: context,
+  //     builder: (context) => AlertDialog(
+  //       title: const Text('Lock setup?'),
+  //       content: const Text(
+  //         'Lock the current setup? You can still view the records, but editing will be disabled.',
+  //       ),
+  //       actions: [
+  //         TextButton(
+  //           onPressed: () => Navigator.pop(context, false),
+  //           child: const Text('Cancel'),
+  //         ),
+  //         FilledButton(
+  //           onPressed: () => Navigator.pop(context, true),
+  //           child: const Text('Lock setup'),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  //   if (confirmed != true || !mounted) return;
+  //   final provider = context.read<Myprovider>();
+  //   await provider.db.collection('schools').doc(provider.schoolid.trim()).set({
+  //     'setupCompleted': true,
+  //     'updatedAt': FieldValue.serverTimestamp(),
+  //   }, SetOptions(merge: true));
+  //   setState(() => _locked = true);
+  //   _showSaveMessage('Setup locked successfully.');
+  // }
+  Future<void> _toggleSetupLock(bool value) async {
+    if (_changingLock) return;
+
+    final provider = context.read<Myprovider>();
+
+    if (!provider.canManageSetupLock) {
+      _showSaveMessage(
+        'Only Superadmin, Admin or Academic can change the setup lock.',
+        error: true,
+      );
+      return;
+    }
+
+    final action = value ? 'lock' : 'unlock';
+
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Lock setup?'),
-        content: const Text(
-          'Lock the current setup? You can still view the records, but editing will be disabled.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(
+            value ? 'Lock setup?' : 'Unlock setup?',
           ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Lock setup'),
+          content: Text(
+            value
+                ? 'Lock the current setup? Editing will be disabled for normal users.'
+                : 'Unlock the setup? Authorized users will be able to edit the academic configuration again.',
           ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: Text(
+                value ? 'Lock setup' : 'Unlock setup',
+              ),
+            ),
+          ],
+        );
+      },
     );
-    if (confirmed != true || !mounted) return;
-    final provider = context.read<Myprovider>();
-    await provider.db.collection('schools').doc(provider.schoolid.trim()).set({
-      'setupCompleted': true,
-      'updatedAt': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
-    setState(() => _locked = true);
-    _showSaveMessage('Setup locked successfully.');
-  }
 
+    if (confirmed != true || !mounted) return;
+
+    setState(() {
+      _changingLock = true;
+    });
+
+    try {
+      await provider.setSetupLock(value);
+
+      if (!mounted) return;
+
+      setState(() {
+        _locked = value;
+      });
+
+      _showSaveMessage(
+        value
+            ? 'Setup locked successfully.'
+            : 'Setup unlocked successfully.',
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      _showSaveMessage(
+        'Could not $action setup: $e',
+        error: true,
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _changingLock = false;
+        });
+      }
+    }
+  }
   void _showSaveMessage(String message, {bool error = false}) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -1484,6 +1583,7 @@ class _SetupWizardPageState extends State<SetupWizardPage> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final provider = context.watch<Myprovider>();
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -1491,12 +1591,48 @@ class _SetupWizardPageState extends State<SetupWizardPage> {
           style: TextStyle(fontWeight: FontWeight.w700),
         ),
         actions: [
-          if (_locked)
-            const Padding(
-              padding: EdgeInsets.only(right: 20),
+          // if (_locked)
+          //   const Padding(
+          //     padding: EdgeInsets.only(right: 20),
+          //     child: Chip(
+          //       avatar: Icon(Icons.lock, size: 16),
+          //       label: Text('Locked'),
+          //     ),
+          //   ),
+
+          if (provider.canManageSetupLock)
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  _locked ? 'Locked' : 'Unlocked',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(width: 8),
+
+                Switch(
+                  value: _locked,
+                  onChanged: _changingLock
+                      ? null
+                      : _toggleSetupLock,
+                ),
+
+                const SizedBox(width: 12),
+              ],
+            )
+          else
+            Padding(
+              padding: const EdgeInsets.only(right: 20),
               child: Chip(
-                avatar: Icon(Icons.lock, size: 16),
-                label: Text('Locked'),
+                avatar: Icon(
+                  _locked ? Icons.lock : Icons.lock_open,
+                  size: 16,
+                ),
+                label: Text(
+                  _locked ? 'Locked' : 'Unlocked',
+                ),
               ),
             ),
         ],
@@ -1747,11 +1883,25 @@ class _SetupWizardPageState extends State<SetupWizardPage> {
                     icon: const Icon(Icons.save_outlined),
                     label: Text(_saving ? 'Saving...' : 'Save section'),
                   ),
+                // _step == _steps.length - 1
+                //     ? FilledButton.icon(
+                //   onPressed: _locked || _saving ? null : _lockSetup,
+                //   icon: Icon(_locked ? Icons.lock : Icons.lock_outline),
+                //   label: Text(_locked ? 'Setup locked' : 'Lock setup'),
+                // )
                 _step == _steps.length - 1
-                    ? FilledButton.icon(
-                  onPressed: _locked || _saving ? null : _lockSetup,
-                  icon: Icon(_locked ? Icons.lock : Icons.lock_outline),
-                  label: Text(_locked ? 'Setup locked' : 'Lock setup'),
+                    ? OutlinedButton.icon(
+                  onPressed: null,
+                  icon: Icon(
+                    _locked
+                        ? Icons.lock
+                        : Icons.lock_open,
+                  ),
+                  label: Text(
+                    _locked
+                        ? 'Setup is locked'
+                        : 'Setup is unlocked',
+                  ),
                 )
                     : FilledButton.icon(
                   onPressed: () => setState(() => _step++),

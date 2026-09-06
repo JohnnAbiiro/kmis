@@ -360,7 +360,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../controller/dbmodels/courseallocationmodel.dart';
+
+import '../controller/dbmodels/CourseAllocationModel.dart';
 import '../controller/dbmodels/coursemountmodel.dart';
 import '../controller/myprovider.dart';
 import '../controller/routes.dart';
@@ -545,6 +546,7 @@ class _CourseAllocationPageState extends State<CourseAllocationPage> {
           termOrSemester: provider.term,
           courseCode: code,
           courseName: course.name,
+          staffemail: staff.email,
         );
         await provider.db.collection('courseAllocation').doc(id).set(model.toMap(), SetOptions(merge: true));
       }

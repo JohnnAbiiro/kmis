@@ -910,4 +910,6 @@ class LoginProvider extends ChangeNotifier {
       throw Exception('Failed to change password: $e');
     }
   }
+
+
 }

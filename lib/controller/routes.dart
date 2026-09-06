@@ -40,7 +40,7 @@ import '../screen/currentacademicyrterm.dart';
 import '../screen/department.dart';
 
 import '../screen/employee_screen.dart';
-import '../screen/entermarks.dart';
+
 import '../screen/faculty.dart';
 import '../screen/facultylist.dart';
 import '../screen/feesSetup.dart';
@@ -67,14 +67,16 @@ import '../screen/regstaff.dart';
 import '../screen/remarks.dart';
 import '../screen/reopening.dart';
 import '../screen/scoreconfig.dart';
-import '../screen/scoringhome.dart';
+
 import '../screen/setupwizard.dart';
 import '../screen/single_billing.dart';
 import '../screen/singlepromotion.dart';
 import '../screen/staffhomepage.dart';
+import '../screen/staffportal.dart';
+import '../screen/student_portal_page.dart';
 import '../screen/studentdashboard.dart';
 import '../screen/studentp.dart';
-import '../screen/studentsetup.dart';
+
 import '../screen/subject.dart';
 import '../screen/systemActivity.dart';
 import '../screen/term.dart';
@@ -234,6 +236,8 @@ class Routes {
   static const coursemounting = "/coursemounting";
   static const faculty = "/faculty";
   static const viewfaculty = "/viewfaculty";
+  static const studportal = "/studportal";
+
 
   // Role → Allowed routes mapping
   static const roleAllowedRoutes = {
@@ -372,9 +376,7 @@ final GoRouter router = GoRouter(
     GoRoute(path: Routes.feesetup, builder: (c, s) => FeesSetup()),
     GoRoute(path: Routes.singlebilling, builder: (c, s) => SingleBilling()),
     GoRoute(path: Routes.terminalreport, builder: (c, s) => ReportSheet()),
-    GoRoute(path: Routes.entermark, builder: (c, s) => MarksEntryPage()),
 
-    GoRoute(path: Routes.staffscoring, builder: (c, s) => StaffScoringPage()),
     GoRoute(path: Routes.staffview, builder: (c, s) => StaffView()),
     GoRoute(path: Routes.promotionsetting, builder: (c, s) => PromotionScreen ()),
     GoRoute(path: Routes.viewpromotionsetting, builder: (c, s) => ViewPromotionSettings ()),
@@ -395,7 +397,6 @@ final GoRouter router = GoRouter(
     GoRoute(path: Routes.currenterm, builder: (c, s) => Currenttermyr()),
     GoRoute(path: Routes.masspromotion, builder: (c, s) => Masspromotion()),
     GoRoute(path: Routes.classpromotion, builder: (c, s) => ClassPromotion()),
-    GoRoute(path: Routes.studentsetup, builder: (c, s) => StudentSetupPage()),
 
     GoRoute(path: Routes.totalattend,builder: (c,s)=> Totalattend()),
     GoRoute(path: Routes.nextfees,builder: (c,s)=> NextFees()),
@@ -407,5 +408,24 @@ final GoRouter router = GoRouter(
     GoRoute(path: Routes.coursemounting,builder: (c,s)=> CourseMountingPage()),
     GoRoute(path: Routes.faculty,builder: (c,s)=> FacultyPage()),
     GoRoute(path: Routes.viewfaculty,builder: (c,s)=> ViewFaculty()),
+    GoRoute(path: Routes.studportal,builder: (c,s)=> StudentPortalPage(studentId: "")),
+
+    GoRoute(
+      path: '/staff-portal/:staffId',
+      builder: (context, state) => StaffPortalPage(
+        staffId: state.pathParameters['staffId']!,
+        onLogout: () {
+
+          context.go(Routes.login);
+        },
+      ),
+    ),
+    GoRoute(
+      path: '/student-portal/:studentId',
+      builder: (context, state) => StudentPortalPage(
+        studentId: state.pathParameters['studentId']!,
+
+      ),
+    ),
   ],
 );
