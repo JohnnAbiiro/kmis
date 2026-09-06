@@ -353,6 +353,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import '../controller/loginprovider.dart';
 import 'forgot_password.dart';
 
 
@@ -488,6 +489,7 @@ class _LoginPageState extends State<LoginPage> {
                                     ),
                                   ),
                                 ),
+                              SizedBox(height: 4,),
 
                               ],
                             ),

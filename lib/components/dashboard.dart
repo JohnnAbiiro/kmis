@@ -1,3 +1,4 @@
+import 'package:go_router/go_router.dart';
 import 'package:ksoftsms/components/academicperformance.dart';
 import 'package:ksoftsms/components/attendancetracking.dart';
 import 'package:ksoftsms/components/scoresheet.dart';
@@ -73,6 +74,7 @@ class _DashboardLayoutState extends State<DashboardLayout> {
             appBar: AppBar(
               title: Text(schoolname.toUpperCase()),
               actions: [
+
                 Consumer<Myprovider>(
                   builder: (context, provider, child) {
                     IconData themeIcon;
@@ -128,6 +130,18 @@ class _DashboardLayoutState extends State<DashboardLayout> {
                       runSpacing: 15,
                       crossAxisAlignment: WrapCrossAlignment.start,
                       children: [
+                        // TextButton(
+                        //     onPressed: (){
+                        //       final staffid ='KS00021';
+                        //       context.go('/staff-portal/$staffid');
+                        //     },
+                        //     child: Text('me',style: TextStyle(color: Colors.red),)),
+                        // TextButton(
+                        //     onPressed: (){
+                        //       final staffid ='KS0002_LAMP0006';
+                        //       context.go('/student-portal/$staffid');
+                        //     },
+                        //     child: Text('student',style: TextStyle(color: Colors.red),)),
                         HourMinutes(
                           cwidth: isMobile
                               ? screenWidth * 0.95

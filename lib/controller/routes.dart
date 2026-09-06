@@ -434,7 +434,7 @@ final GoRouter router = GoRouter(
     GoRoute(path: Routes.registerschool,builder: (c,s)=> RegisterSchool()),
     GoRoute(path: Routes.setupWizard,builder: (c,s)=> SetupWizardPage()),
     GoRoute(path: Routes.courseallocation,builder: (c,s)=> CourseAllocationPage()),
-    GoRoute(path: Routes.coursemounting,builder: (c,s)=> CourseMountingPage()),
+    GoRoute(path: Routes.coursemounting,builder: (c,s)=> CourseMountingPage(embedded: true,)),
     GoRoute(path: Routes.faculty,builder: (c,s)=> FacultyPage()),
     GoRoute(path: Routes.viewfaculty,builder: (c,s)=> ViewFaculty()),
   ],
