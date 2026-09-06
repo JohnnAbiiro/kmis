@@ -2206,20 +2206,8 @@ class Myprovider extends LoginProvider {
       "${info['academicYear']}_${info['term']}_${info['className']}"
           .toUpperCase();
 
-      // PRINT
-      final printer = SubjectscorePrinter(
-        schoolName: currentschool,
-        reportTitle1: doctitle,
-        reportTitle: "TERM SCORE SHEET ($term - $academicYear)",
-        className: className,
-        rows: rows, // now sorted + ranked
-        totalMarks: totalMarks.toString(),
-        logoAssetPathLeft: "assets/logo.png",
-        logoAssetPathRight: "assets/logo.png",
-        criteriaHeaders: criteriaHeaders,
-      );
 
-      printer.printOrPreview(context);
+
 
     } catch (e) {
       throw ("Error generating total scoresheet or no record found");
@@ -2332,17 +2320,6 @@ class Myprovider extends LoginProvider {
         "rank": "RANK",
       };
 
-      final printer = SubjectscorebestPrinter(
-        schoolName: currentschool,
-        reportTitle: "BEST SUBJECT REPORT",
-        reportTitle1: "SUBJECT: $subject   CODE: $subjectcode",
-        className: "YEARS: ${years.join(", ")} | TERMS: ${terms.join(", ")}",
-        rows: rowsStringMap,
-
-        logoAssetPathLeft: "assets/logo.png",
-        logoAssetPathRight: "assets/logo.png",
-      );
-      printer.printOrPreview(context);
 
       print("✓ Report Generated Successfully");
 

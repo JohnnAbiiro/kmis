@@ -119,7 +119,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
                               keyboardType: const TextInputType.numberWithOptions(decimal: true),
                               controller: accountController,
                               decoration: const InputDecoration(
-                                labelText: "Billed Amount",
+                                labelText: "Amount",
                                 border: OutlineInputBorder(),
                               ),
                               validator: (v) => v == null || v.isEmpty ? "Required" : null,

@@ -1,3 +1,5 @@
+
+
 import 'package:go_router/go_router.dart';
 import 'package:ksoftsms/controller/myprovider.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +8,10 @@ import 'package:provider/provider.dart';
 import '../controller/routes.dart';
 
 class ViewSubjectPage extends StatefulWidget {
-  const ViewSubjectPage({super.key});
+
+  final bool embedded;
+
+  const ViewSubjectPage({super.key, this.embedded = false});
 
   @override
   State<ViewSubjectPage> createState() => _ViewSubjectPageState();
@@ -26,6 +31,26 @@ class _ViewSubjectPageState extends State<ViewSubjectPage> {
       await provider.fetchsubjects();
       if (mounted) setState(() => _isLoading = false);
     });
+  }
+ Future<void> _openRegistration({dynamic subject}) async {
+    if (widget.embedded) {
+      await showDialog<void>(
+        context: context,
+        builder: (_) => Dialog(
+          child: SizedBox(
+            width: 720,
+            height: 640,
+            child: SubjectRegistration(subject: subject, embedded: true),
+          ),
+        ),
+      );
+      if (mounted) setState(() {});
+    } else {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => SubjectRegistration(subject: subject)),
+      );
+    }
   }
 
   Future<void> _confirmDelete(Myprovider provider, String id, String name) async {
@@ -88,9 +113,89 @@ class _ViewSubjectPageState extends State<ViewSubjectPage> {
           ..sort((a, b) =>
           _sortAscending ? a.name.compareTo(b.name) : b.name.compareTo(a.name));
 
+        final content = _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : LayoutBuilder(
+          builder: (context, constraints) {
+            final isWideScreen = constraints.maxWidth > 700;
+
+            return Align(
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 900),
+                child: Column(
+                  children: [
+                    if (widget.embedded)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                        child: Row(
+                          children: [
+                            Icon(Icons.menu_book_outlined, color: colorScheme.primary),
+                            const SizedBox(width: 8),
+                            const Expanded(
+                              child: Text(
+                                'Registered courses / subjects',
+                                style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+                              ),
+                            ),
+                            FilledButton.icon(
+                              onPressed: () => _openRegistration(),
+                              icon: const Icon(Icons.add, size: 18),
+                              label: const Text('New'),
+                            ),
+                            IconButton(
+                              tooltip: 'Close',
+                              icon: const Icon(Icons.close),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                          ],
+                        ),
+                      ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                      child: TextField(
+                        decoration: InputDecoration(
+                          hintText: "Search subject, code, or level...",
+                          prefixIcon: const Icon(Icons.search),
+                          filled: true,
+                          fillColor: colorScheme.surfaceContainerHighest,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
+                          ),
+                        ),
+                        onChanged: (value) => setState(() => searchQuery = value),
+                      ),
+                    ),
+                    Expanded(
+                      child: filteredSubjects.isEmpty
+                          ? Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Text(
+                            "No matching results",
+                            style: TextStyle(fontSize: 16, color: colorScheme.onSurfaceVariant),
+                          ),
+                        ),
+                      )
+                          : isWideScreen
+                          ? _buildTableList(provider, filteredSubjects)
+                          : _buildCardList(provider, filteredSubjects),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+
+        if (widget.embedded) return content;
+
         return Scaffold(
-          // No explicit backgroundColor — inherits scaffoldBackgroundColor
-          // from the app theme in main.dart.
           appBar: AppBar(
             title: const Text("Subjects List"),
             leading: IconButton(
@@ -107,66 +212,11 @@ class _ViewSubjectPageState extends State<ViewSubjectPage> {
           floatingActionButton: FloatingActionButton.extended(
             backgroundColor: colorScheme.primary,
             foregroundColor: colorScheme.onPrimary,
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const SubjectRegistration()),
-            ),
+            onPressed: () => _openRegistration(),
             icon: const Icon(Icons.add),
             label: const Text('New subject'),
           ),
-          body: _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : LayoutBuilder(
-            builder: (context, constraints) {
-              final isWideScreen = constraints.maxWidth > 700;
-
-              return Align(
-                alignment: Alignment.topCenter,
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 900),
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                        child: TextField(
-                          decoration: InputDecoration(
-                            hintText: "Search subject, code, or level...",
-                            prefixIcon: const Icon(Icons.search),
-                            filled: true,
-                            fillColor: colorScheme.surfaceContainerHighest,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide.none,
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
-                            ),
-                          ),
-                          onChanged: (value) => setState(() => searchQuery = value),
-                        ),
-                      ),
-                      Expanded(
-                        child: filteredSubjects.isEmpty
-                            ? Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(20),
-                            child: Text(
-                              "No matching results",
-                              style: TextStyle(fontSize: 16, color: colorScheme.onSurfaceVariant),
-                            ),
-                          ),
-                        )
-                            : isWideScreen
-                            ? _buildTableList(provider, filteredSubjects)
-                            : _buildCardList(provider, filteredSubjects),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
+          body: content,
         );
       },
     );
@@ -283,10 +333,7 @@ class _ViewSubjectPageState extends State<ViewSubjectPage> {
                               IconButton(
                                 icon: const Icon(Icons.edit),
                                 color: Colors.amber,
-                                onPressed: () => Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => SubjectRegistration(subject: subj))),
+                                onPressed: () => _openRegistration(subject: subj),
                               ),
                               IconButton(
                                 icon: const Icon(Icons.delete),
@@ -313,7 +360,7 @@ class _ViewSubjectPageState extends State<ViewSubjectPage> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(12, 4, 12, 90),
+      padding: EdgeInsets.fromLTRB(12, 4, 12, widget.embedded ? 12 : 90),
       itemCount: filteredSubjects.length,
       itemBuilder: (context, index) {
         final subj = filteredSubjects[index];
@@ -353,8 +400,7 @@ class _ViewSubjectPageState extends State<ViewSubjectPage> {
               icon: const Icon(Icons.more_vert),
               onSelected: (choice) {
                 if (choice == 'edit') {
-                  Navigator.push(
-                      context, MaterialPageRoute(builder: (context) => SubjectRegistration(subject: subj)));
+                  _openRegistration(subject: subj);
                 } else if (choice == 'delete') {
                   _confirmDelete(provider, subj.id, subj.name);
                 }

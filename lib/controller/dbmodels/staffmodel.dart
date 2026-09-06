@@ -12,7 +12,11 @@ class Staff {
   final String status;
   final String schoolname;
   final String schoolId;
+  final String facultyId;
+  final String facultyName;
   final String departmentId;
+  final String departmentName;
+  final String classOrLevel;
   final DateTime createdAt;
 
   Staff({
@@ -25,13 +29,16 @@ class Staff {
     required this.sex,
     required this.region,
     required this.schoolId,
+    this.facultyId = "",
+    this.facultyName = "",
     this.departmentId = "",
+    this.departmentName = "",
+    this.classOrLevel = "",
     required this.schoolname,
     required this.createdAt,
     this.status = "0",
   });
 
-  /// Convert model to Firestore map (for registration)
   Map<String, dynamic> toMapForRegister() {
     return {
       "id": id ?? "",
@@ -43,15 +50,17 @@ class Staff {
       "sex": sex,
       "region": region,
       "status": status,
-      "schoolid": schoolId,
       "school": schoolname,
       "schoolId": schoolId,
+      "facultyId": facultyId,
+      "facultyName": facultyName,
       "departmentId": departmentId,
+      "departmentName": departmentName,
+      "classOrLevel": classOrLevel,
       "createdAt": Timestamp.fromDate(createdAt),
     };
   }
 
-  /// Convert model to Firestore map (for update)
   Map<String, dynamic> toMapForUpdate() {
     final Map<String, dynamic> data = {};
     void addIfNotEmpty(String key, String? value) {
@@ -68,19 +77,22 @@ class Staff {
     addIfNotEmpty("email", email);
     addIfNotEmpty("sex", sex);
     addIfNotEmpty("region", region);
-    addIfNotEmpty("schoolid", schoolId);
+    addIfNotEmpty("schoolId", schoolId);
     addIfNotEmpty("schoolname", schoolname);
+    addIfNotEmpty("facultyId", facultyId);
+    addIfNotEmpty("facultyName", facultyName);
     addIfNotEmpty("departmentId", departmentId);
+    addIfNotEmpty("departmentName", departmentName);
+    addIfNotEmpty("classOrLevel", classOrLevel);
 
     return data;
   }
 
-  /// Factory constructor for creating Staff from Firestore document
   factory Staff.fromMap(Map<String, dynamic> map, String id) {
     return Staff(
       id: id,
       name: map["name"] ?? "",
-        accessLevel: map["accessLevel"] ?? map["accesslevel"] ?? "",
+      accessLevel: map["accessLevel"] ?? map["accesslevel"] ?? "",
       teaching: map["teaching"] ?? "",
       phone: map["phone"] ?? "",
       email: map["email"] ?? "",
@@ -88,15 +100,18 @@ class Staff {
       region: map["region"] ?? "",
       status: map["status"] ?? "0",
       schoolId: map["schoolId"] ?? map["schoolid"] ?? "",
-        schoolname: map["schoolname"] ?? map["school"] ?? "",
+      schoolname: map["schoolname"] ?? map["school"] ?? "",
+      facultyId: map["facultyId"] ?? map["facultyid"] ?? "",
+      facultyName: map["facultyName"] ?? map["facultyname"] ?? "",
       departmentId: map["departmentId"] ?? map["departmentid"] ?? "",
+      departmentName: map["departmentName"] ?? map["departmentname"] ?? "",
+      classOrLevel: map["classOrLevel"] ?? map["classorlevel"] ?? "",
       createdAt: (map["createdAt"] is Timestamp)
           ? (map["createdAt"] as Timestamp).toDate()
           : (map["createdAt"] ?? DateTime.now()),
     );
   }
 
-  /// Convert Staff object to Firestore map
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -109,8 +124,12 @@ class Staff {
       'region': region,
       'status': status,
       'schoolId': schoolId,
-        'schoolname': schoolname,
+      'schoolname': schoolname,
+      'facultyId': facultyId,
+      'facultyName': facultyName,
       'departmentId': departmentId,
+      'departmentName': departmentName,
+      'classOrLevel': classOrLevel,
       'createdAt': Timestamp.fromDate(createdAt),
     };
   }
