@@ -141,6 +141,9 @@ class _SetupWizardPageState extends State<SetupWizardPage> {
         provider.fetchacademicyear(),
         provider.fetchIdFormats(),
         provider.fetchterms(),
+        provider.fetchclass(),
+        provider.fetchFaculty(),
+
       ]);
 
       await _fetchSchoolProfile();
@@ -152,58 +155,11 @@ class _SetupWizardPageState extends State<SetupWizardPage> {
           _period = _termEntries.first;
         }
       }
-      await _loadStructureEntries();
+
       await _loadAllocations();
     });
   }
 
-  Future<void> _loadStructureEntries() async {
-    final provider = context.read<Myprovider>();
-    final schoolId = provider.schoolid.trim();
-    if (schoolId.isEmpty) return;
-    final results = await Future.wait([
-      provider.db
-          .collection('faculties')
-          .where('schoolId', isEqualTo: schoolId)
-          .get(),
-      provider.db
-          .collection('department')
-          .where('schoolId', isEqualTo: schoolId)
-          .get(),
-      provider.db
-          .collection('classes')
-          .where('schoolId', isEqualTo: schoolId)
-          .get(),
-    ]);
-    if (!mounted) return;
-    setState(() {
-      _facultyEntries
-        ..clear()
-        ..addAll(results[0].docs.map((doc) => (doc.data())['name'].toString()));
-      _departmentEntries
-        ..clear()
-        ..addAll(results[1].docs.map((doc) => (doc.data())['name'].toString()));
-      _levelEntries
-        ..clear()
-        ..addAll(
-          results[2].docs
-              .where((doc) => (doc.data())['schoolType'] == _schoolType)
-              .map((doc) => (doc.data())['name'].toString()),
-        );
-      for (final doc in results[1].docs) {
-        final data = doc.data();
-        _departmentFaculties[data['name'].toString()] =
-            data['faculty']?.toString() ?? '';
-      }
-      for (final doc in results[2].docs) {
-        final data = doc.data();
-        if (data['schoolType'] == _schoolType) {
-          _groupDepartments[data['name'].toString()] =
-              data['department']?.toString() ?? '';
-        }
-      }
-    });
-  }
 
   Future<void> _loadAllocations() async {
     final provider = context.read<Myprovider>();
@@ -1100,6 +1056,108 @@ class _SetupWizardPageState extends State<SetupWizardPage> {
       ),
     );
     if (result != null && mounted) setState(() {});
+  }
+  Future<void> _registerLevel() async {
+    final result = await showDialog<ClassModel>(
+      context: context,
+      builder: (_) => Dialog(
+        child: SizedBox(width: 480, child: ClassScreen(embedded: true)),
+      ),
+    );
+    if (result != null && mounted) setState(() {});
+  }
+
+  Future<void> _editLevel(ClassModel level) async {
+    final result = await showDialog<ClassModel>(
+      context: context,
+      builder: (_) => Dialog(
+        child: SizedBox(
+          width: 480,
+          child: ClassScreen(
+            classes: level,
+            embedded: true,
+            onDeleted: () => setState(() {}),
+          ),
+        ),
+      ),
+    );
+    if (result != null && mounted) setState(() {});
+  }
+
+  Future<void> _confirmDeleteLevel(ClassModel level) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Delete $_groupLabel?'),
+        content: Text('Remove "${level.name}" from the registered ${_groupLabel.toLowerCase()}s?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    final provider = context.read<Myprovider>();
+    await provider.db.collection('classes').doc(level.id).delete();
+    provider.removeClass(level.id);
+    if (mounted) setState(() {});
+  }
+
+  Widget _levelPanel(ColorScheme scheme, Myprovider provider) {
+    final levels = provider.classdata; // real ClassModel list
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        border: Border.all(color: scheme.outlineVariant),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(child: Text(_groupLabel, style: const TextStyle(fontWeight: FontWeight.w700))),
+              OutlinedButton.icon(
+                onPressed: _locked ? null : _registerLevel,
+                icon: const Icon(Icons.add, size: 17),
+                label: const Text('Add'),
+              ),
+            ],
+          ),
+          if (levels.isEmpty)
+            Text('No $_groupLabel registered yet.',
+                style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12))
+          else
+            ...levels.map(
+                  (c) => ListTile(
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(Icons.check_circle_outline, color: scheme.primary, size: 18),
+                title: Text(c.name),
+                subtitle: c.department != null ? Text(c.department!) : null,
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      tooltip: 'Edit ${c.name}',
+                      icon: const Icon(Icons.edit_outlined),
+                      onPressed: _locked ? null : () => _editLevel(c),
+                    ),
+                    IconButton(
+                      tooltip: 'Delete ${c.name}',
+                      icon: const Icon(Icons.delete_outline, color: Colors.red),
+                      onPressed: _locked ? null : () => _confirmDeleteLevel(c),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
   }
 
   Future<void> _editClass(ClassModel cls) async {
@@ -2222,7 +2280,8 @@ class _SetupWizardPageState extends State<SetupWizardPage> {
         return _fields([
           _facultyPanel(scheme, provider),
           _departmentPanel(scheme, provider),
-          _classPanel(scheme, provider),
+         // _classPanel(scheme, provider),
+          _levelPanel(scheme, provider),
           TextFormField(),
           TextFormField(),
         ]);
